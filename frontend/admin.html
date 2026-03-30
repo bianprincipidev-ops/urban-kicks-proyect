@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Urban Kicks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>PANEL DE CONTROL</h1>
+    </header>
+
+    <div class="form-container">
+        <h3>Cargar Nueva Zapatilla</h3>
+        <form id="productForm">
+            <input type="text" id="name" placeholder="Nombre del Modelo" required>
+            <textarea id="description" placeholder="Descripción (talles, colores, etc.)" rows="4"></textarea>
+            <input type="number" id="price" placeholder="Precio ($)" required>
+            <input type="number" id="category_id" placeholder="ID de Categoría" required>
+
+            <label style="display:block; margin-top: 10px;">Foto del Producto:</label>
+            <input type="file" id="imagen" accept="image/*" required>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData  = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('price', document.getElementById('price').value);
+            formData.append('category_id', document.getElementById('category_id').value);
+            formData.append('imagen', document.getElementById('imagen').files[0]);
+
+            const res = await fetch('/api/productos/nuevos', {
+                method: 'POST',
+                body: formData
+            });
+
+            if(res.ok) {
+                alert("¡Zapatilla cargada con 'exito!");
+                window.location.href = 'index.html'; // Redirige a la página principal
+            } else {
+                alert("HUbo un error al subir el producto.");
+            }
+        });
+    </script>
+</body>
+</html>
