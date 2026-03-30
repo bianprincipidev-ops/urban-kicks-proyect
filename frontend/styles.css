@@ -1,0 +1,94 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1a1a1a; /* Gris muy oscuro */
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #000000;
+    padding: 2rem;
+    text-align: center;
+    border-bottom: 3px solid #ff4d4d; /* Un detalle en rojo 'Urban' */
+    margin-bottom: 30px;
+}
+
+h1 {
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* El contenedor de las zapatillas */
+.grid-productos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* La tarjeta de cada zapatilla */
+.card {
+    background-color: #ffffff;
+    color: #333;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 15px;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
+}
+
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover; /* Para que la foto no se deforme */
+}
+
+.card h3 {
+    padding: 15px 15px 5px 15px;
+    font-size: 1.3rem;
+}
+
+.card p {
+    padding: 0 15px;
+    color: #666;
+    font-size: 0.9rem;
+    flex-grow: 1; /* Empuja el precio hacia abajo */
+}
+
+.precio {
+    padding: 15px;
+    font-size: 1.5rem !important;
+    font-weight: bold;
+    color: #ff4d4d !important; /* Rojo para resaltar el precio */
+}
+
+/* Botón de comprar opcional */
+.btn-comprar {
+    margin: 0 15px;
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.btn-comprar:hover {
+    background-color: #ff4d4d;
+}
