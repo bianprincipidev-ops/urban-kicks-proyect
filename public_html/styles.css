@@ -1,0 +1,305 @@
+/* --- VARIABLES Y TEMAS --- */
+:root {
+    --bg-body: #ffffff;
+    --bg-header: #000000;
+    --bg-hero: #f4f4f4;
+    --bg-card: #f9f9f9;
+    --text-main: #1a1a1a;
+    --text-muted: #666666;
+    --border-color: #eeeeee;
+    --accent-red: #ff4d4d;
+    --success-green: #28a745;
+    --success-hover: #218838;
+}
+
+[data-theme="dark"] {
+    --bg-body: #0d0d0d;
+    --bg-header: #000000;
+    --bg-hero: #1a1a1a;
+    --bg-card: #151515;
+    --text-main: #ffffff;
+    --text-muted: #aaaaaa;
+    --border-color: #333333;
+}
+
+/* --- RESET --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    transition: all 0.3s ease;
+}
+
+/* --- BARRA DE PROMO SUPERIOR --- */
+.promo-bar {
+    background-color: var(--accent-red);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- HEADER CON LOGO --- */
+header {
+    background-color: #000;
+    padding: 10px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #ff4d4d;
+}
+
+.logo img {
+    height: 50px; /* Ajuste para el logo Urban Kicks */
+    width: auto;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.header-icons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.theme-toggle {
+    background: transparent;
+    border: 1px solid #444;
+    color: white;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+}
+
+/* --- SECCIÓN HERO (DINÁMICO) --- */
+.hero {
+    background-color: var(--bg-hero);
+    padding: 60px 5%;
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    transition: opacity 0.5s ease;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    max-width: 1200px;
+    width: 100%;
+    gap: 40px;
+}
+
+.hero-text {
+    flex: 1;
+}
+
+.hero-text h1 {
+    font-size: 3.5rem; 
+    text-transform: uppercase;
+    line-height: 1; 
+    margin-bottom: 20px;
+}
+
+.hero-text p {
+    font-size: 1.2rem;
+    margin: 20px 0;
+    color: var(--text-muted);
+}
+
+.hero-img img { 
+    flex: 1; 
+    text-align: center;
+}
+
+/* --- GRILLA DE PRODUCTOS (4 COLUMNAS) --- */
+.section-title {
+    text-align: center;
+    margin: 60px 0 30px;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.grid-productos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* FUERZA 4 COLUMNAS */
+    gap: 20px;
+    padding: 20px 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* --- TARJETA DE PRODUCTO --- */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.card img {
+    width: 100%;
+    height: 180px; /* Tamaño fijo para que no se descontrole */
+    object-fit: contain; /* Para que la zapa no se estire */
+    margin-bottom: 15px;
+    background: #f0f0f0; /* Fondo gris suave por si la imagen falla */
+}
+
+.card h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.precio {
+    color: #ff4d4d;
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.btn-comprar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-comprar:hover { background-color: var(--success-hover); }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1000px) { .grid-productos { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .grid-productos { grid-template-columns: 1fr; } .hero-content { flex-direction: column; } }
+
+/* --- FOOTER --- */
+footer {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 60px 5% 20px;
+    margin-top: 50px;
+    border-top: 3px solid var(--accent-red);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 40px;
+}
+
+.footer-column h3 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: var(--accent-red);
+}
+
+.footer-column p {
+    font-size: 0.9rem;
+    color: #bbbbbb;
+    line-height: 1.6;
+}
+
+.footer-column ul {
+    list-style: none;
+}
+
+.footer-column ul li {
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    color: #bbbbbb;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.footer-column ul li a:hover {
+    color: #ffffff;
+}
+
+.footer-logo {
+    height: 50px;
+    margin-bottom: 20px;
+}
+
+.footer-socials {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.footer-socials a {
+    color: white;
+    font-size: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.footer-socials a:hover {
+    transform: translateY(-3px);
+    color: var(--accent-red);
+}
+
+.payment-methods {
+    display: flex;
+    gap: 15px;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.copyright {
+    font-size: 0.75rem !important;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+/* Footer Responsive */
+@media (max-width: 850px) {
+    .footer-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .footer-socials, .payment-methods {
+        justify-content: center;
+    }
+}

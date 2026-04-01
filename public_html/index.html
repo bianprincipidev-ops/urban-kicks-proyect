@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Urban Kicks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>PANEL DE CONTROL</h1>
+        <nav style="margin-top: 10px;">
+            <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">← Volver a la Tienda</a>
+        </nav>
+    </header>
+
+    <div class="form-container">
+        <h3>Cargar Nueva Zapatilla</h3>
+        <form id="form-producto">
+            <input type="text" id="nombre" placeholder="Nombre (Ej: Vans Old Skool)" required>
+            <textarea id="descripcion" placeholder="Descripción del producto"></textarea>
+            <input type="number" id="precio" placeholder="Precio (Ej: 85000)" required>
+            <label style="display:block; margin-top:10px;">Foto del producto:</label>
+            <input type="file" id="imagen" accept="image/*" required>
+            <button type="submit" class="btn-cargar">SUBIR A LA TIENDA</button>
+        </form>
+    </div>
+
+    <div class="form-container">
+        <h3>Cargar Nueva Promo (Banner)</h3>
+        <form id="form-promo">
+            <input type="text" id="promo-title" placeholder="Título (Ej: 6 Cuotas Sin Interés)" required>
+            <textarea id="promo-subtitle" placeholder="Subtítulo (Ej: Con tarjetas bancarias)"></textarea>
+            <label style="display:block; margin-top:10px;">Imagen del Banner:</label>
+            <input type="file" id="promo-image" accept="image/*" required>
+            <button type="submit" class="btn-cargar">SUBIR PROMOCIÓN</button>
+        </form>
+    </div>
+
+    <script>
+        // --- LÓGICA PARA PRODUCTOS ---
+        document.getElementById('form-producto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(); // <--- SE CREA PRIMERO
+            formData.append('name', document.getElementById('nombre').value);
+            formData.append('description', document.getElementById('descripcion').value);
+            formData.append('price', document.getElementById('precio').value);
+            formData.append('imagen', document.getElementById('imagen').files[0]);
+
+            const res = await fetch('/api/productos/nuevo', { method: 'POST', body: formData });
+            if (res.ok) { alert("¡Zapatilla cargada!"); location.reload(); }
+        });
+
+        // --- LÓGICA PARA PROMOCIONES ---
+        document.getElementById('form-promo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(); 
+            formData.append('title', document.getElementById('promo-title').value);
+            formData.append('subtitle', document.getElementById('promo-subtitle').value);
+            formData.append('imagen', document.getElementById('promo-image').files[0]);
+
+            // CAMBIA 'nueva' por 'nuevo' (o lo que diga tu index.js)
+            const res = await fetch('/api/promociones/nuevo', { 
+                method: 'POST', 
+                body: formData 
+            });
+
+            if (res.ok) { 
+                alert("¡Promoción cargada!"); 
+                location.reload(); 
+            } else {
+                alert("Error: El servidor no encontró la ruta /nuevo");
+            }
+        });
+    </script>
+</body>
+</html>

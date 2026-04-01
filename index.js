@@ -3,88 +3,154 @@ const mysql = require('mysql2/promise');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
-const bcrypt = require('bcrypt'); // FALTA ESTE
-const jwt = require('jsonwebtoken'); // FALTA ESTE
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
 
 // --- CONFIGURACIONES ---
-
 app.use(express.json()); 
 
+// Conexión a la Base de Datos (Pool para mayor eficiencia)
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-const uploadDir = path.join(__dirname, 'frontend/uploads');
+// Carpetas Estáticas
+// public_html: donde están tus archivos .html, .css y .js front-end
+app.use(express.static(path.join(__dirname, 'public_html')));
+// uploads: donde se guardan las fotos de las zapatillas que cargues
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Crear carpeta de uploads si no existe (evita errores al subir archivos)
+const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+// Configuración de Multer (Manejo de archivos/imágenes)
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => { cb(null, uploadDir); },
-    filename: (req, file, cb) => { cb(null, Date.now() + '-' + file.originalname); }
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); 
+    },
+    filename: (req, file, cb) => {
+        // Le ponemos la fecha adelante para que no haya nombres repetidos
+        cb(null, Date.now() + '-' + file.originalname);
+    }
 });
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
 
-// --- RUTAS ---
+// --- RUTAS DE NAVEGACIÓN (Vistas) ---
 
-// Subir producto
+// Al entrar a localhost:3000 o urbankicks.com.ar
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public_html', 'index.html'));
+});
+
+// Al entrar a localhost:3000/tienda
+app.get('/tienda', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public_html', 'tienda.html'));
+});
+
+// --- RUTAS DE API (Datos) ---
+
+// 1. Obtener productos para mostrar en la grilla de la tienda
+app.get('/api/productos', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM products ORDER BY id DESC');
+        res.json(rows);
+    } catch (error) {
+        console.error("❌ Error en DB:", error);
+        res.status(500).json({ error: 'No se pudieron cargar los productos' });
+    }
+});
+
+// 2. Subir producto nuevo (desde tu panel de admin)
 app.post('/api/productos/nuevo', upload.single('imagen'), async (req, res) => {
     const { name, description, price, category_id } = req.body;
+    
+    if (!req.file) return res.status(400).json({ error: "Debes subir una imagen" });
+    
     const image_url = `/uploads/${req.file.filename}`;
     try {
         await pool.query(
             'INSERT INTO products (name, description, price, image_url, category_id) VALUES (?, ?, ?, ?, ?)',
             [name, description, price, image_url, category_id]
         );
-        res.json({ message: "Producto cargado con éxito", image: image_url });
+        res.json({ success: true, message: "Producto cargado con éxito", image: image_url });
     } catch (error) {
-        res.status(500).json({ error: "Error al guardar el producto" });
+        console.error(error);
+        res.status(500).json({ error: "Error al guardar el producto en la base de datos" });
     }
 });
 
-// Servir archivos estáticos
-app.use(express.static(path.join(__dirname, 'frontend')));
+// 3. Obtener promociones para el carrusel
+app.get('/api/promociones', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM promotions ORDER BY created_at DESC');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: "Error al traer promociones" });
+    }
+});
 
-// Login
+// 4. Guardar nueva promoción
+app.post('/api/promociones/nuevo', upload.single('imagen'), async (req, res) => {
+    try {
+        const { title, subtitle } = req.body;
+        const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+        await pool.query(
+            'INSERT INTO promotions (title, subtitle, image_url) VALUES (?, ?, ?)',
+            [title, subtitle, image_url]
+        );
+        
+        res.status(200).json({ message: "Promoción guardada correctamente" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error en el servidor al guardar promo" });
+    }
+});
+
+// 5. Login de Usuario/Admin
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const [users] = await pool.query('SELECT * FROM users WHERE email = ? ', [email]);
-        if (users.length === 0) return res.status(404).json({ error: "Usuario no encontrado." });
+        const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (users.length === 0) return res.status(404).json({ error: "Usuario no registrado." });
 
         const user = users[0];
         const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) return res.status(401).json({ error: "Contraseña incorrecta." });
+        if (!validPassword) return res.status(401).json({ error: "Credenciales inválidas." });
 
         const token = jwt.sign(
             { id: user.id, role: user.role },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'secret_key_temporal',
             { expiresIn: '24h' }
         );
-        res.json({ message: "Bienvenido", token, role: user.role });
+        res.json({ message: "Login exitoso", token, role: user.role });
     } catch (error) {
-        res.status(500).json({ error: "Error en el inicio de sesión." });
+        res.status(500).json({ error: "Error interno en el servidor." });
     }
 });
 
-// Obtener productos
-app.get('/api/productos', async (req, res) => {
-    try {
-        const [rows] = await pool.query('SELECT * FROM products');
-        res.json(rows);
-    } catch (error) {
-        console.error("Error en la base de datos:", error);
-        res.status(500).json({ error: 'No se pudieron cargar los productos' });
-    }
+// --- MANEJO DE ERRORES 404 ---
+app.use((req, res) => {
+    res.status(404).send("Lo sentimos, no encontramos lo que buscas.");
 });
 
+// --- INICIO DEL SERVIDOR ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Urban Kicks encendido en el puerto ${PORT}`);
+    console.log(`-------------------------------------------`);
+    console.log(`🚀 Urban Kicks encendido en: http://localhost:${PORT}`);
+    console.log(`📂 Archivos servidos desde: /public_html`);
+    console.log(`-------------------------------------------`);
 });
