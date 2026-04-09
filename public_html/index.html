@@ -3,76 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control - Urban Kicks</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Urban Kicks | Muy Pronto</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Arial Black', Gadget, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .container {
+            border: 2px solid #333;
+            padding: 50px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 4rem;
+            letter-spacing: -2px;
+            line-height: 0.9;
+            margin-bottom: 10px;
+        }
+
+        h1 span {
+            color: #ff4d4d; /* El rojo Urban Kicks */
+        }
+
+        p {
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            color: #888;
+            margin-top: 20px;
+        }
+
+        .line {
+            width: 100px;
+            height: 5px;
+            background-color: #ff4d4d;
+            margin: 20px auto;
+        }
+
+        /* Un pequeño detalle decorativo */
+        .bg-text {
+            position: absolute;
+            font-size: 15vw;
+            opacity: 0.05;
+            z-index: -1;
+            white-space: nowrap;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>PANEL DE CONTROL</h1>
-        <nav style="margin-top: 10px;">
-            <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">← Volver a la Tienda</a>
-        </nav>
-    </header>
 
-    <div class="form-container">
-        <h3>Cargar Nueva Zapatilla</h3>
-        <form id="form-producto">
-            <input type="text" id="nombre" placeholder="Nombre (Ej: Vans Old Skool)" required>
-            <textarea id="descripcion" placeholder="Descripción del producto"></textarea>
-            <input type="number" id="precio" placeholder="Precio (Ej: 85000)" required>
-            <label style="display:block; margin-top:10px;">Foto del producto:</label>
-            <input type="file" id="imagen" accept="image/*" required>
-            <button type="submit" class="btn-cargar">SUBIR A LA TIENDA</button>
-        </form>
+    <div class="bg-text">URBAN KICKS</div>
+
+    <div class="container">
+        <h1>URBAN<br><span>KICKS</span></h1>
+        <div class="line"></div>
+        <p>Próximamente</p>
     </div>
 
-    <div class="form-container">
-        <h3>Cargar Nueva Promo (Banner)</h3>
-        <form id="form-promo">
-            <input type="text" id="promo-title" placeholder="Título (Ej: 6 Cuotas Sin Interés)" required>
-            <textarea id="promo-subtitle" placeholder="Subtítulo (Ej: Con tarjetas bancarias)"></textarea>
-            <label style="display:block; margin-top:10px;">Imagen del Banner:</label>
-            <input type="file" id="promo-image" accept="image/*" required>
-            <button type="submit" class="btn-cargar">SUBIR PROMOCIÓN</button>
-        </form>
-    </div>
-
-    <script>
-        // --- LÓGICA PARA PRODUCTOS ---
-        document.getElementById('form-producto').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(); // <--- SE CREA PRIMERO
-            formData.append('name', document.getElementById('nombre').value);
-            formData.append('description', document.getElementById('descripcion').value);
-            formData.append('price', document.getElementById('precio').value);
-            formData.append('imagen', document.getElementById('imagen').files[0]);
-
-            const res = await fetch('/api/productos/nuevo', { method: 'POST', body: formData });
-            if (res.ok) { alert("¡Zapatilla cargada!"); location.reload(); }
-        });
-
-        // --- LÓGICA PARA PROMOCIONES ---
-        document.getElementById('form-promo').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(); 
-            formData.append('title', document.getElementById('promo-title').value);
-            formData.append('subtitle', document.getElementById('promo-subtitle').value);
-            formData.append('imagen', document.getElementById('promo-image').files[0]);
-
-            // CAMBIA 'nueva' por 'nuevo' (o lo que diga tu index.js)
-            const res = await fetch('/api/promociones/nuevo', { 
-                method: 'POST', 
-                body: formData 
-            });
-
-            if (res.ok) { 
-                alert("¡Promoción cargada!"); 
-                location.reload(); 
-            } else {
-                alert("Error: El servidor no encontró la ruta /nuevo");
-            }
-        });
-    </script>
 </body>
 </html>

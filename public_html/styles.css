@@ -303,3 +303,194 @@ footer {
         justify-content: center;
     }
 }
+
+/* --- LAYOUT DEL ADMINISTRADOR --- */
+.admin-body {
+    background-color: #f4f7f6;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- SIDEBAR (Menú Lateral) --- */
+.sidebar {
+    width: 260px;
+    background-color: #000;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-logo {
+    width: 150px;
+    margin-bottom: 40px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #888;
+    text-decoration: none;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    transition: 0.3s;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+    background-color: #ff4d4d;
+    color: white;
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+.admin-main {
+    flex: 1;
+    padding: 30px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px; /* Le damos un poco más de aire */
+    background-color: #000; /* Fondo negro sólido para que resalte el blanco */
+    border-radius: 10px; /* Para que haga juego con las tablas */
+    border-bottom: 2px solid #ff4d4d; /* Un detalle en rojo como en la tienda */
+}
+
+.admin-header h2 {
+    color: #ffffff !important; /* Blanco puro para el título principal */
+    font-weight: 700;
+    margin: 0;
+}
+
+.user-info {
+    color: #ffffff !important; /* Blanco para el texto de 'Administrador' */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.user-info i {
+    color: #ff4d4d; /* El ícono en rojo para que resalte */
+    font-size: 1.2rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* --- TABLAS ESTILO FIGMA --- */
+.admin-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    text-align: left;
+    padding: 15px;
+    font-size: 0.85rem;
+    color: #333;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.admin-table td {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    vertical-align: middle;
+}
+
+/* --- BOTONES --- */
+.btn-nuevo {
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-del {
+    background-color: #ffe5e5;
+    color: #ff4d4d;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-del:hover {
+    background-color: #ff4d4d;
+    color: white;
+}
+
+/* --- MODALES (Formularios flotantes) --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    width: 450px;
+    border-radius: 15px;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.modal-content input, .modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.btn-cargar {
+    width: 100%;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}

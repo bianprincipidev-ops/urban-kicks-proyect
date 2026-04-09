@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Urban Kicks</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="logo-urban.png" alt="Logo" class="admin-logo">
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active"><i class="ri-dashboard-line"></i> Dashboard</a>
+                <a href="#" onclick="mostrarSeccion('productos')"><i class="ri-shopping-bag-line"></i> Productos</a>
+                <a href="#" onclick="mostrarSeccion('promos')"><i class="ri-advertisement-line"></i> Promociones</a>
+                <a href="tienda.html"><i class="ri-store-line"></i> Ver Tienda</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h2>Gestión de Urban Kicks</h2>
+                <div class="user-info">Administrador <i class="ri-user-settings-line"></i></div>
+            </header>
+
+            <section id="sec-productos" class="admin-section">
+                <div class="section-header">
+                    <h3>Mis Productos</h3>
+                    <button class="btn-nuevo" onclick="abrirModal('modalProducto')">+ Agregar Producto</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Modelo</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-productos-admin">
+                        </tbody>
+                </table>
+            </section>
+
+            <section id="sec-promos" class="admin-section" style="display:none;">
+                <div class="section-header">
+                    <h3>Promociones Activas</h3>
+                    <button class="btn-nuevo" onclick="abrirModal('modalPromo')">+ Agregar Promo</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Subtítulo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-promos-admin">
+                        </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <div id="modalProducto" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalProducto')">&times;</span>
+            <h3>Nueva Zapatilla</h3>
+            <form id="productForm">
+                <input type="text" id="name" placeholder="Nombre del Modelo" required>
+                <textarea id="description" placeholder="Descripción" rows="3"></textarea>
+                <input type="number" id="price" placeholder="Precio ($)" required>
+                <input type="number" id="category_id" placeholder="ID Categoría (1-Zapas)" required>
+                <input type="file" id="imagen" accept="image/*" required>
+                <button type="submit" class="btn-cargar">SUBIR A LA TIENDA</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalPromo" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalPromo')">&times;</span>
+            <h3>Nueva Promoción</h3>
+            <form id="form-promo">
+                <input type="text" id="promo-title" placeholder="Título (Ej: 3 Cuotas sin interés)" required>
+                <textarea id="promo-subtitle" placeholder="Subtítulo"></textarea>
+                <input type="file" id="promo-image" accept="image/*" required>
+                <button type="submit" class="btn-cargar">SUBIR PROMOCIÓN</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGICA DE NAVEGACION ---
+        function mostrarSeccion(seccion) {
+            document.getElementById('sec-productos').style.display = seccion === 'productos' ? 'block' : 'none';
+            document.getElementById('sec-promos').style.display = seccion === 'promos' ? 'block' : 'none';
+        }
+
+        function abrirModal(id) { document.getElementById(id).style.display = "block"; }
+        function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
+
+        // --- CARGAR DATOS EN TABLAS ---
+        async function cargarTablas() {
+            // Cargar Productos
+            const resProd = await fetch('/api/productos');
+            const productos = await resProd.json();
+            const tbodyProd = document.getElementById('lista-productos-admin');
+            tbodyProd.innerHTML = productos.map(p => `
+                <tr>
+                    <td><img src="${p.image_url}" width="50"></td>
+                    <td>${p.name}</td>
+                    <td>$${p.price}</td>
+                    <td><button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
+                </tr>
+            `).join('');
+
+            // Cargar Promos
+            const resPromo = await fetch('/api/promociones');
+            const promos = await resPromo.json();
+            const tbodyPromo = document.getElementById('lista-promos-admin');
+            tbodyPromo.innerHTML = promos.map(p => `
+                <tr>
+                    <td>${p.title}</td>
+                    <td>${p.subtitle}</td>
+                    <td><button class="btn-del" onclick="eliminarItem('/api/promociones', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function eliminarItem(ruta, id) {
+            if(confirm("¿Estás seguro de eliminar este ítem?")) {
+                const res = await fetch(`${ruta}/${id}`, { method: 'DELETE' });
+                if(res.ok) {
+                    alert("Eliminado correctamente");
+                    cargarTablas();
+                }
+            }
+        }
+
+        // --- ENVÍO DE FORMULARIOS ---
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            // Mapeo manual si los IDs no coinciden con los nombres de la DB
+            const data = new FormData();
+            data.append('name', document.getElementById('name').value);
+            data.append('description', document.getElementById('description').value);
+            data.append('price', document.getElementById('price').value);
+            data.append('category_id', document.getElementById('category_id').value);
+            data.append('imagen', document.getElementById('imagen').files[0]);
+
+            const res = await fetch('/api/productos/nuevo', { method: 'POST', body: data });
+            if(res.ok) { alert("Producto cargado!"); location.reload(); }
+        });
+
+        document.getElementById('form-promo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = new FormData();
+            data.append('title', document.getElementById('promo-title').value);
+            data.append('subtitle', document.getElementById('promo-subtitle').value);
+            data.append('imagen', document.getElementById('promo-image').files[0]);
+
+            const res = await fetch('/api/promociones/nuevo', { method: 'POST', body: data });
+            if(res.ok) { alert("Promo cargada!"); location.reload(); }
+        });
+
+        window.onload = cargarTablas;
+    </script>
+</body>
+</html>
