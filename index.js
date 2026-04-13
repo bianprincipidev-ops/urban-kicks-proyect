@@ -5,7 +5,7 @@ const multer = require('multer');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
@@ -167,6 +167,69 @@ app.post('/api/registro', async (req, res) => {
     } catch (error) {
         console.error("❌ ERROR EN REGISTRO:", error); 
         res.status(500).json({ error: "El email ya existe o error en la base de datos." });
+    }
+});
+
+// RUTA PERFIL USUARIO
+app.get('/api/usuario/perfil', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: "No autorizado" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+        const [rows] = await pool.query(
+            'SELECT username, email, address, phone FROM users WHERE id = ?', 
+            [decoded.id]
+        );
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(401).json({ error: "Sesión inválida" });
+    }
+});
+
+// RUTA ACTUALIZAR PERFIL USUARIO
+app.post('/api/usuario/actualizar', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    const { username, address, phone } = req.body; // Ahora coincide con el HTML
+    
+    if (!token) return res.status(401).json({ error: "No autorizado" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+        await pool.query(
+            'UPDATE users SET username = ?, address = ?, phone = ? WHERE id = ?',
+            [username, address, phone, decoded.id]
+        );
+        res.json({ success: true, message: "Datos actualizados" });
+    } catch (error) {
+        console.error("Error al actualizar:", error);
+        res.status(500).json({ error: "Error al actualizar la base de datos" });
+    }
+});
+
+// NUEVA RUTA: SUBIR FOTO DE PERFIL (AVATAR)
+app.post('/api/usuario/upload-avatar', upload.single('avatar'), async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) return res.status(401).json({ error: "No autorizado" });
+    if (!req.file) return res.status(400).json({ error: "No se subió ninguna imagen" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+        
+        // Creamos la URL pública de la imagen
+        const avatarUrl = `/uploads/${req.file.filename}`;
+
+        // Guardamos la URL en la base de datos
+        await pool.query(
+            'UPDATE users SET avatar_url = ? WHERE id = ?',
+            [avatarUrl, decoded.id]
+        );
+
+        res.json({ success: true, avatarUrl });
+    } catch (error) {
+        console.error("❌ Error al subir avatar:", error);
+        res.status(500).json({ error: "Error interno del servidor al procesar la imagen" });
     }
 });
 

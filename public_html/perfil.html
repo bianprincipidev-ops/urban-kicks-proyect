@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Panel - Urban Kicks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <a href="#" class="sidebar-link active">👤 Mi Perfil</a>
+            <a href="#pedidos" class="sidebar-link">📦 Mis Pedidos</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <section class="section-card">
+                <h2 style="margin-bottom: 25px;">Configuración de la Cuenta</h2>
+                
+                <form id="formPerfil" class="form-grid">
+                    <div class="form-group-grande">
+                        <label>Nombre de Usuario</label>
+                        <input type="text" id="username" value="Jorge Principi">
+                    </div>
+                    <div class="form-group-grande">
+                        <label>Email</label>
+                        <input type="email" id="email" disabled>
+                    </div>
+                    <div class="form-group-grande full-width">
+                        <label>Dirección de Envío</label>
+                        <input type="text" id="address" placeholder="Ej: Av. Rivadavia 1234, CABA">
+                    </div>
+                    <div class="form-group-grande">
+                        <label>Teléfono</label>
+                        <input type="text" id="phone">
+                    </div>
+                    <div class="form-group-grande" style="display: flex; align-items: flex-end;">
+                        <button type="submit" class="btn-guardar-grande">Actualizar Perfil</button>
+                    </div>
+                </form>
+                <div id="mensaje"></div>
+            </section>
+
+            <section class="section-card" id="pedidos">
+                <h2 style="margin-bottom: 20px;">Historial de Compras</h2>
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Pedido ID</th>
+                            <th>Fecha</th>
+                            <th>Producto</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-pedidos">
+                        <tr>
+                            <td>#UK-9821</td>
+                            <td>12 Abr 2026</td>
+                            <td>Jordan 4 Retro "Military Black"</td>
+                            <td>$450.000</td>
+                            <td><span class="status-pill status-shipped">Enviado</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+
+        // 1. Seguridad: Si no hay token, al index
+        // if (!token) {
+        //     window.location.href = 'index.html';
+        // }
+
+        // 2. Cargar datos del perfil y pedidos al iniciar
+        async function inicializarDashboard() {
+            try {
+                // --- Cargar Datos del Usuario ---
+                const resUser = await fetch('/api/usuario/perfil', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (resUser.status === 401 || resUser.status === 403) return logout();
+                
+                const user = await resUser.json();
+                if (resUser.ok) {
+                    document.getElementById('username').value = user.username || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('address').value = user.address || '';
+                    document.getElementById('phone').value = user.phone || '';
+                }
+
+                // --- Cargar Historial de Pedidos ---
+                cargarPedidosSimulados(); // Por ahora simulados, hasta que tengas la tabla de compras
+
+            } catch (err) {
+                console.error("Error al cargar el dashboard:", err);
+            }
+        }
+
+        // 3. Función para actualizar datos personales
+        document.getElementById('formPerfil').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('mensaje');
+            
+            const updatedData = {
+                username: document.getElementById('username').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                const res = await fetch('/api/usuario/actualizar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Datos actualizados!</p>`;
+                } else {
+                    msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error al guardar.</p>`;
+                }
+            } catch (error) {
+                msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error de conexión.</p>`;
+            }
+        });
+
+        // 4. Simulación de pedidos (para que no se vea vacío)
+        function cargarPedidosSimulados() {
+            const lista = document.getElementById('lista-pedidos');
+            // Esto es lo que vería el usuario. Más adelante lo traeremos de la base de datos.
+            const pedidos = [
+                { id: '#UK-7721', fecha: '10/04/2026', producto: 'Jordan 1 Retro High', total: '$420.000', estado: 'Enviado' },
+                { id: '#UK-7610', fecha: '28/03/2026', producto: 'Nike Dunk Low Panda', total: '$210.000', estado: 'Entregado' }
+            ];
+
+            lista.innerHTML = pedidos.map(p => `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.fecha}</td>
+                    <td>${p.producto}</td>
+                    <td>${p.total}</td>
+                    <td><span class="status-pill shipped">${p.estado}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // 5. Cerrar Sesión
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // Arrancar todo
+        inicializarDashboard();
+    </script>
+</body>
+</html>

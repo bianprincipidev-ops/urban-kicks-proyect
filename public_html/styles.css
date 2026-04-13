@@ -800,3 +800,217 @@ footer {
     font-size: 0.85rem;
     text-align: center;
 }
+
+/* =========================================
+   DASHBOARD DE USUARIO (FULL WIDTH & INTERACTIVO)
+   ========================================= */
+
+/* Contenedor principal: Ocupa todo el ancho */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    padding-top: 80px; /* Ajustá esto según la altura de tu navbar */
+}
+
+/* --- SIDEBAR (Menú Lateral) --- */
+.sidebar {
+    width: 300px;
+    background: #000; /* Negro Urban Kicks */
+    color: white;
+    padding: 40px 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+}
+
+.sidebar-header {
+    padding: 0 30px 30px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.sidebar-link {
+    padding: 18px 30px;
+    color: #bbb;
+    text-decoration: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+    background: #1a1a1a;
+    color: #fff;
+    border-left: 4px solid #ff4d4d; /* Rojo Urban */
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+.main-content {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Secciones (Cards) */
+.section-card {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.section-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #f4f4f4;
+    padding-bottom: 15px;
+}
+
+/* --- GRILLA DEL FORMULARIO (Como tu imagen de referencia) --- */
+.perfil-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas en PC */
+    gap: 25px;
+}
+
+.full-width {
+    grid-column: span 2; /* Ocupa las dos columnas */
+}
+
+.form-group-grande {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group-grande label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #666;
+}
+
+.form-group-grande input {
+    padding: 15px 20px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.form-group-grande input:focus {
+    border-color: #000;
+    outline: none;
+}
+
+.form-group-grande input:disabled {
+    background: #f9f9f9;
+    color: #999;
+}
+
+/* --- TABLA DE PEDIDOS (Historial) --- */
+.table-container {
+    overflow-x: auto;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.orders-table th {
+    text-align: left;
+    padding: 15px;
+    background: #f9f9f9;
+    color: #888;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.orders-table td {
+    padding: 20px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+}
+
+.status-pill {
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.shipped { background: #e7f9ee; color: #28a745; }
+.pending { background: #fff4e5; color: #ff9800; }
+
+/* Botón de acción */
+.btn-guardar-grande {
+    grid-column: span 2;
+    padding: 20px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.btn-guardar-grande:hover { background: #333; }
+
+/* --- RESPONSIVE (Celulares) --- */
+@media screen and (max-width: 992px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px 0;
+    }
+
+    .sidebar-header { display: none; }
+
+    .sidebar-link {
+        padding: 15px 20px;
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 4px solid transparent;
+    }
+
+    .sidebar-link:hover, .sidebar-link.active {
+        border-left: none;
+        border-bottom: 4px solid #ff4d4d;
+    }
+
+    .perfil-form-grid {
+        grid-template-columns: 1fr; /* Una sola columna en móvil */
+    }
+
+    .full-width, .btn-guardar-grande {
+        grid-column: span 1;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+}
