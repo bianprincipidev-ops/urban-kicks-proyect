@@ -141,6 +141,7 @@ app.post('/api/login', async (req, res) => {
         const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '24h' });
         res.json({ message: "Login exitoso", token, role: user.role });
     } catch (error) {
+        console.error("❌ Error en Login:", error);
         res.status(500).json({ error: "Error interno." });
     }
 });
@@ -149,7 +150,6 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/registro', async (req, res) => {
     const { name, email, password } = req.body;
     
-    // Validación básica para evitar el error 500
     if (!email || !password) {
         return res.status(400).json({ error: "Email y contraseña son obligatorios" });
     }
@@ -157,15 +157,15 @@ app.post('/api/registro', async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // El 'user' va entre comillas porque es un texto fijo para el rol
+        // CORRECCIÓN: Usamos 'username' que es el nombre de tu columna en MySQL
         await pool.query(
-            'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+            'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
             [name || 'Nuevo Usuario', email, hashedPassword, 'user']
         );
         
         res.json({ success: true, message: "Usuario creado" });
     } catch (error) {
-        console.error("❌ ERROR EN REGISTRO:", error); // Esto lo ves en la terminal de VS Code
+        console.error("❌ ERROR EN REGISTRO:", error); 
         res.status(500).json({ error: "El email ya existe o error en la base de datos." });
     }
 });
