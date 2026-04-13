@@ -494,3 +494,309 @@ footer {
     cursor: pointer;
     margin-top: 10px;
 }
+
+/* DISEÑO DE DETALLE (FIGMA STYLE) */
+.product-detail-container {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    padding: 100px 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+    /* Agregamos esto para que el contenedor use el color del tema */
+    background-color: var(--bg-color); 
+    color: var(--text-color);
+}
+
+.product-image img {
+    max-width: 500px;
+    border-radius: 20px;
+    /* Usamos la variable de fondo de tarjeta o de fondo general */
+    background-color: var(--card-bg, #f4f4f4); 
+}
+
+.product-info {
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.product-price {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff4d4d; /* El rojo se mantiene igual en ambos temas */
+    margin: 15px 0;
+}
+
+.size-options {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0 30px;
+}
+
+.size-btn {
+    padding: 10px 15px;
+    /* Ajustamos para que el borde y el fondo cambien */
+    border: 1px solid var(--text-color); 
+    background: var(--bg-color);
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-add-to-cart {
+    padding: 18px;
+    background-color: #ff4d4d; /* Rojo fijo siempre */
+    color: white;             /* Texto siempre blanco para que resalte */
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 5px;       /* Un pequeño redondeo para que quede pro */
+}
+
+.btn-add-to-cart:hover {
+    background-color: #e64444; /* Un rojo un toque más oscuro al pasar el mouse */
+    transform: translateY(-2px); /* Pequeño efecto de levantamiento */
+}
+
+/* --- DISEÑO DEL CARRITO --- */
+.cart-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 40px 5%;
+    min-height: 60vh;
+}
+
+.cart-container h1 {
+    font-size: 2rem;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--accent-red);
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+#cart-items {
+    margin-bottom: 40px;
+}
+
+/* Fila de cada producto en el carrito */
+.cart-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin-bottom: 15px;
+    transition: transform 0.2s;
+}
+
+.cart-item:hover {
+    transform: scale(1.01);
+}
+
+.cart-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    background: #f0f0f0;
+    border-radius: 8px;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-info h4 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.cart-item-info p {
+    color: var(--accent-red);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.btn-remove {
+    background: transparent;
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.3s;
+}
+
+.btn-remove:hover {
+    background: #ff4d4d;
+    color: white;
+}
+
+/* Resumen del total y botones de acción */
+.cart-summary {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: right;
+    border: 1px solid var(--border-color);
+}
+
+.cart-summary h3 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.cart-summary span {
+    color: var(--accent-red);
+    font-size: 1.8rem;
+}
+
+.cart-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.btn-checkout {
+    background-color: var(--accent-red);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-checkout:hover {
+    background-color: #e64444;
+    transform: translateY(-2px);
+}
+
+.btn-continue {
+    background-color: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--text-main);
+    padding: 15px 30px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-continue:hover {
+    background-color: var(--text-main);
+    color: var(--bg-body);
+}
+
+/* Responsivo para el carrito */
+@media (max-width: 600px) {
+    .cart-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    .cart-buttons {
+        flex-direction: column;
+    }
+    .btn-checkout, .btn-continue {
+        width: 100%;
+    }
+}
+
+/* --- ESTILOS LOGIN / REGISTRO --- */
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-hero);
+}
+
+.auth-container {
+    display: flex;
+    background: var(--bg-body);
+    width: 900px;
+    max-width: 95%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.auth-image {
+    flex: 1;
+    background-color: #333; /* Fondo oscuro tras la imagen */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-image img {
+    width: 80%;
+    transform: rotate(-15deg); /* Efecto dinámico si usás la zapa suelta */
+}
+
+.auth-form-box {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-form-box h2 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-main);
+}
+
+.btn-auth {
+    width: 100%;
+    padding: 15px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-auth:hover {
+    background-color: var(--accent-red);
+}
+
+.auth-switch {
+    margin-top: 20px;
+    font-size: 0.85rem;
+    text-align: center;
+}

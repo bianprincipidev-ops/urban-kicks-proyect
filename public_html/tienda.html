@@ -23,7 +23,7 @@
                 <i id="theme-icon" class="ri-moon-line"></i>
             </button>
             <a href="#"><i class="ri-user-line"></i></a>
-            <a href="#"><i class="ri-shopping-cart-line"></i></a>
+            <a href="carrito.html"><i class="ri-shopping-cart-line"></i></a>
         </div>
     </header>
 
@@ -132,7 +132,9 @@
                             <h3>${prod.name}</h3>
                             <p>${prod.description}</p>
                             <span class="precio">$${Number(prod.price).toLocaleString('es-AR')}</span>
-                            <button class="btn-comprar">Comprar</button>
+                            <a href="detalle.html?id=${prod.id}" class="btn-comprar" style="text-decoration:none; display:inline-block; text-align:center;">
+                                Ver Detalle
+                            </a>
                         </div>
                     `;
                 });

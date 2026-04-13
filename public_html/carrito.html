@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Carrito | Urban Kicks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo"><img src="logo-urban.png" alt="Logo"></div>
+        <nav><a href="tienda.html">← Seguir Comprando</a></nav>
+    </header>
+
+    <main class="cart-container">
+        <h1>Tu Carrito</h1>
+        <div id="cart-items">
+            </div>
+
+        <div class="cart-summary">
+            <h3>Total: <span id="cart-total">$0</span></h3>
+            <button class="btn-checkout" onclick="finalizarCompra()">FINALIZAR COMPRA</button>
+            <button class="btn-continue" onclick="window.location.href='tienda.html'">SEGUIR COMPRANDO</button>
+        </div>
+    </main>
+
+    <script>
+        window.onload = () => {
+            // Aplicar tema oscuro si estaba activado
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            renderizarCarrito();
+        };
+
+        function renderizarCarrito() {
+            const lista = JSON.parse(localStorage.getItem('urban_cart')) || [];
+            const contenedor = document.getElementById('cart-items');
+            let total = 0;
+
+            if (lista.length === 0) {
+                contenedor.innerHTML = "<p style='text-align:center;'>Tu carrito está vacío.</p>";
+                document.getElementById('cart-total').innerText = "$0";
+                return;
+            }
+
+            contenedor.innerHTML = "";
+            lista.forEach((item, index) => {
+                total += Number(item.price);
+                contenedor.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-info">
+                            <h4>${item.name}</h4>
+                            <p>$${Number(item.price).toLocaleString('es-AR')}</p>
+                        </div>
+                        <button class="btn-remove" onclick="eliminarDelCarrito(${index})">Eliminar</button>
+                    </div>
+                `;
+            });
+            document.getElementById('cart-total').innerText = `$${total.toLocaleString('es-AR')}`;
+        }
+
+        function eliminarDelCarrito(index) {
+            let carrito = JSON.parse(localStorage.getItem('urban_cart'));
+            carrito.splice(index, 1);
+            localStorage.setItem('urban_cart', JSON.stringify(carrito));
+            renderizarCarrito();
+        }
+
+        function finalizarCompra() {
+            // 1. EL NÚMERO DE TELÉFONO (Cambiá el '123456789' por el de tu tía después)
+            // Importante: Sin el +, solo el código de país y el número (Ej: 5493581234567)
+            const numeroTelefono = "123456789"; 
+
+            const carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+            if (carrito.length === 0) return alert("El carrito está vacío");
+
+            // 2. Armar el mensaje de texto para WhatsApp
+            let mensaje = "¡Hola Urban Kicks! 👋 Quisiera realizar el siguiente pedido:\n\n";
+            let total = 0;
+
+            carrito.forEach((item, index) => {
+                mensaje += `👟 *${item.name}*\n   Precio: $${Number(item.price).toLocaleString('es-AR')}\n\n`;
+                total += Number(item.price);
+            });
+
+            mensaje += `*TOTAL: $${total.toLocaleString('es-AR')}*`;
+
+            // 3. Codificar el mensaje para la URL
+            const mensajeCodificado = encodeURIComponent(mensaje);
+            
+            // 4. Crear el enlace de WhatsApp
+            const urlWhatsapp = `https://wa.me/${numeroTelefono}?text=${mensajeCodificado}`;
+
+            // 5. Redirigir al cliente
+            window.open(urlWhatsapp, '_blank');
+        }
+    </script>
+</body>
+</html>

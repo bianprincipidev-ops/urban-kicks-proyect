@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | Urban Kicks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-image">
+            <img src="vans-hero.png" alt="Urban Kicks">
+        </div>
+        
+        <div class="auth-form-box">
+            <h2>CREAR USUARIO</h2>
+            <form id="registroForm">
+                <div class="input-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="name" placeholder="Tu nombre" required>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="ejemplo@mail.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="password" placeholder="********" required>
+                </div>
+                <div class="input-group">
+                    <label>Confirmar Contraseña</label>
+                    <input type="password" id="confirmPassword" placeholder="********" required>
+                </div>
+                <button type="submit" class="btn-auth">CREAR CUENTA</button>
+            </form>
+            <p class="auth-switch">¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Usamos window.onload para estar seguros de que el HTML cargó
+        window.onload = () => {
+            const form = document.getElementById('registroForm');
+
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Validación simple de contraseñas
+                if (password !== confirmPassword) {
+                    return alert("Las contraseñas no coinciden");
+                }
+
+                try {
+                    const res = await fetch('/api/registro', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, password })
+                    });
+
+                    const data = await res.json();
+                    
+                    if (res.ok) {
+                        alert("¡Cuenta creada! Ya podés iniciar sesión.");
+                        window.location.href = 'login.html';
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                } catch (error) {
+                    console.error("Error en la conexión:", error);
+                    alert("No se pudo conectar con el servidor.");
+                }
+            };
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Producto | Urban Kicks</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="logo-urban.png" alt="Urban Kicks Logo">
+        </div>
+        <nav class="nav-links">
+            <a href="tienda.html">← Volver a la Tienda</a>
+        </nav>
+    </header>
+
+    <main class="product-detail-container">
+        <div class="product-image">
+            <img id="img-producto" src="" alt="Cargando...">
+        </div>
+        
+        <div class="product-info">
+            <h1 id="nombre-producto">Cargando...</h1>
+            <span class="product-price" id="precio-producto">$0.00</span>
+            <p class="product-description" id="descripcion-producto"></p>
+            
+            <div class="size-selector">
+                <span>Seleccionar Talle:</span>
+                <div class="size-options">
+                    <button class="size-btn">38</button>
+                    <button class="size-btn">39</button>
+                    <button class="size-btn">40</button>
+                    <button class="size-btn">41</button>
+                </div>
+            </div>
+
+            <button class="btn-add-to-cart" onclick="agregarAlCarrito()">AÑADIR AL CARRITO</button>
+        </div>
+    </main>
+
+    <script>
+        let productoActual = null;
+
+            window.onload = async () => {
+                // --- ESTO ES LO QUE TE FALTA: APLICAR EL TEMA ---
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                // -----------------------------------------------
+
+                const params = new URLSearchParams(window.location.search);
+                const id = params.get('id');
+                if (!id) return window.location.href = 'tienda.html';
+
+                try {
+                    const res = await fetch(`/api/productos/${id}`);
+                    const prod = await res.json();
+                    
+                    if (res.ok) {
+                        productoActual = prod;
+                        document.getElementById('nombre-producto').innerText = prod.name;
+                        document.getElementById('precio-producto').innerText = `$${Number(prod.price).toLocaleString('es-AR')}`;
+                        document.getElementById('img-producto').src = prod.image_url;
+                        document.getElementById('descripcion-producto').innerText = prod.description || 'Sin descripción.';
+                    }
+                } catch (e) { console.error(e); }
+            };
+
+        function agregarAlCarrito() {
+                if (!productoActual) return;
+
+                // 1. Obtener lo que ya hay en el carrito o crear un array vacío
+                let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+                
+                // 2. Empujar el nuevo producto al array
+                carrito.push({
+                    id: productoActual.id,
+                    name: productoActual.name,
+                    price: productoActual.price,
+                    image: productoActual.image_url,
+                    cantidad: 1
+                });
+
+                // 3. Guardar el carrito actualizado en la memoria (localStorage)
+                localStorage.setItem('urban_cart', JSON.stringify(carrito));
+                
+                // 4. LLEVAR AL CLIENTE AL CARRITO AUTOMÁTICAMENTE
+                window.location.href = 'carrito.html';
+            }
+    </script>
+</body>
+</html>

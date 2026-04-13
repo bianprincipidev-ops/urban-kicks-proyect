@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Urban Kicks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-image">
+            <img src="vans-hero.png" alt="Urban Kicks">
+        </div>
+        
+        <div class="auth-form-box">
+            <h2>BIENVENIDO DE NUEVO!</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="ejemplo@mail.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="password" placeholder="********" required>
+                </div>
+                <button type="submit" class="btn-auth">INGRESAR</button>
+            </form>
+            <p class="auth-switch">¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem('urban_token', data.token);
+                localStorage.setItem('user_role', data.role);
+                alert("¡Bienvenido!");
+                window.location.href = data.role === 'admin' ? 'admin.html' : 'tienda.html';
+            } else {
+                alert(data.error);
+            }
+        };
+    </script>
+</body>
+</html>
