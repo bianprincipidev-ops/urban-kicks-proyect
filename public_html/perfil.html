@@ -2,28 +2,65 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Panel - Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
+
+    <header>
+        <div class="logo">
+            <a href="tienda.html">
+                <img src="logo-urban.png" alt="Urban Kicks Logo">
+            </a>
+        </div>
+        <div class="header-icons">
+            <a href="tienda.html" title="Volver a la tienda"><i class="ri-store-2-line"></i></a>
+            <i class="ri-moon-line" title="Cambiar modo"></i>
+            <a href="carrito.html"><i class="ri-shopping-cart-line"></i></a>
+        </div>
+    </header>
+
     <div class="dashboard-container">
         <aside class="sidebar">
-            <a href="#" class="sidebar-link active">👤 Mi Perfil</a>
-            <a href="#pedidos" class="sidebar-link">📦 Mis Pedidos</a>
+            <div class="user-avatar-side">
+                <div class="avatar-circle" id="user-initial">U</div>
+                <div class="sidebar-header">
+                    <h3 id="display-username">Cargando...</h3>
+                    <p>Cliente VIP</p>
+                </div>
+            </div>
+            
+            <nav>
+                <a href="#" class="sidebar-link active">
+                    <i class="ri-user-settings-line"></i> <span>Mi Perfil</span>
+                </a>
+                <a href="#pedidos" class="sidebar-link">
+                    <i class="ri-shopping-bag-line"></i> <span>Mis Pedidos</span>
+                </a>
+                <a href="tienda.html" class="sidebar-link">
+                    <i class="ri-arrow-left-line"></i> <span>Volver a Tienda</span>
+                </a>
+            </nav>
+
+            <a href="#" onclick="logout()" class="sidebar-link" style="margin-top: auto; border-top: 1px solid #222; color: #ff4d4d;">
+                <i class="ri-logout-box-r-line"></i> <span>Cerrar Sesión</span>
+            </a>
         </aside>
 
         <main class="main-content">
             
             <section class="section-card">
-                <h2 style="margin-bottom: 25px;">Configuración de la Cuenta</h2>
+                <h2><i class="ri-settings-3-line"></i> Configuración de la Cuenta</h2>
                 
-                <form id="formPerfil" class="form-grid">
+                <form id="formPerfil" class="perfil-form-grid">
                     <div class="form-group-grande">
                         <label>Nombre de Usuario</label>
-                        <input type="text" id="username" value="Jorge Principi">
+                        <input type="text" id="username" placeholder="Tu nombre">
                     </div>
                     <div class="form-group-grande">
-                        <label>Email</label>
+                        <label>Email (No editable)</label>
                         <input type="email" id="email" disabled>
                     </div>
                     <div class="form-group-grande full-width">
@@ -32,7 +69,7 @@
                     </div>
                     <div class="form-group-grande">
                         <label>Teléfono</label>
-                        <input type="text" id="phone">
+                        <input type="text" id="phone" placeholder="Tu número">
                     </div>
                     <div class="form-group-grande" style="display: flex; align-items: flex-end;">
                         <button type="submit" class="btn-guardar-grande">Actualizar Perfil</button>
@@ -42,71 +79,115 @@
             </section>
 
             <section class="section-card" id="pedidos">
-                <h2 style="margin-bottom: 20px;">Historial de Compras</h2>
-                <table class="orders-table">
-                    <thead>
-                        <tr>
-                            <th>Pedido ID</th>
-                            <th>Fecha</th>
-                            <th>Producto</th>
-                            <th>Total</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-pedidos">
-                        <tr>
-                            <td>#UK-9821</td>
-                            <td>12 Abr 2026</td>
-                            <td>Jordan 4 Retro "Military Black"</td>
-                            <td>$450.000</td>
-                            <td><span class="status-pill status-shipped">Enviado</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h2><i class="ri-history-line"></i> Historial de Compras</h2>
+                <div class="table-container">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Pedido ID</th>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-pedidos">
+                            </tbody>
+                    </table>
+                </div>
             </section>
 
         </main>
     </div>
 
-    <script>
+<script>
         const token = localStorage.getItem('token');
 
-        // 1. Seguridad: Si no hay token, al index
-        // if (!token) {
-        //     window.location.href = 'index.html';
-        // }
+        // --- 1. LÓGICA DE MODO OSCURO (Sincronizado con Tienda) ---
+        function aplicarTema() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Buscamos el icono (puede ser ri-moon o ri-sun)
+            const icon = document.querySelector('.header-icons i:nth-child(2)'); 
+            if (icon) {
+                icon.className = savedTheme === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
+            }
+        }
 
-        // 2. Cargar datos del perfil y pedidos al iniciar
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            aplicarTema();
+        }
+
+        // Configuración inicial
+        document.addEventListener('DOMContentLoaded', () => {
+            aplicarTema();
+            const themeIcon = document.querySelector('.header-icons i:nth-child(2)');
+            if (themeIcon) {
+                themeIcon.style.cursor = 'pointer';
+                themeIcon.onclick = toggleTheme;
+            }
+        });
+
+
+        // --- 2. CARGAR DATOS DEL PERFIL ---
         async function inicializarDashboard() {
             try {
-                // --- Cargar Datos del Usuario ---
+                if (!token) {
+                    console.warn("Aviso: No se detectó token. Cargando modo vista previa.");
+                    document.getElementById('display-username').innerText = "Invitado";
+                    document.getElementById('user-initial').innerText = "I";
+                    cargarPedidosSimulados();
+                    return; 
+                }
+
                 const resUser = await fetch('/api/usuario/perfil', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
-                if (resUser.status === 401 || resUser.status === 403) return logout();
+                if (resUser.status === 401 || resUser.status === 403) {
+                    console.error("Sesión expirada.");
+                    cargarPedidosSimulados();
+                    return;
+                }
                 
                 const user = await resUser.json();
                 if (resUser.ok) {
+                    // Llenar Formulario
                     document.getElementById('username').value = user.username || '';
                     document.getElementById('email').value = user.email || '';
                     document.getElementById('address').value = user.address || '';
                     document.getElementById('phone').value = user.phone || '';
+
+                    // Actualizar Sidebar Dinámica
+                    const nombreUser = user.username || 'Usuario';
+                    document.getElementById('display-username').innerText = nombreUser;
+                    document.getElementById('user-initial').innerText = nombreUser.charAt(0).toUpperCase();
                 }
 
-                // --- Cargar Historial de Pedidos ---
-                cargarPedidosSimulados(); // Por ahora simulados, hasta que tengas la tabla de compras
+                cargarPedidosSimulados();
 
             } catch (err) {
                 console.error("Error al cargar el dashboard:", err);
+                cargarPedidosSimulados();
             }
         }
 
-        // 3. Función para actualizar datos personales
+        // --- 3. ACTUALIZAR DATOS PERSONALES ---
         document.getElementById('formPerfil').addEventListener('submit', async (e) => {
             e.preventDefault();
             const msg = document.getElementById('mensaje');
             
+            if (!token) {
+                msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">⚠️ Debes estar logueado para guardar cambios.</p>`;
+                return;
+            }
+
             const updatedData = {
                 username: document.getElementById('username').value,
                 address: document.getElementById('address').value,
@@ -126,6 +207,9 @@
                 const result = await res.json();
                 if (result.success) {
                     msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Datos actualizados!</p>`;
+                    // Actualizar nombre en la sidebar en tiempo real
+                    document.getElementById('display-username').innerText = updatedData.username;
+                    document.getElementById('user-initial').innerText = updatedData.username.charAt(0).toUpperCase();
                 } else {
                     msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error al guardar.</p>`;
                 }
@@ -134,18 +218,17 @@
             }
         });
 
-        // 4. Simulación de pedidos (para que no se vea vacío)
+        // --- 4. SIMULACIÓN DE PEDIDOS ---
         function cargarPedidosSimulados() {
             const lista = document.getElementById('lista-pedidos');
-            // Esto es lo que vería el usuario. Más adelante lo traeremos de la base de datos.
             const pedidos = [
-                { id: '#UK-7721', fecha: '10/04/2026', producto: 'Jordan 1 Retro High', total: '$420.000', estado: 'Enviado' },
+                { id: '#UK-7721', fecha: '14/04/2026', producto: 'Jordan 1 Retro High', total: '$420.000', estado: 'Enviado' },
                 { id: '#UK-7610', fecha: '28/03/2026', producto: 'Nike Dunk Low Panda', total: '$210.000', estado: 'Entregado' }
             ];
 
             lista.innerHTML = pedidos.map(p => `
                 <tr>
-                    <td>${p.id}</td>
+                    <td><strong>${p.id}</strong></td>
                     <td>${p.fecha}</td>
                     <td>${p.producto}</td>
                     <td>${p.total}</td>
@@ -154,13 +237,15 @@
             `).join('');
         }
 
-        // 5. Cerrar Sesión
+        // --- 5. CERRAR SESIÓN ---
         function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
+            if(confirm("¿Estás seguro de que quieres cerrar sesión?")) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
         }
 
-        // Arrancar todo
+        // Inicializar al cargar
         inicializarDashboard();
     </script>
 </body>
