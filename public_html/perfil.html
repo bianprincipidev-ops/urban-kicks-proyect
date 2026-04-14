@@ -6,6 +6,62 @@
     <title>Mi Panel - Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        /* Estilos adicionales para la foto y seguridad */
+        .avatar-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            cursor: pointer;
+        }
+        .avatar-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--urban-red);
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .edit-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #ff4d4d;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            border: 2px solid #000;
+        }
+        .seguridad-seccion {
+            grid-column: span 2;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #ddd;
+        }
+        .seguridad-seccion h3 {
+            font-size: 0.9rem;
+            color: #ff4d4d;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+    </style>
 </head>
 <body>
 
@@ -25,7 +81,12 @@
     <div class="dashboard-container">
         <aside class="sidebar">
             <div class="user-avatar-side">
-                <div class="avatar-circle" id="user-initial">U</div>
+                <div class="avatar-wrapper" onclick="document.getElementById('fileInput').click()">
+                    <div class="avatar-circle" id="user-initial">U</div>
+                    <div class="edit-overlay"><i class="ri-camera-line"></i></div>
+                </div>
+                <input type="file" id="fileInput" style="display:none" accept="image/*" onchange="previewFoto(this)">
+                
                 <div class="sidebar-header">
                     <h3 id="display-username">Cargando...</h3>
                     <p>Cliente VIP</p>
@@ -50,34 +111,80 @@
         </aside>
 
         <main class="main-content">
-            
             <section class="section-card">
                 <h2><i class="ri-settings-3-line"></i> Configuración de la Cuenta</h2>
                 
                 <form id="formPerfil" class="perfil-form-grid">
+                    
+                    <div class="seguridad-seccion">
+                        <h3><i class="ri-user-line"></i> Información Personal</h3>
+                    </div>
+                    
+                    <div class="form-group-grande">
+                        <label>Nombre y Apellido</label>
+                        <input type="text" id="full_name" placeholder="Ej: Bianca Principi">
+                    </div>
+        
+                    <div class="form-group-grande">
+                        <label>DNI / CUIL</label>
+                        <input type="text" id="dni" placeholder="Sin puntos ni espacios">
+                    </div>
+        
                     <div class="form-group-grande">
                         <label>Nombre de Usuario</label>
-                        <input type="text" id="username" placeholder="Tu nombre">
+                        <input type="text" id="username" placeholder="Tu apodo">
                     </div>
+        
                     <div class="form-group-grande">
-                        <label>Email (No editable)</label>
-                        <input type="email" id="email" disabled>
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="tu@email.com">
                     </div>
+        
+                    <div class="form-group-grande">
+                        <label>Teléfono de contacto</label>
+                        <input type="text" id="phone" placeholder="+54 358...">
+                    </div>
+        
+                    <div class="seguridad-seccion">
+                        <h3><i class="ri-map-pin-line"></i> Datos de Envío</h3>
+                    </div>
+        
                     <div class="form-group-grande full-width">
-                        <label>Dirección de Envío</label>
-                        <input type="text" id="address" placeholder="Ej: Av. Rivadavia 1234, CABA">
+                        <label>Calle y Número</label>
+                        <input type="text" id="address" placeholder="Ej: Calle Laprida 985">
                     </div>
+        
+                    <div class="form-group-spec" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; grid-column: span 2;">
+                        <div class="form-group-grande">
+                            <label>C. Postal</label>
+                            <input type="text" id="postal_code" placeholder="5808">
+                        </div>
+                        <div class="form-group-grande">
+                            <label>Ciudad</label>
+                            <input type="text" id="city" placeholder="Río Cuarto">
+                        </div>
+                        <div class="form-group-grande">
+                            <label>Provincia</label>
+                            <input type="text" id="province" placeholder="Córdoba">
+                        </div>
+                    </div>
+        
+                    <div class="seguridad-seccion">
+                        <h3><i class="ri-lock-password-line"></i> Seguridad</h3>
+                    </div>
+        
                     <div class="form-group-grande">
-                        <label>Teléfono</label>
-                        <input type="text" id="phone" placeholder="Tu número">
+                        <label>Nueva Contraseña</label>
+                        <input type="password" id="new_password" placeholder="Dejar en blanco para mantener actual">
                     </div>
-                    <div class="form-group-grande" style="display: flex; align-items: flex-end;">
-                        <button type="submit" class="btn-guardar-grande">Actualizar Perfil</button>
+        
+                    <div class="form-group-grande full-width" style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                        <button type="submit" class="btn-guardar-grande">Guardar Todos los Cambios</button>
                     </div>
                 </form>
                 <div id="mensaje"></div>
             </section>
-
+        
             <section class="section-card" id="pedidos">
                 <h2><i class="ri-history-line"></i> Historial de Compras</h2>
                 <div class="table-container">
@@ -96,104 +203,121 @@
                     </table>
                 </div>
             </section>
-
         </main>
     </div>
 
-<script>
-        const token = localStorage.getItem('token');
-
-        // --- 1. LÓGICA DE MODO OSCURO (Sincronizado con Tienda) ---
+    <script>
+        const token = localStorage.getItem('urban_token');
+        let imagenOptimizada = null; // Almacena la imagen comprimida para evitar errores 403
+    
+        // --- 1. MODO OSCURO ---
         function aplicarTema() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            // Buscamos el icono (puede ser ri-moon o ri-sun)
             const icon = document.querySelector('.header-icons i:nth-child(2)'); 
-            if (icon) {
-                icon.className = savedTheme === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
-            }
+            if (icon) icon.className = savedTheme === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
         }
-
+    
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             aplicarTema();
         }
-
-        // Configuración inicial
+    
         document.addEventListener('DOMContentLoaded', () => {
             aplicarTema();
             const themeIcon = document.querySelector('.header-icons i:nth-child(2)');
-            if (themeIcon) {
-                themeIcon.style.cursor = 'pointer';
-                themeIcon.onclick = toggleTheme;
-            }
+            if (themeIcon) themeIcon.onclick = toggleTheme;
         });
-
-
-        // --- 2. CARGAR DATOS DEL PERFIL ---
+    
+        // --- 2. CARGAR PERFIL COMPLETO ---
         async function inicializarDashboard() {
+            if (!token) {
+                window.location.href = 'index.html';
+                return;
+            }
             try {
-                if (!token) {
-                    console.warn("Aviso: No se detectó token. Cargando modo vista previa.");
-                    document.getElementById('display-username').innerText = "Invitado";
-                    document.getElementById('user-initial').innerText = "I";
-                    cargarPedidosSimulados();
-                    return; 
-                }
-
-                const resUser = await fetch('/api/usuario/perfil', {
+                const resUser = await fetch(`/api/usuario/perfil?t=${Date.now()}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
-                if (resUser.status === 401 || resUser.status === 403) {
-                    console.error("Sesión expirada.");
-                    cargarPedidosSimulados();
-                    return;
-                }
-                
-                const user = await resUser.json();
                 if (resUser.ok) {
-                    // Llenar Formulario
+                    const user = await resUser.json();
+                    
+                    // Mapeo de datos a los inputs del nuevo formulario
+                    document.getElementById('full_name').value = user.full_name || '';
+                    document.getElementById('dni').value = user.dni || '';
                     document.getElementById('username').value = user.username || '';
                     document.getElementById('email').value = user.email || '';
-                    document.getElementById('address').value = user.address || '';
                     document.getElementById('phone').value = user.phone || '';
-
-                    // Actualizar Sidebar Dinámica
-                    const nombreUser = user.username || 'Usuario';
-                    document.getElementById('display-username').innerText = nombreUser;
-                    document.getElementById('user-initial').innerText = nombreUser.charAt(0).toUpperCase();
+                    document.getElementById('address').value = user.address || '';
+                    document.getElementById('postal_code').value = user.postal_code || '';
+                    document.getElementById('city').value = user.city || '';
+                    document.getElementById('province').value = user.province || '';
+                    
+                    // Actualizar Sidebar
+                    const nombreAMostrar = user.full_name || user.username || "Usuario";
+                    document.getElementById('display-username').innerText = nombreAMostrar.toUpperCase();
+                    
+                    // Cargar Foto desde DB
+                    const avatarContenedor = document.getElementById('user-initial');
+                    if (user.avatar_url && user.avatar_url !== "null") {
+                        avatarContenedor.innerHTML = `<img src="${user.avatar_url}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                    } else {
+                        avatarContenedor.innerText = nombreAMostrar.charAt(0).toUpperCase();
+                    }
                 }
-
-                cargarPedidosSimulados();
-
-            } catch (err) {
-                console.error("Error al cargar el dashboard:", err);
-                cargarPedidosSimulados();
+            } catch (err) { 
+                console.error("Error al cargar perfil:", err); 
+            }
+            cargarPedidosSimulados();
+        }
+    
+        // --- 3. PREVISUALIZAR Y COMPRIMIR FOTO (Evita Error 403) ---
+        function previewFoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        // Tamaño estándar para avatares
+                        canvas.width = 150;
+                        canvas.height = 150;
+                        ctx.drawImage(img, 0, 0, 150, 150);
+                        
+                        // Comprimimos para que el string Base64 no sea gigante
+                        imagenOptimizada = canvas.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('user-initial').innerHTML = `<img src="${imagenOptimizada}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                    };
+                }
+                reader.readAsDataURL(input.files[0]);
             }
         }
-
-        // --- 3. ACTUALIZAR DATOS PERSONALES ---
+    
+        // --- 4. ACTUALIZAR TODOS LOS DATOS ---
         document.getElementById('formPerfil').addEventListener('submit', async (e) => {
             e.preventDefault();
             const msg = document.getElementById('mensaje');
             
-            if (!token) {
-                msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">⚠️ Debes estar logueado para guardar cambios.</p>`;
-                return;
-            }
-
             const updatedData = {
+                full_name: document.getElementById('full_name').value,
+                dni: document.getElementById('dni').value,
                 username: document.getElementById('username').value,
+                email: document.getElementById('email').value, // Ahora es editable
+                phone: document.getElementById('phone').value,
                 address: document.getElementById('address').value,
-                phone: document.getElementById('phone').value
+                postal_code: document.getElementById('postal_code').value,
+                city: document.getElementById('city').value,
+                province: document.getElementById('province').value,
+                password: document.getElementById('new_password').value,
+                avatar_url: imagenOptimizada // Se envía la imagen comprimida
             };
-
+    
             try {
                 const res = await fetch('/api/usuario/actualizar', {
                     method: 'POST',
@@ -203,29 +327,25 @@
                     },
                     body: JSON.stringify(updatedData)
                 });
-
+    
                 const result = await res.json();
                 if (result.success) {
-                    msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Datos actualizados!</p>`;
-                    // Actualizar nombre en la sidebar en tiempo real
-                    document.getElementById('display-username').innerText = updatedData.username;
-                    document.getElementById('user-initial').innerText = updatedData.username.charAt(0).toUpperCase();
+                    msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Cambios guardados con éxito!</p>`;
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error al guardar.</p>`;
+                    msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error: ${result.message || 'Error al actualizar'}</p>`;
                 }
             } catch (error) {
-                msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error de conexión.</p>`;
+                msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error de conexión: El servidor rechazó la solicitud.</p>`;
             }
         });
-
-        // --- 4. SIMULACIÓN DE PEDIDOS ---
+    
+        // --- 5. PEDIDOS Y LOGOUT ---
         function cargarPedidosSimulados() {
             const lista = document.getElementById('lista-pedidos');
             const pedidos = [
-                { id: '#UK-7721', fecha: '14/04/2026', producto: 'Jordan 1 Retro High', total: '$420.000', estado: 'Enviado' },
-                { id: '#UK-7610', fecha: '28/03/2026', producto: 'Nike Dunk Low Panda', total: '$210.000', estado: 'Entregado' }
+                { id: '#UK-7721', fecha: '14/04/2026', producto: 'Jordan 4 Retro Black', total: '$420.000', estado: 'Enviado' }
             ];
-
             lista.innerHTML = pedidos.map(p => `
                 <tr>
                     <td><strong>${p.id}</strong></td>
@@ -233,19 +353,17 @@
                     <td>${p.producto}</td>
                     <td>${p.total}</td>
                     <td><span class="status-pill shipped">${p.estado}</span></td>
-                </tr>
-            `).join('');
+                </tr>`).join('');
         }
-
-        // --- 5. CERRAR SESIÓN ---
+    
         function logout() {
-            if(confirm("¿Estás seguro de que quieres cerrar sesión?")) {
+            if(confirm("¿Cerrar sesión?")) {
                 localStorage.clear();
                 window.location.href = 'index.html';
             }
         }
-
-        // Inicializar al cargar
+    
+        // Inicialización al cargar la página
         inicializarDashboard();
     </script>
 </body>
