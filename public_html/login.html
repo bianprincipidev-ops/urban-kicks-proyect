@@ -135,15 +135,25 @@
                 });
 
                 const data = await res.json();
+
                 if (res.ok) {
+                    // Guardamos todo en el navegador
                     localStorage.setItem('urban_token', data.token);
-                    localStorage.setItem('user_role', data.role);
-                    window.location.href = data.role === 'admin' ? 'admin.html' : 'tienda.html';
+                    localStorage.setItem('user_role', data.role); // Esto es clave: 'admin' o 'user'
+
+                    // REDIRECCIÓN INTELIGENTE
+                    if (data.role === 'admin') {
+                        alert("¡Bienvenida, Admin de Urban Kicks!");
+                        window.location.href = 'admin.html';
+                    } else {
+                        alert("¡Bienvenido!");
+                        window.location.href = 'tienda.html';
+                    }
                 } else {
                     alert(data.error);
                 }
             } catch (err) {
-                alert("Error de conexión.");
+                alert("Error de conexión con el servidor.");
             }
         };
 

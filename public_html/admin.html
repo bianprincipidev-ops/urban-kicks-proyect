@@ -19,6 +19,10 @@
                 <a href="#" onclick="mostrarSeccion('productos')"><i class="ri-shopping-bag-line"></i> Productos</a>
                 <a href="#" onclick="mostrarSeccion('promos')"><i class="ri-advertisement-line"></i> Promociones</a>
                 <a href="tienda.html"><i class="ri-store-line"></i> Ver Tienda</a>
+                
+                <a href="#" onclick="logoutAdmin()" style="color: #ff4d4d; margin-top: 30px;">
+                    <i class="ri-logout-box-line"></i> Cerrar Sesión
+                </a>
             </nav>
         </aside>
 
@@ -96,6 +100,17 @@
     </div>
 
     <script>
+        // --- 0. PROTECCIÓN DE RUTA (EJECUTAR ANTES QUE NADA) ---
+        (function() {
+            const token = localStorage.getItem('urban_token');
+            const role = localStorage.getItem('user_role');
+
+            if (!token || role !== 'admin') {
+                alert("Acceso denegado. Se requieren permisos de administrador.");
+                window.location.href = 'login.html'; // Lo mandamos al login
+            }
+        })();
+
         // --- LOGICA DE NAVEGACION ---
         function mostrarSeccion(seccion) {
             document.getElementById('sec-productos').style.display = seccion === 'productos' ? 'block' : 'none';
@@ -108,7 +123,9 @@
         // --- CARGAR DATOS EN TABLAS ---
         async function cargarTablas() {
             // Cargar Productos
-            const resProd = await fetch('/api/productos');
+            const resProd = await fetch('/api/productos', {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` }
+            });
             const productos = await resProd.json();
             const tbodyProd = document.getElementById('lista-productos-admin');
             tbodyProd.innerHTML = productos.map(p => `
@@ -169,6 +186,14 @@
             const res = await fetch('/api/promociones/nuevo', { method: 'POST', body: data });
             if(res.ok) { alert("Promo cargada!"); location.reload(); }
         });
+
+        function logoutAdmin() {
+            if(confirm("¿Estás seguro de que quieres salir del panel?")) {
+                localStorage.removeItem('urban_token');
+                localStorage.removeItem('user_role');
+                window.location.href = 'login.html';
+            }
+        }
 
         window.onload = cargarTablas;
     </script>
