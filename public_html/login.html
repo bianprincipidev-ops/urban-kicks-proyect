@@ -5,6 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos rápidos para el modal de recuperación */
+        .modal-recuperar {
+            display: none; 
+            position: fixed; 
+            background: rgba(0,0,0,0.9); 
+            width: 100%; 
+            height: 100%; 
+            top: 0; 
+            left: 0; 
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #fff; 
+            width: 90%;
+            max-width: 380px; 
+            margin: 80px auto; 
+            padding: 30px; 
+            border-radius: 15px; 
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            color: #333;
+        }
+        .modal-content h3 { color: #ff4d4d; margin-bottom: 10px; }
+        .modal-content p { font-size: 0.9rem; margin-bottom: 20px; color: #666; }
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-modal:hover { background: #e60000; }
+        .btn-cancelar {
+            background: none; 
+            border: none; 
+            color: #888; 
+            margin-top: 15px; 
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body class="auth-page">
     <div class="auth-container">
@@ -25,32 +80,140 @@
                 </div>
                 <button type="submit" class="btn-auth">INGRESAR</button>
             </form>
+            
+            <div class="forgot-password">
+                <a href="#" onclick="mostrarModalRecuperacion()">¿Olvidaste tu contraseña?</a>
+            </div>
+
             <p class="auth-switch">¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
         </div>
     </div>
 
+    <div id="modalRecuperar" class="modal-recuperar">
+        <div class="modal-content">
+            
+            <div id="paso1">
+                <h3>Recuperar Cuenta</h3>
+                <p>Ingresa tu email para recibir un código de verificación.</p>
+                <input type="email" id="emailRecuperar" placeholder="tu@email.com" class="modal-input">
+                <button id="btnEnviarCodigo" onclick="enviarCodigo()" class="btn-modal">ENVIAR CÓDIGO</button>
+            </div>
+
+            <div id="paso2" style="display:none;">
+                <h3>Verificar Código</h3>
+                <p>Ingresa el código enviado a tu mail y tu nueva contraseña.</p>
+                <input type="text" id="codigoVerificacion" placeholder="Código de 6 dígitos" class="modal-input">
+                <input type="password" id="nuevaPassword" placeholder="Nueva Contraseña" class="modal-input">
+                <button id="btnRestablecer" onclick="cambiarPassword()" class="btn-modal">RESTABLECER CONTRASEÑA</button>
+            </div>
+
+            <button onclick="cerrarModal()" class="btn-cancelar">Cancelar</button>
+        </div>
+    </div>
+
     <script>
+        // --- LÓGICA DE LOGIN ---
         document.getElementById('loginForm').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
 
-            const data = await res.json();
-            if (res.ok) {
-                localStorage.setItem('urban_token', data.token);
-                localStorage.setItem('user_role', data.role);
-                alert("¡Bienvenido!");
-                window.location.href = data.role === 'admin' ? 'admin.html' : 'tienda.html';
-            } else {
-                alert(data.error);
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('urban_token', data.token);
+                    localStorage.setItem('user_role', data.role);
+                    alert("¡Bienvenido!");
+                    window.location.href = data.role === 'admin' ? 'admin.html' : 'tienda.html';
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert("Error de conexión con el servidor.");
             }
         };
+
+        // --- LÓGICA DE RECUPERACIÓN ---
+        function mostrarModalRecuperacion() {
+            document.getElementById('modalRecuperar').style.display = 'block';
+            document.getElementById('paso1').style.display = 'block';
+            document.getElementById('paso2').style.display = 'none';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalRecuperar').style.display = 'none';
+        }
+
+        async function enviarCodigo() {
+            const email = document.getElementById('emailRecuperar').value;
+            if(!email) return alert("Por favor, ingresa tu email.");
+
+            const btn = document.getElementById('btnEnviarCodigo');
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/usuario/recuperar-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await res.json();
+                if(data.success) {
+                    alert("¡Código enviado! Revisa tu bandeja de entrada (y spam).");
+                    document.getElementById('paso1').style.display = 'none';
+                    document.getElementById('paso2').style.display = 'block';
+                } else {
+                    alert("Error: " + data.error);
+                    btn.disabled = false;
+                    btn.innerText = "ENVIAR CÓDIGO";
+                }
+            } catch (err) {
+                alert("Error al conectar con el servidor.");
+                btn.disabled = false;
+                btn.innerText = "ENVIAR CÓDIGO";
+            }
+        }
+
+        async function cambiarPassword() {
+            const email = document.getElementById('emailRecuperar').value;
+            const codigo = document.getElementById('codigoVerificacion').value;
+            const nuevaPassword = document.getElementById('nuevaPassword').value;
+
+            if(!codigo || !nuevaPassword) return alert("Completa todos los campos.");
+
+            const btn = document.getElementById('btnRestablecer');
+            btn.innerText = "Procesando...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/usuario/restablecer-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, codigo, nuevaPassword })
+                });
+
+                const data = await res.json();
+                if(data.success) {
+                    alert("¡Contraseña actualizada con éxito! Ya puedes ingresar.");
+                    location.reload();
+                } else {
+                    alert("Error: " + data.error);
+                    btn.disabled = false;
+                    btn.innerText = "RESTABLECER CONTRASEÑA";
+                }
+            } catch (err) {
+                alert("Error al conectar con el servidor.");
+                btn.disabled = false;
+            }
+        }
     </script>
 </body>
 </html>
