@@ -6,59 +6,69 @@
     <title>Login | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Estilos rápidos para el modal de recuperación */
+        /* Estilos del Modal de Recuperación */
         .modal-recuperar {
             display: none; 
             position: fixed; 
-            background: rgba(0,0,0,0.9); 
+            background: rgba(0,0,0,0.85); 
             width: 100%; 
             height: 100%; 
             top: 0; 
             left: 0; 
             z-index: 2000;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
         .modal-content {
             background: #fff; 
             width: 90%;
-            max-width: 380px; 
-            margin: 80px auto; 
-            padding: 30px; 
-            border-radius: 15px; 
+            max-width: 400px; 
+            margin: 10vh auto; 
+            padding: 40px; 
+            border-radius: 20px; 
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            color: #333;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            color: #1a1a1a;
         }
-        .modal-content h3 { color: #ff4d4d; margin-bottom: 10px; }
-        .modal-content p { font-size: 0.9rem; margin-bottom: 20px; color: #666; }
+        .modal-content h3 { color: #000; font-size: 1.5rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-content p { font-size: 0.95rem; margin-bottom: 25px; color: #555; line-height: 1.4; }
         .modal-input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            border: 2px solid #eee;
+            border-radius: 10px;
             box-sizing: border-box;
+            font-size: 1rem;
+            transition: 0.3s;
         }
+        .modal-input:focus { border-color: #000; outline: none; }
         .btn-modal {
             width: 100%;
-            padding: 12px;
-            background: #ff4d4d;
+            padding: 14px;
+            background: #000;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .btn-modal:hover { background: #e60000; }
+        .btn-modal:hover { background: #333; transform: translateY(-2px); }
+        .btn-modal:disabled { background: #888; cursor: not-allowed; }
         .btn-cancelar {
             background: none; 
             border: none; 
             color: #888; 
-            margin-top: 15px; 
+            margin-top: 20px; 
             cursor: pointer;
-            text-decoration: underline;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            width: 100%;
         }
+        .btn-cancelar:hover { color: #000; }
     </style>
 </head>
 <body class="auth-page">
@@ -91,7 +101,6 @@
 
     <div id="modalRecuperar" class="modal-recuperar">
         <div class="modal-content">
-            
             <div id="paso1">
                 <h3>Recuperar Cuenta</h3>
                 <p>Ingresa tu email para recibir un código de verificación.</p>
@@ -107,7 +116,7 @@
                 <button id="btnRestablecer" onclick="cambiarPassword()" class="btn-modal">RESTABLECER CONTRASEÑA</button>
             </div>
 
-            <button onclick="cerrarModal()" class="btn-cancelar">Cancelar</button>
+            <button onclick="cerrarModal()" class="btn-cancelar">Volver al login</button>
         </div>
     </div>
 
@@ -129,13 +138,12 @@
                 if (res.ok) {
                     localStorage.setItem('urban_token', data.token);
                     localStorage.setItem('user_role', data.role);
-                    alert("¡Bienvenido!");
                     window.location.href = data.role === 'admin' ? 'admin.html' : 'tienda.html';
                 } else {
                     alert(data.error);
                 }
             } catch (err) {
-                alert("Error de conexión con el servidor.");
+                alert("Error de conexión.");
             }
         };
 
@@ -152,7 +160,7 @@
 
         async function enviarCodigo() {
             const email = document.getElementById('emailRecuperar').value;
-            if(!email) return alert("Por favor, ingresa tu email.");
+            if(!email) return alert("Ingresa tu email.");
 
             const btn = document.getElementById('btnEnviarCodigo');
             btn.innerText = "Enviando...";
@@ -167,16 +175,16 @@
                 
                 const data = await res.json();
                 if(data.success) {
-                    alert("¡Código enviado! Revisa tu bandeja de entrada (y spam).");
+                    alert("¡Código enviado!");
                     document.getElementById('paso1').style.display = 'none';
                     document.getElementById('paso2').style.display = 'block';
                 } else {
-                    alert("Error: " + data.error);
+                    alert(data.error);
                     btn.disabled = false;
                     btn.innerText = "ENVIAR CÓDIGO";
                 }
             } catch (err) {
-                alert("Error al conectar con el servidor.");
+                alert("Error de conexión.");
                 btn.disabled = false;
                 btn.innerText = "ENVIAR CÓDIGO";
             }
@@ -202,15 +210,15 @@
 
                 const data = await res.json();
                 if(data.success) {
-                    alert("¡Contraseña actualizada con éxito! Ya puedes ingresar.");
+                    alert("¡Contraseña actualizada!");
                     location.reload();
                 } else {
-                    alert("Error: " + data.error);
+                    alert(data.error);
                     btn.disabled = false;
                     btn.innerText = "RESTABLECER CONTRASEÑA";
                 }
             } catch (err) {
-                alert("Error al conectar con el servidor.");
+                alert("Error de conexión.");
                 btn.disabled = false;
             }
         }
