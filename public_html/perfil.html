@@ -301,44 +301,70 @@
     
         // --- 4. ACTUALIZAR TODOS LOS DATOS ---
         document.getElementById('formPerfil').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const msg = document.getElementById('mensaje');
+                e.preventDefault(); // Detiene el envío tradicional del formulario
+                
+                const msg = document.getElementById('mensaje');
+                const btn = e.target.querySelector('button'); // El botón de guardar
+                
+                // Bloqueamos el botón para evitar doble clic
+                btn.disabled = true;
+                btn.innerText = "Guardando...";
+                msg.innerHTML = ""; 
             
-            const updatedData = {
-                full_name: document.getElementById('full_name').value,
-                dni: document.getElementById('dni').value,
-                username: document.getElementById('username').value,
-                email: document.getElementById('email').value, // Ahora es editable
-                phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
-                postal_code: document.getElementById('postal_code').value,
-                city: document.getElementById('city').value,
-                province: document.getElementById('province').value,
-                password: document.getElementById('new_password').value,
-                avatar_url: imagenOptimizada // Se envía la imagen comprimida
-            };
-    
-            try {
-                const res = await fetch('/api/usuario/actualizar', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(updatedData)
-                });
-    
-                const result = await res.json();
-                if (result.success) {
-                    msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Cambios guardados con éxito!</p>`;
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error: ${result.message || 'Error al actualizar'}</p>`;
+                const updatedData = {
+                    full_name: document.getElementById('full_name').value.trim(),
+                    dni: document.getElementById('dni').value.trim(),
+                    username: document.getElementById('username').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    address: document.getElementById('address').value.trim(),
+                    postal_code: document.getElementById('postal_code').value.trim(),
+                    city: document.getElementById('city').value.trim(),
+                    province: document.getElementById('province').value.trim(),
+                    password: document.getElementById('new_password').value // No usamos trim aquí por seguridad
+                };
+            
+                // Solo enviamos avatar_url si realmente se seleccionó una imagen nueva
+                if (imagenOptimizada) {
+                    updatedData.avatar_url = imagenOptimizada;
                 }
-            } catch (error) {
-                msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error de conexión: El servidor rechazó la solicitud.</p>`;
-            }
-        });
+            
+                try {
+                    const res = await fetch('/api/usuario/actualizar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updatedData)
+                    });
+            
+                    const result = await res.json();
+            
+                    if (result.success) {
+                        msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Cambios guardados con éxito!</p>`;
+                        
+                        // En lugar de reload(), actualizamos el nombre en el sidebar manualmente
+                        const nuevoNombre = updatedData.full_name || updatedData.username;
+                        if(document.getElementById('display-username')) {
+                            document.getElementById('display-username').innerText = nuevoNombre.toUpperCase();
+                        }
+            
+                        // Limpiamos el campo de contraseña por seguridad
+                        document.getElementById('new_password').value = "";
+                        
+                    } else {
+                        msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error: ${result.message || 'Error al actualizar'}</p>`;
+                    }
+                } catch (error) {
+                    console.error("Error en Fetch:", error);
+                    msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error de conexión: El servidor no respondió.</p>`;
+                } finally {
+                    // Re-habilitamos el botón pase lo que pase
+                    btn.disabled = false;
+                    btn.innerText = "Guardar Todos los Cambios";
+                }
+            });
     
         // --- 5. PEDIDOS Y LOGOUT ---
         function cargarPedidosSimulados() {

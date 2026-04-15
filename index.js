@@ -178,7 +178,7 @@ app.get('/api/usuario/perfil', async (req, res) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
         const [rows] = await pool.query(
-            'SELECT username, email, address, phone FROM users WHERE id = ?', 
+            'SELECT username, email, full_name, dni, address, phone, postal_code, city, province, avatar_url FROM users WHERE id = ?', 
             [decoded.id]
         );
         res.json(rows[0]);
@@ -190,17 +190,43 @@ app.get('/api/usuario/perfil', async (req, res) => {
 // RUTA ACTUALIZAR PERFIL USUARIO
 app.post('/api/usuario/actualizar', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
-    const { username, address, phone } = req.body; // Ahora coincide con el HTML
-    
+    const { full_name, dni, username, email, phone, address, postal_code, city, province, password, avatar_url } = req.body;
+
     if (!token) return res.status(401).json({ error: "No autorizado" });
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
-        await pool.query(
-            'UPDATE users SET username = ?, address = ?, phone = ? WHERE id = ?',
-            [username, address, phone, decoded.id]
-        );
-        res.json({ success: true, message: "Datos actualizados" });
+
+        let updateFields = [];
+        let updateValues = [];
+
+        if (full_name !== undefined) { updateFields.push('full_name = ?'); updateValues.push(full_name); }
+        if (dni !== undefined) { updateFields.push('dni = ?'); updateValues.push(dni); }
+        if (username !== undefined) { updateFields.push('username = ?'); updateValues.push(username); }
+        if (email !== undefined) { updateFields.push('email = ?'); updateValues.push(email); }
+        if (phone !== undefined) { updateFields.push('phone = ?'); updateValues.push(phone); }
+        if (address !== undefined) { updateFields.push('address = ?'); updateValues.push(address); }
+        if (postal_code !== undefined) { updateFields.push('postal_code = ?'); updateValues.push(postal_code); }
+        if (city !== undefined) { updateFields.push('city = ?'); updateValues.push(city); }
+        if (province !== undefined) { updateFields.push('province = ?'); updateValues.push(province); }
+        if (avatar_url !== undefined) { updateFields.push('avatar_url = ?'); updateValues.push(avatar_url); }
+
+        if (password && password.trim() !== '') {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateFields.push('password = ?');
+            updateValues.push(hashedPassword);
+        }
+
+        if (updateFields.length === 0) {
+            return res.status(400).json({ error: "No hay campos para actualizar" });
+        }
+
+        updateValues.push(decoded.id);
+
+        const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
+
+        await pool.query(query, updateValues);
+        res.json({ success: true, message: "Datos actualizados correctamente" });
     } catch (error) {
         console.error("Error al actualizar:", error);
         res.status(500).json({ error: "Error al actualizar la base de datos" });
