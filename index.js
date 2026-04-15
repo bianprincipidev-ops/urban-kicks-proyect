@@ -300,7 +300,7 @@ app.post('/api/usuario/recuperar-password', async (req, res) => {
 
         // 5. Enviar el Mail
         const mailOptions = {
-            from: '"Urban Kicks 👟" <tu-correo@gmail.com>',
+            from: '"Urban Kicks 👟" <soporte@urbankicks.com.ar>',
             to: email,
             subject: 'Código de Recuperación - Urban Kicks',
             html: `
