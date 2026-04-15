@@ -15,10 +15,12 @@ app.use(express.json());
 
 // CONFIGURACION DEL TRANSPORTADOR DE CORREO (Nodemailer)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: "smtp.hostinger.com",
+    port: 465,
+    secure: true, 
     auth: {
-        user: 'biancaprincipi1@gmail.com',
-        pass: 'svkbgznkaxxubxmi' 
+        user: 'soporte@urbankicks.com.ar', 
+        pass: 'Carpeta_123' // La que usaste para crear el mail recién
     }
 });
 
