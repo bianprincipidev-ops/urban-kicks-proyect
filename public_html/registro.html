@@ -9,31 +9,36 @@
 <body class="auth-page">
     <div class="auth-container">
         <div class="auth-image">
-            <img src="logo-urban.png" alt="Urban Kicks">
+            <div class="auth-image-content">
+                <img src="logo-urban.png" alt="Urban Kicks">
+            </div>
         </div>
-        
-        <div class="auth-form-box">
-            <h2>CREAR USUARIO</h2>
-            <form id="registroForm">
-                <div class="input-group">
-                    <label>Nombre Completo</label>
-                    <input type="text" id="name" placeholder="Tu nombre" required>
-                </div>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="email" placeholder="ejemplo@mail.com" required>
-                </div>
-                <div class="input-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="password" placeholder="********" required>
-                </div>
-                <div class="input-group">
-                    <label>Confirmar Contraseña</label>
-                    <input type="password" id="confirmPassword" placeholder="********" required>
-                </div>
-                <button type="submit" class="btn-auth">CREAR CUENTA</button>
-            </form>
-            <p class="auth-switch">¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+
+        <div class="auth-form-side">
+            <div class="auth-box">
+                <h2>Crear Cuenta</h2>
+                <p>Sumate a la comunidad Urban Kicks</p>
+                
+                <form id="register-form">
+                    <div class="input-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" placeholder="Tu nombre" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Contraseña</label>
+                        <input type="password" placeholder="Mínimo 8 caracteres" required>
+                    </div>
+                    <button type="submit" class="btn-auth">Registrarme</button>
+                    
+                    <div class="auth-footer">
+                        ¿Ya tenés cuenta? <a href="login.html">Iniciá sesión</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

@@ -74,28 +74,32 @@
 <body class="auth-page">
     <div class="auth-container">
         <div class="auth-image">
-            <img src="logo-urban.png" alt="Urban Kicks">
-        </div>
-        
-        <div class="auth-form-box">
-            <h2>BIENVENIDO DE NUEVO!</h2>
-            <form id="loginForm">
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="email" placeholder="ejemplo@mail.com" required>
-                </div>
-                <div class="input-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="password" placeholder="********" required>
-                </div>
-                <button type="submit" class="btn-auth">INGRESAR</button>
-            </form>
-            
-            <div class="forgot-password">
-                <a href="#" onclick="mostrarModalRecuperacion()">¿Olvidaste tu contraseña?</a>
+            <div class="auth-image-content">
+                <img src="logo-urban.png" alt="Urban Kicks">
             </div>
+        </div>
 
-            <p class="auth-switch">¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+        <div class="auth-form-side">
+            <div class="auth-box">
+                <h2>Iniciar Sesión</h2>
+                <p>¡Qué bueno verte de nuevo!</p>
+                
+                <form id="login-form">
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Contraseña</label>
+                        <input type="password" placeholder="********" required>
+                    </div>
+                    <button type="submit" class="btn-auth">Entrar</button>
+                    
+                    <div class="auth-footer">
+                        ¿No tenés cuenta? <a href="registro.html">Crear cuenta</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

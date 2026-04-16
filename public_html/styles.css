@@ -886,3 +886,144 @@ footer {
     .perfil-form-grid { grid-template-columns: 1fr; }
     .full-width { grid-column: span 1; }
 }
+
+/* ============================================================
+   AUTENTICACIÓN (login.html / registro.html)
+   Estilo Split Screen - Inspirado en Pinterest
+   ============================================================ */
+
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--bg-body);
+}
+
+/* --- LADO IZQUIERDO: IMAGEN --- */
+.auth-image {
+    flex: 1;
+    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                url('https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=2070') no- airplane; /* Podés cambiar esta URL por una foto de zapas pro */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-image-content {
+    text-align: center;
+    color: white;
+}
+
+.auth-image-content img {
+    width: 250px;
+    filter: brightness(0) invert(1); /* Hace el logo blanco para que resalte */
+}
+
+/* --- LADO DERECHO: FORMULARIO --- */
+.auth-form-side {
+    width: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.auth-box {
+    width: 100%;
+    max-width: 350px;
+}
+
+.auth-box h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+}
+
+.auth-box p {
+    color: var(--text-muted);
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+}
+
+/* --- INPUTS ESTILIZADOS --- */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-main);
+    font-family: inherit;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--accent-red);
+    box-shadow: 0 0 0 4px rgba(255, 77, 77, 0.1);
+}
+
+/* --- BOTÓN PRINCIPAL --- */
+.btn-auth {
+    width: 100%;
+    padding: 16px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.btn-auth:hover {
+    background-color: var(--accent-red);
+    transform: translateY(-2px);
+}
+
+/* --- ENLACES INFERIORES --- */
+.auth-footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.auth-footer a {
+    color: var(--accent-red);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 850px) {
+    .auth-image {
+        display: none; /* En celular solo queda el formulario */
+    }
+    .auth-form-side {
+        width: 100%;
+    }
+}
