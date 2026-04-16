@@ -101,23 +101,32 @@ app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
         const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        
         if (users.length === 0) return res.status(404).json({ error: "Usuario no registrado." });
         
         const user = users[0];
         const validPassword = await bcrypt.compare(password, user.password);
+        
         if (!validPassword) return res.status(401).json({ error: "Credenciales inválidas." });
 
-        // ✅ Usamos la nueva columna is_admin para definir el rol
-        const role = user.is_admin === 1 ? 'admin' : 'user';
+        // rol DIRECTO de la base de datos
+        const userRole = user.role; 
 
         const token = jwt.sign(
-            { id: user.id, role: role }, 
+            { id: user.id, role: userRole }, 
             process.env.JWT_SECRET || 'secret_key', 
             { expiresIn: '24h' }
         );
 
-        res.json({ message: "Login exitoso", token, role: role });
+        // Enviamos el token y el rol al frontend
+        res.json({ 
+            message: "Login exitoso", 
+            token, 
+            role: userRole 
+        });
+
     } catch (error) {
+        console.error("Error en Login:", error);
         res.status(500).json({ error: "Error interno." });
     }
 });

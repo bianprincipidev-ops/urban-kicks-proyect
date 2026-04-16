@@ -87,19 +87,31 @@
         // LOGICA DE SESION 
         function verificarSesion() {
             const token = localStorage.getItem('urban_token');
+            const role = localStorage.getItem('user_role'); // Obtenemos el rol
             const userLink = document.getElementById('user-link');
             const btnLogout = document.getElementById('btn-logout');
+            const headerIcons = document.querySelector('.header-icons'); // El contenedor de iconos
 
             if (token) {
-                // Si hay token: el icono de usuario va al perfil y mostramos botón salir
                 userLink.href = 'perfil.html';
-                userLink.title = 'Ir a mi perfil';
                 btnLogout.style.display = 'inline-block';
+
+                // ✅ Si es ADMIN, agregamos el botón del panel si no existe ya
+                if (role === 'admin' && !document.getElementById('admin-btn')) {
+                    const adminBtn = document.createElement('a');
+                    adminBtn.id = 'admin-btn';
+                    adminBtn.href = 'admin.html';
+                    adminBtn.title = 'Panel de Administración';
+                    adminBtn.innerHTML = '<i class="ri-settings-5-line" style="color: #ff4d4d;"></i>';
+                    // Lo insertamos antes del botón de logout
+                    headerIcons.insertBefore(adminBtn, btnLogout);
+                }
             } else {
-                // Si no hay token: el icono va al login y ocultamos botón salir
                 userLink.href = 'login.html';
-                userLink.title = 'Ingresar';
                 btnLogout.style.display = 'none';
+                // Si no está logueado, nos aseguramos de quitar el botón admin si existía
+                const adminBtn = document.getElementById('admin-btn');
+                if (adminBtn) adminBtn.remove();
             }
         }
 

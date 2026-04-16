@@ -12,6 +12,7 @@
     --success-hover: #218838;
 }
 
+/* El modo oscuro ahora cambia también el color del texto muted para que sea legible */
 [data-theme="dark"] {
     --bg-body: #0d0d0d;
     --bg-header: #000000;
@@ -23,12 +24,18 @@
 }
 
 /* --- RESET --- */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transición más específica */
+    overflow-x: hidden; /* Evita scrolls horizontales accidentales */
 }
 
 /* --- BARRA DE PROMO SUPERIOR --- */
@@ -45,17 +52,21 @@ body {
 
 /* --- HEADER CON LOGO --- */
 header {
-    background-color: #000;
+    background-color: var(--bg-header); /* Usamos la variable para consistencia */
     padding: 10px 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 3px solid #ff4d4d;
+    border-bottom: 3px solid var(--accent-red);
+    position: sticky; /* Recomendado para que el usuario siempre vea el menú */
+    top: 0;
+    z-index: 1000;
 }
 
 .logo img {
-    height: 50px; /* Ajuste para el logo Urban Kicks */
+    height: 50px;
     width: auto;
+    display: block;
 }
 
 .nav-links a {
@@ -65,6 +76,11 @@ header {
     font-weight: 600;
     font-size: 0.9rem;
     text-transform: uppercase;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--accent-red);
 }
 
 .header-icons {
@@ -82,16 +98,21 @@ header {
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 50%;
+    transition: 0.3s;
 }
 
-/* --- SECCIÓN HERO (DINÁMICO) --- */
+.theme-toggle:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* --- SECCIÓN HERO --- */
 .hero {
     background-color: var(--bg-hero);
     padding: 60px 5%;
     min-height: 400px;
     display: flex;
     justify-content: center;
-    transition: opacity 0.5s ease;
+    align-items: center;
 }
 
 .hero-content {
@@ -107,9 +128,9 @@ header {
 }
 
 .hero-text h1 {
-    font-size: 3.5rem; 
+    font-size: clamp(2rem, 5vw, 3.5rem); /* Tamaño fluido según pantalla */
     text-transform: uppercase;
-    line-height: 1; 
+    line-height: 1.1; 
     margin-bottom: 20px;
 }
 
@@ -120,11 +141,11 @@ header {
 }
 
 .hero-img img { 
-    flex: 1; 
-    text-align: center;
+    max-width: 100%;
+    height: auto;
 }
 
-/* --- GRILLA DE PRODUCTOS (4 COLUMNAS) --- */
+/* --- GRILLA DE PRODUCTOS --- */
 .section-title {
     text-align: center;
     margin: 60px 0 30px;
@@ -135,7 +156,7 @@ header {
 
 .grid-productos {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* FUERZA 4 COLUMNAS */
+    grid-template-columns: repeat(4, 1fr); 
     gap: 20px;
     padding: 20px 5%;
     max-width: 1400px;
@@ -151,6 +172,7 @@ header {
     display: flex;
     flex-direction: column;
     text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
@@ -160,15 +182,19 @@ header {
 
 .card img {
     width: 100%;
-    height: 180px; /* Tamaño fijo para que no se descontrole */
-    object-fit: contain; /* Para que la zapa no se estire */
+    height: 180px;
+    object-fit: contain;
     margin-bottom: 15px;
-    background: #f0f0f0; /* Fondo gris suave por si la imagen falla */
+    /* Ajuste de fondo para modo oscuro en imágenes */
+    background: rgba(0,0,0,0.03); 
+    border-radius: 5px;
 }
 
 .card h3 {
     font-size: 1rem;
     margin-bottom: 8px;
+    height: 2.4em; /* Mantiene alineación si el nombre es largo */
+    overflow: hidden;
 }
 
 .card p {
@@ -179,27 +205,41 @@ header {
 }
 
 .precio {
-    color: #ff4d4d;
+    color: var(--accent-red);
     font-size: 1.4rem;
     font-weight: bold;
     margin: 10px 0;
 }
 
 .btn-comprar {
-    background-color: #28a745;
+    background-color: var(--success-green);
     color: white;
     border: none;
-    padding: 10px;
+    padding: 12px;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+    transition: 0.3s;
 }
 
-.btn-comprar:hover { background-color: var(--success-hover); }
+.btn-comprar:hover { 
+    background-color: var(--success-hover); 
+}
 
 /* --- RESPONSIVE --- */
-@media (max-width: 1000px) { .grid-productos { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .grid-productos { grid-template-columns: 1fr; } .hero-content { flex-direction: column; } }
+@media (max-width: 1100px) {
+    .grid-productos { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 850px) {
+    .grid-productos { grid-template-columns: repeat(2, 1fr); }
+    .hero-text h1 { font-size: 2.5rem; }
+}
+
+@media (max-width: 600px) {
+    .grid-productos { grid-template-columns: 1fr; }
+    .hero-content { flex-direction: column; text-align: center; }
+}
 
 /* --- FOOTER --- */
 footer {
@@ -225,30 +265,19 @@ footer {
     color: var(--accent-red);
 }
 
-.footer-column p {
+.footer-column p, .footer-column ul li a {
     font-size: 0.9rem;
     color: #bbbbbb;
     line-height: 1.6;
-}
-
-.footer-column ul {
-    list-style: none;
-}
-
-.footer-column ul li {
-    margin-bottom: 10px;
-}
-
-.footer-column ul li a {
-    color: #bbbbbb;
     text-decoration: none;
-    font-size: 0.9rem;
     transition: color 0.3s;
 }
 
-.footer-column ul li a:hover {
-    color: #ffffff;
-}
+.footer-column ul { list-style: none; }
+
+.footer-column ul li { margin-bottom: 10px; }
+
+.footer-column ul li a:hover { color: #ffffff; }
 
 .footer-logo {
     height: 50px;
@@ -264,7 +293,7 @@ footer {
 .footer-socials a {
     color: white;
     font-size: 1.5rem;
-    transition: transform 0.3s;
+    transition: 0.3s;
 }
 
 .footer-socials a:hover {
@@ -277,292 +306,243 @@ footer {
     gap: 15px;
     font-size: 2rem;
     margin-bottom: 20px;
-    color: #ffffff;
 }
 
 .copyright {
-    font-size: 0.75rem !important;
+    font-size: 0.75rem;
     border-top: 1px solid #333;
     padding-top: 20px;
     margin-top: 20px;
+    text-align: center;
+    color: #888;
 }
 
-/* Footer Responsive */
 @media (max-width: 850px) {
-    .footer-container {
-        grid-template-columns: 1fr 1fr;
-    }
+    .footer-container { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 500px) {
-    .footer-container {
-        grid-template-columns: 1fr;
-        text-align: center;
-    }
-    .footer-socials, .payment-methods {
-        justify-content: center;
-    }
+    .footer-container { grid-template-columns: 1fr; text-align: center; }
+    .footer-socials, .payment-methods { justify-content: center; }
 }
 
-/* --- LAYOUT DEL ADMINISTRADOR --- */
-.admin-body {
-    background-color: #f4f7f6;
-    margin: 0;
-    font-family: 'Inter', sans-serif;
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/* ============================================================
+   PANEL DE ADMINISTRADOR (admin.html)
+   Controla la barra lateral negra y la tabla de productos
+   ============================================================ */
+.admin-body { 
+    background-color: #f4f7f6 !important; 
+    margin: 0; 
+    font-family: 'Inter', 
+    sans-serif; 
 }
 
-.admin-layout {
-    display: flex;
-    min-height: 100vh;
+.admin-layout { 
+    display: flex; 
+    min-height: 100vh; 
 }
 
-/* --- SIDEBAR (Menú Lateral) --- */
-.sidebar {
-    width: 260px;
-    background-color: #000;
-    color: white;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+.sidebar { 
+    width: 260px; 
+    background-color: #000; 
+    color: white; 
+    padding: 20px; 
+    position: fixed; 
+    height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+    z-index: 1100; 
 }
 
-.admin-logo {
-    width: 150px;
-    margin-bottom: 40px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+.admin-logo { 
+    width: 140px; 
+    margin: 0 auto 40px; 
+    display: block; 
 }
 
-.sidebar-nav a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #888;
-    text-decoration: none;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 5px;
-    transition: 0.3s;
+.sidebar-nav a { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    color: #888; 
+    text-decoration: none; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 5px; 
+    transition: 0.3s; 
+    font-weight: 500; 
 }
 
-.sidebar-nav a:hover, .sidebar-nav a.active {
-    background-color: #ff4d4d;
-    color: white;
+.sidebar-nav a:hover, .sidebar-nav a.active { 
+    background-color: var(--accent-red); 
+    color: white; 
 }
 
-/* --- CONTENIDO PRINCIPAL --- */
-.admin-main {
-    flex: 1;
-    padding: 30px;
+.admin-main { 
+    flex: 1; 
+    margin-left: 260px; 
+    padding: 40px; 
 }
 
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 20px; /* Le damos un poco más de aire */
-    background-color: #000; /* Fondo negro sólido para que resalte el blanco */
-    border-radius: 10px; /* Para que haga juego con las tablas */
-    border-bottom: 2px solid #ff4d4d; /* Un detalle en rojo como en la tienda */
+.admin-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 30px; 
+    padding: 20px 30px; 
+    background-color: #000; 
+    border-radius: 12px; 
+    border-bottom: 3px solid var(--accent-red); 
 }
 
-.admin-header h2 {
-    color: #ffffff !important; /* Blanco puro para el título principal */
-    font-weight: 700;
-    margin: 0;
+.admin-header h2 { 
+    color: #ffffff !important; 
+    font-weight: 700; 
+    margin: 0; 
+    text-transform: uppercase; 
 }
 
-.user-info {
-    color: #ffffff !important; /* Blanco para el texto de 'Administrador' */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
+.admin-table { 
+    width: 100%; 
+    border-collapse: separate; 
+    border-spacing: 0 12px; 
 }
 
-.user-info i {
-    color: #ff4d4d; /* El ícono en rojo para que resalte */
-    font-size: 1.2rem;
+.admin-table tbody tr { 
+    background: #fff; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
 }
 
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+.admin-table td { 
+    padding: 15px 20px; 
+    vertical-align: middle; 
 }
 
-/* --- TABLAS ESTILO FIGMA --- */
-.admin-table {
-    width: 100%;
-    background: white;
-    border-collapse: collapse;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+.admin-table td:first-child { 
+    border-radius: 12px 0 0 12px; 
 }
 
-.admin-table th {
-    background-color: #f8f9fa;
-    text-align: left;
-    padding: 15px;
-    font-size: 0.85rem;
-    color: #333;
-    text-transform: uppercase;
-    font-weight: 800;
+.admin-table td:last-child { 
+    border-radius: 0 12px 12px 0; 
 }
 
-.admin-table td {
-    padding: 15px;
-    border-top: 1px solid #eee;
-    vertical-align: middle;
+.btn-nuevo { 
+    background-color: #000; 
+    color: #fff; 
+    border: none; 
+    padding: 12px 25px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: bold; 
 }
 
-/* --- BOTONES --- */
-.btn-nuevo {
-    background-color: #000;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
+.btn-nuevo:hover { 
+    background-color: var(--accent-red); 
 }
 
-.btn-del {
-    background-color: #ffe5e5;
-    color: #ff4d4d;
-    border: none;
-    padding: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s;
+.btn-del { 
+    background-color: #fff0f0; 
+    color: var(--accent-red); 
+    border: none; 
+    padding: 10px; 
+    border-radius: 8px; 
+    cursor: pointer; 
 }
 
-.btn-del:hover {
-    background-color: #ff4d4d;
-    color: white;
+.btn-del:hover { 
+    background-color: var(--accent-red); 
+    color: white; 
 }
 
-/* --- MODALES (Formularios flotantes) --- */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
+/* ============================================================
+   DETALLE DE PRODUCTO (detalle.html)
+   Controla la foto grande, el precio y el botón de añadir al carrito
+   ============================================================ */
+.product-detail-container { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 60px; 
+    padding: 60px 5%; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    min-height: 80vh; 
 }
 
-.modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 30px;
-    width: 450px;
-    border-radius: 15px;
-    position: relative;
+.product-image img { 
+    width: 100%; 
+    max-width: 500px; 
+    border-radius: 20px; 
+    background-color: var(--bg-card); 
+    padding: 20px; 
 }
 
-.close {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    font-size: 24px;
-    cursor: pointer;
+.product-info { 
+    max-width: 450px; 
+    display: flex; 
+    flex-direction: column; 
 }
 
-.modal-content input, .modal-content textarea {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+.product-info h1 { 
+    font-size: 2.5rem; 
+    text-transform: uppercase; 
+    margin-bottom: 10px; 
 }
 
-.btn-cargar {
-    width: 100%;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
+.product-price { 
+    font-size: 2.2rem; 
+    font-weight: 900; 
+    color: var(--accent-red); 
+    margin: 10px 0 20px; 
 }
 
-/* DISEÑO DE DETALLE (FIGMA STYLE) */
-.product-detail-container {
-    display: flex;
-    justify-content: center;
-    gap: 60px;
-    padding: 100px 5%;
-    max-width: 1200px;
-    margin: 0 auto;
-    /* Agregamos esto para que el contenedor use el color del tema */
-    background-color: var(--bg-color); 
-    color: var(--text-color);
+.size-options { 
+    display: flex; 
+    gap: 12px; 
+    margin: 20px 0 30px; 
 }
 
-.product-image img {
-    max-width: 500px;
-    border-radius: 20px;
-    /* Usamos la variable de fondo de tarjeta o de fondo general */
-    background-color: var(--card-bg, #f4f4f4); 
+.size-btn { 
+    width: 50px; 
+    height: 50px; 
+    border: 1px solid var(--border-color); 
+    background: var(--bg-card); 
+    color: var(--text-main); 
+    cursor: pointer; 
+    border-radius: 8px; 
+    font-weight: bold; 
 }
 
-.product-info {
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.size-btn:hover, .size-btn.active { 
+    background: #000; 
+    color: #fff; 
+    border-color: #000; 
 }
 
-.product-price {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #ff4d4d; /* El rojo se mantiene igual en ambos temas */
-    margin: 15px 0;
+.btn-add-to-cart { 
+    padding: 20px; 
+    background-color: var(--accent-red); 
+    color: white; 
+    border: none; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    cursor: pointer; 
+    border-radius: 12px; 
 }
 
-.size-options {
-    display: flex;
-    gap: 10px;
-    margin: 15px 0 30px;
+.btn-add-to-cart:hover { 
+    background-color: #e64444; 
+    transform: translateY(-3px); 
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
 }
 
-.size-btn {
-    padding: 10px 15px;
-    /* Ajustamos para que el borde y el fondo cambien */
-    border: 1px solid var(--text-color); 
-    background: var(--bg-color);
-    color: var(--text-color);
-    cursor: pointer;
-    border-radius: 5px;
-}
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-.btn-add-to-cart {
-    padding: 18px;
-    background-color: #ff4d4d; /* Rojo fijo siempre */
-    color: white;             /* Texto siempre blanco para que resalte */
-    border: none;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
-    border-radius: 5px;       /* Un pequeño redondeo para que quede pro */
-}
-
-.btn-add-to-cart:hover {
-    background-color: #e64444; /* Un rojo un toque más oscuro al pasar el mouse */
-    transform: translateY(-2px); /* Pequeño efecto de levantamiento */
-}
-
-/* --- DISEÑO DEL CARRITO --- */
+/* ============================================================
+   DISEÑO DEL CARRITO (carrito.html)
+   Controla la lista de productos seleccionados y el total
+   ============================================================ */
 .cart-container {
     max-width: 900px;
     margin: 50px auto;
@@ -574,7 +554,7 @@ footer {
     font-size: 2rem;
     text-transform: uppercase;
     margin-bottom: 30px;
-    border-bottom: 2px solid var(--accent-red);
+    border-bottom: 3px solid var(--accent-red);
     display: inline-block;
     padding-bottom: 5px;
 }
@@ -593,19 +573,21 @@ footer {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     margin-bottom: 15px;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease;
 }
 
 .cart-item:hover {
     transform: scale(1.01);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
 .cart-item img {
     width: 100px;
     height: 100px;
     object-fit: contain;
-    background: #f0f0f0;
+    background: #f0f0f0; /* Fondo neutro para las zapas */
     border-radius: 8px;
+    padding: 5px;
 }
 
 .cart-item-info {
@@ -616,6 +598,7 @@ footer {
     font-size: 1.1rem;
     margin-bottom: 5px;
     text-transform: uppercase;
+    color: var(--text-main);
 }
 
 .cart-item-info p {
@@ -626,17 +609,17 @@ footer {
 
 .btn-remove {
     background: transparent;
-    border: 1px solid #ff4d4d;
-    color: #ff4d4d;
+    border: 1px solid var(--accent-red);
+    color: var(--accent-red);
     padding: 8px 12px;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 0.8rem;
     transition: 0.3s;
 }
 
 .btn-remove:hover {
-    background: #ff4d4d;
+    background: var(--accent-red);
     color: white;
 }
 
@@ -647,22 +630,26 @@ footer {
     border-radius: 15px;
     text-align: right;
     border: 1px solid var(--border-color);
+    margin-top: 20px;
 }
 
 .cart-summary h3 {
     font-size: 1.5rem;
     margin-bottom: 20px;
+    color: var(--text-main);
 }
 
 .cart-summary span {
     color: var(--accent-red);
     font-size: 1.8rem;
+    font-weight: 900;
 }
 
 .cart-buttons {
     display: flex;
     justify-content: flex-end;
     gap: 15px;
+    margin-top: 20px;
 }
 
 .btn-checkout {
@@ -670,7 +657,7 @@ footer {
     color: white;
     padding: 15px 30px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
@@ -680,14 +667,15 @@ footer {
 .btn-checkout:hover {
     background-color: #e64444;
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
 }
 
 .btn-continue {
     background-color: transparent;
     color: var(--text-main);
-    border: 1px solid var(--text-main);
+    border: 2px solid var(--text-main);
     padding: 15px 30px;
-    border-radius: 5px;
+    border-radius: 8px;
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
@@ -710,167 +698,24 @@ footer {
     }
     .btn-checkout, .btn-continue {
         width: 100%;
+        text-align: center;
     }
 }
 
-/* --- ESTILOS LOGIN / REGISTRO --- */
-.auth-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/* ============================================================
+   DASHBOARD DE USUARIO (perfil.html / mis-compras.html)
+   Este es el panel exclusivo para el CLIENTE, no para vos.
+   ============================================================ */
+
+/* Usamos las variables que ya definimos al principio para no crear nuevas */
+.user-body {
     background-color: var(--bg-hero);
-}
-
-.auth-container {
-    display: flex;
-    background: var(--bg-body);
-    width: 900px;
-    max-width: 95%;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.auth-image {
-    flex: 1;
-    background-color: #333; /* Fondo oscuro tras la imagen */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.auth-image img {
-    width: 80%;
-    transform: rotate(-15deg); /* Efecto dinámico si usás la zapa suelta */
-}
-
-.auth-form-box {
-    flex: 1;
-    padding: 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.auth-form-box h2 {
-    font-size: 1.8rem;
-    margin-bottom: 30px;
-    text-transform: uppercase;
-}
-
-.input-group {
-    margin-bottom: 20px;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--bg-card);
-    color: var(--text-main);
-}
-
-.btn-auth {
-    width: 100%;
-    padding: 15px;
-    background-color: #000;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn-auth:hover {
-    background-color: var(--accent-red);
-}
-
-.auth-switch {
-    margin-top: 20px;
-    font-size: 0.85rem;
-    text-align: center;
-}
-
-/* =========================================
-   DASHBOARD DE USUARIO (FULL WIDTH & INTERACTIVO)
-   ========================================= */
-
-/* --- VARIABLES URBAN KICKS --- */
-:root {
-    --urban-red: #ff4d4d;
-    --urban-black: #000000;
-    --urban-dark-grey: #1a1a1a;
-    --urban-light-grey: #f8f8f8;
-    --header-height: 80px;
-}
-
-/* --- RESET GENERAL --- */
-body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--urban-light-grey);
 }
 
-/* --- HEADER (Igual a tienda.html) --- */
-header {
-    height: var(--header-height);
-    background: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 5%;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    box-sizing: border-box;
-}
-
-.logo img {
-    height: 45px;
-}
-
-.header-icons {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.header-icons i {
-    font-size: 1.5srem;
-    color: var(--urban-black);
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-#btn-logout:hover i {
-    color: #e60000 !important; /* Color más fuerte al pasar el mouse */
-}
-
-.header-icons i:hover {
-    color: var(--urban-red);
-}
-
-/* --- ESTRUCTURA DASHBOARD --- */
-.dashboard-container {
-    display: flex;
-    margin-top: var(--header-height); /* Para que no lo tape el header */
-    min-height: calc(100vh - var(--header-height));
-}
-
-/* --- SIDEBAR MEJORADA --- */
-.sidebar {
+/* Cambiamos .sidebar por .user-sidebar para que no choque con la del Admin */
+.user-sidebar {
     width: 280px;
     background: #000;
     color: white;
@@ -878,76 +723,79 @@ header {
     flex-direction: column;
     padding-top: 30px;
     position: fixed;
-    height: 100%;
+    height: 100vh;
+    z-index: 1000;
 }
 
-.sidebar-header {
-    padding: 20px 30px;
-    border-bottom: 1px solid #333;
+.user-avatar-side {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #222;
     margin-bottom: 20px;
 }
 
-.sidebar-header h3 {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #666;
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    background: var(--accent-red);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0 auto 10px;
 }
 
-.sidebar-link {
+.user-sidebar-link {
     padding: 18px 30px;
     color: #bbb;
     text-decoration: none;
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.8rem;
-    letter-spacing: 1px;
-    transition: 0.3s;
     display: flex;
     align-items: center;
     gap: 15px;
+    transition: 0.3s;
 }
 
-.sidebar-link i { font-size: 1.2rem; }
-
-.sidebar-link:hover, .sidebar-link.active {
-    background: var(--urban-dark-grey);
+.user-sidebar-link:hover, .user-sidebar-link.active {
+    background: #1a1a1a;
     color: white;
-    border-left: 5px solid var(--urban-red);
+    border-left: 5px solid var(--accent-red);
 }
 
-/* --- CONTENIDO PRINCIPAL --- */
-.main-content {
+/* --- CONTENIDO DEL PERFIL --- */
+.user-main-content {
     flex: 1;
     margin-left: 280px; 
     padding: 40px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra las cards */
+    align-items: center;
 }
 
-.section-card {
+.user-section-card {
     width: 100%;
-    max-width: 900px; /* Ancho ideal para formularios */
-    background: white;
+    max-width: 900px;
+    background: var(--bg-body);
     border-radius: 12px;
     padding: 40px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     margin-bottom: 30px;
+    border: 1px solid var(--border-color);
 }
 
-.section-card h2 {
+.user-section-card h2 {
     font-size: 1.3rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
     margin-bottom: 30px;
-    color: var(--urban-black);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    color: var(--text-main);
 }
 
-/* --- GRILLA DEL FORMULARIO --- */
+/* --- FORMULARIO DE DATOS --- */
 .perfil-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -960,7 +808,7 @@ header {
     font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
-    color: #888;
+    color: var(--text-muted);
     margin-bottom: 8px;
     display: block;
 }
@@ -968,39 +816,37 @@ header {
 .form-group-grande input {
     width: 100%;
     padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
     font-size: 1rem;
-    background: #fafafa;
+    background: var(--bg-card);
+    color: var(--text-main);
     transition: 0.3s;
 }
 
 .form-group-grande input:focus {
-    border-color: var(--urban-black);
-    background: white;
+    border-color: var(--accent-red);
     outline: none;
 }
 
-/* --- BOTÓN URBAN --- */
 .btn-guardar-grande {
-    background: var(--urban-black);
+    background: #000;
     color: white;
     padding: 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px;
     cursor: pointer;
     transition: 0.3s;
 }
 
 .btn-guardar-grande:hover {
-    background: var(--urban-red);
+    background: var(--accent-red);
     transform: translateY(-2px);
 }
 
-/* --- TABLA DE PEDIDOS --- */
+/* --- TABLA DE PEDIDOS (CLIENTE) --- */
 .orders-table {
     width: 100%;
     border-collapse: collapse;
@@ -1009,16 +855,17 @@ header {
 .orders-table th {
     text-align: left;
     padding: 15px;
-    background: #f9f9f9;
+    background: var(--bg-hero);
     font-size: 0.7rem;
-    color: #999;
+    color: var(--text-muted);
     text-transform: uppercase;
 }
 
 .orders-table td {
     padding: 20px 15px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
+    color: var(--text-main);
 }
 
 .status-pill {
@@ -1031,167 +878,11 @@ header {
 
 .shipped { background: #e7f9ee; color: #2ecc71; }
 
-/* --- MEJORA 2: MODO OSCURO --- */
-[data-theme="dark"] {
-    --urban-light-grey: #121212;
-    background-color: #121212;
-}
-
-[data-theme="dark"] .section-card {
-    background: #1e1e1e;
-    border: 1px solid #333;
-    color: white;
-}
-
-[data-theme="dark"] header {
-    background: #000;
-    border-bottom: 1px solid #222;
-}
-
-[data-theme="dark"] .form-group-grande input {
-    background: #2a2a2a;
-    border-color: #444;
-    color: white;
-}
-
-[data-theme="dark"] header i { color: white; }
-
-/* --- MEJORA 3: SIDEBAR CON CUERPO --- */
-.user-avatar-side {
-    text-align: center;
-    padding: 20px 0;
-    border-bottom: 1px solid #222;
-    margin-bottom: 20px;
-}
-
-.avatar-circle {
-    width: 60px;
-    height: 60px;
-    background: var(--urban-red);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0 auto 10px;
-}
-
-.sidebar-header h3 {
-    font-size: 0.9rem;
-    color: white;
-    margin: 0;
-}
-
-.sidebar-header p {
-    font-size: 0.7rem;
-    color: #666;
-}
-
-/* --- RESPONSIVE --- */
+/* --- RESPONSIVE DASHBOARD --- */
 @media (max-width: 992px) {
-    .sidebar { width: 80px; }
-    .sidebar-link span, .sidebar-header h3 { display: none; }
-    .main-content { margin-left: 80px; padding: 25px; }
+    .user-sidebar { width: 80px; }
+    .user-sidebar-link span, .sidebar-header h3, .sidebar-header p { display: none; }
+    .user-main-content { margin-left: 80px; padding: 25px; }
     .perfil-form-grid { grid-template-columns: 1fr; }
     .full-width { grid-column: span 1; }
-}
-
-/* --- VARIABLES PARA MODO OSCURO --- */
-[data-theme="dark"] {
-    --urban-light-grey: #121212; /* Fondo de la página */
-    --urban-black: #ffffff;      /* El negro ahora es blanco para textos */
-}
-
-[data-theme="dark"] body {
-    background-color: #121212;
-    color: #eeeeee;
-}
-
-/* --- MEJORAS ESPECÍFICAS PARA MODO OSCURO --- */
-
-[data-theme="dark"] .sidebar {
-    background: #1a1a1a; /* Un gris muy oscuro en lugar de blanco puro */
-    border-right: 1px solid #333;
-}
-
-[data-theme="dark"] .user-avatar-side {
-    border-bottom: 1px solid #333;
-}
-
-/* Fix para el botón "Actualizar Perfil" */
-[data-theme="dark"] .btn-guardar-grande {
-    background: var(--urban-red); /* En modo oscuro, mejor que sea rojo directo */
-    color: white;
-    border: none;
-}
-
-[data-theme="dark"] .btn-guardar-grande:hover {
-    background: white;
-    color: black;
-}
-
-/* Fix para la Sidebar (Evitar que se vea todo blanco) */
-[data-theme="dark"] .sidebar-link {
-    color: #bbb;
-}
-
-[data-theme="dark"] .sidebar-link:hover, 
-[data-theme="dark"] .sidebar-link.active {
-    background: #252525;
-    color: white;
-}
-
-/* Mantener el círculo del avatar con color */
-[data-theme="dark"] .avatar-circle {
-    background: var(--urban-red);
-    color: white;
-}
-
-/* Tarjetas en modo oscuro */
-[data-theme="dark"] .section-card {
-    background: #1e1e1e;
-    border-color: #333;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-[data-theme="dark"] .section-card h2 {
-    color: #ffffff;
-    border-bottom-color: #333;
-}
-
-/* Inputs en modo oscuro */
-[data-theme="dark"] .form-group-grande input {
-    background: #2a2a2a;
-    border-color: #444;
-    color: white;
-}
-
-[data-theme="dark"] .form-group-grande input:focus {
-    border-color: var(--urban-red);
-}
-
-/* Header en modo oscuro */
-[data-theme="dark"] header {
-    background: #000000;
-    border-bottom: 1px solid #222;
-}
-
-[data-theme="dark"] .header-icons i {
-    color: white;
-}
-
-/* Tabla en modo oscuro */
-[data-theme="dark"] .orders-table th {
-    background: #252525;
-    color: #888;
-}
-
-[data-theme="dark"] .orders-table td {
-    border-bottom-color: #333;
-}
-
-[data-theme="dark"] .form-group-grande label {
-    color: #aaa;
 }
