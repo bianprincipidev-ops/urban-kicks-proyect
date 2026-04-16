@@ -102,11 +102,21 @@ app.post('/api/login', async (req, res) => {
     try {
         const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
         if (users.length === 0) return res.status(404).json({ error: "Usuario no registrado." });
+        
         const user = users[0];
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) return res.status(401).json({ error: "Credenciales inválidas." });
-        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '24h' });
-        res.json({ token, role: user.role });
+
+        // ✅ Usamos la nueva columna is_admin para definir el rol
+        const role = user.is_admin === 1 ? 'admin' : 'user';
+
+        const token = jwt.sign(
+            { id: user.id, role: role }, 
+            process.env.JWT_SECRET || 'secret_key', 
+            { expiresIn: '24h' }
+        );
+
+        res.json({ message: "Login exitoso", token, role: role });
     } catch (error) {
         res.status(500).json({ error: "Error interno." });
     }
