@@ -101,6 +101,28 @@
                 </form>
             </div>
         </div>
+
+        <div id="modalRecuperar" class="modal-recuperar">
+            <div class="modal-content">
+                <div id="paso1">
+                    <h3>Recuperar Cuenta</h3>
+                    <p>Ingresa tu email para recibir un código de verificación.</p>
+                    <input type="email" id="emailRecuperar" placeholder="tu@email.com" class="modal-input">
+                    <button id="btnEnviarCodigo" onclick="enviarCodigo()" class="btn-modal">ENVIAR CÓDIGO</button>
+                </div>
+
+                <div id="paso2" style="display:none;">
+                    <h3>Verificar Código</h3>
+                    <p>Ingresa el código enviado a tu mail y tu nueva contraseña.</p>
+                    <input type="text" id="codigoVerificacion" placeholder="Código de 6 dígitos" class="modal-input">
+                    <input type="password" id="nuevaPassword" placeholder="Nueva Contraseña" class="modal-input">
+                    <button id="btnRestablecer" onclick="cambiarPassword()" class="btn-modal">RESTABLECER CONTRASEÑA</button>
+                </div>
+
+                <button onclick="cerrarModal()" class="btn-cancelar">Volver al login</button>
+        </div>
+    </div>
+
     </div>
 
     <div id="modalRecuperar" class="modal-recuperar">
