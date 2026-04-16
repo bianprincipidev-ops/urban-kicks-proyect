@@ -888,110 +888,107 @@ footer {
 }
 
 /* ============================================================
-   AUTENTICACIÓN (login.html / registro.html) - CORREGIDO
+   AUTENTICACIÓN (login.html / registro.html) - ESTILO FINAL
    ============================================================ */
 
-/* Contenedor principal para centrar el formulario */
 .auth-container {
     display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center;     /* Centra verticalmente */
+    justify-content: flex-end; /* ESTO lo manda a la derecha como en tu foto */
+    align-items: center;
     min-height: 100vh;
-    padding: 20px;
-    background-color: var(--bg-body);
+    padding-right: 10%;      /* Espaciado desde el borde derecho */
+    background-color: #ffffff;
 }
 
-/* Caja del formulario (Como se ve en tus fotos) */
 .auth-box {
     width: 100%;
-    max-width: 400px;
-    text-align: left; /* Alineación a la izquierda como en tu captura */
-}
-
-/* Logo arriba del formulario */
-.auth-logo-container {
-    margin-bottom: 30px;
+    max-width: 380px;
     text-align: left;
 }
 
-.auth-logo-container img {
-    max-width: 200px; /* Ajustá según el tamaño de tu logo */
-}
-
 .auth-box h2 {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 800;
     text-transform: uppercase;
     margin-bottom: 5px;
-    color: var(--text-main);
+    letter-spacing: -0.5px;
 }
 
 .auth-box p {
-    color: var(--text-muted);
-    margin-bottom: 25px;
+    color: #666;
     font-size: 0.9rem;
+    margin-bottom: 30px;
 }
 
-/* Inputs como en image_da35e4.png */
+/* Inputs con el estilo exacto de tu captura */
 .input-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .input-group label {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
-    margin-bottom: 5px;
-    color: var(--text-main);
+    margin-bottom: 8px;
+    color: #000;
 }
 
 .input-group input {
     width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #eee;
-    border-radius: 6px;
-    background-color: #f9f9f9;
-    font-family: inherit;
+    padding: 15px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    background-color: #f8f8f8; /* El gris suave de la imagen */
     font-size: 0.9rem;
+    font-family: inherit;
 }
 
-/* Botón de Registro (Rojo) */
+/* Botones específicos por color */
 .btn-registrarme {
     width: 100%;
-    padding: 12px;
-    background-color: #ff4d4d;
+    padding: 16px;
+    background-color: #ff4d4d; /* El rojo coral de tu captura */
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 700;
     text-transform: uppercase;
     cursor: pointer;
-    margin-top: 10px;
+    transition: 0.3s;
 }
 
-/* Botón de Entrar (Negro) */
 .btn-entrar {
     width: 100%;
-    padding: 12px;
+    padding: 16px;
     background-color: #000;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 700;
     text-transform: uppercase;
     cursor: pointer;
-    margin-top: 10px;
+    transition: 0.3s;
 }
 
 .auth-footer {
-    margin-top: 20px;
-    font-size: 0.8rem;
+    margin-top: 25px;
+    font-size: 0.85rem;
     text-align: center;
+    color: #333;
 }
 
 .auth-footer a {
     color: #ff4d4d;
     text-decoration: none;
     font-weight: 700;
+}
+
+/* Responsivo: en el celu se centra */
+@media (max-width: 768px) {
+    .auth-container {
+        justify-content: center;
+        padding-right: 20px;
+        padding-left: 20px;
+    }
 }
