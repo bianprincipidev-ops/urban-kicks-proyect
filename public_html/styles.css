@@ -913,35 +913,38 @@ footer {
     box-shadow: 0 15px 35px rgba(0,0,0,0.1); /* Sombra suave para dar efecto de tarjeta flotante */
 }
 
-/* --- LADO IZQUIERDO: LOGO --- */
+/* --- LADO IZQUIERDO: LOGO (Versión Full) --- */
 .auth-image-side {
-    flex: 1;
-    background-color: #1a1a1a; /* El fondo oscuro de la tarjeta izquierda */
+    flex: 1.2; /* Le damos un poquito más de ancho al logo */
+    background-color: #ffffff; /* Fondo blanco para que el logo no tenga bordes */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px;
+    padding: 20px;
+    border-right: 1px solid #eee; /* Una línea sutil para separar del formulario */
+}
+
+.auth-image-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .auth-logo-large {
-    width: 100%;       /* Ocupa el ancho del contenedor blanco */
-    max-width: 280px;  /* Ajusta este tamaño según prefieras el logo */
+    width: 85%; /* Que ocupe casi todo el ancho disponible */
+    max-width: 450px; /* Pero con un límite para que no sea gigante */
     height: auto;
-    display: block;
-    /* QUITAMOS EL FILTER INVERT para que se vea tu logo original */
-    object-fit: contain; 
+    object-fit: contain;
+    /* Un toque de sombra suave para que flote */
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
 }
 
-/* Contenedor blanco interno (el cuadrado que se ve en tu captura) */
-.auth-image-content {
-    background-color: #ffffff; 
-    padding: 20px;
-    border-radius: 4px; /* Un toque sutil de redondeo */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 300px;  /* Cuadrado fijo */
-    height: 300px;
+/* Ajuste del formulario para que no quede pegado */
+.auth-form-side {
+    flex: 1;
+    padding: 40px;
 }
 
 /* --- LADO DERECHO: FORMULARIO --- */
