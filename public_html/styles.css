@@ -998,12 +998,17 @@ footer {
 
 /* ============================================================
    AUTENTICACIÓN LOOK EDITORIAL (login.html / registro.html)
+   Inspirado en tu referencia: Instagram DUoeHtIDJsX
    ============================================================ */
+   
+/* Reset específico para estas páginas */
 .auth-page {
     background-color: #ffffff;
     margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Usamos helvética para el look minimal */
 }
 
+/* Contenedor principal centrado */
 .auth-container {
     display: flex;
     justify-content: center;
@@ -1012,142 +1017,110 @@ footer {
     padding: 20px;
 }
 
+/* Caja del formulario */
 .auth-box {
     width: 100%;
-    max-width: 400px;
-    animation: fadeIn 0.8s ease;
+    max-width: 440px; /* Un poco más ancho para la tipografía grande */
+    text-align: left;
 }
 
+/* Tipografía Principal GIGANTE y Compacta (Estilo Revista) */
 .auth-box h2 {
-    font-size: 2.5rem;
-    font-weight: 900;
+    font-size: 3.2rem; /* Tamaño muy grande */
+    font-weight: 900;  /* Muy pesada */
     text-transform: uppercase;
-    line-height: 0.9;
-    margin-bottom: 10px;
-    letter-spacing: -2px;
-    color: #000;
+    line-height: 0.85; /* Súper compacta */
+    letter-spacing: -3px; /* Letras muy juntas */
+    margin-bottom: 15px;
+    color: #000000;
 }
 
+/* Párrafo bajada de título */
 .auth-box p {
-    font-size: 1rem;
+    font-size: 1.1rem;
     color: #666;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
+    letter-spacing: -0.5px;
 }
 
-/* Campos de entrada Minimalistas */
+/* --- CAMPOS DE ENTRADA EDITORIAL (Estilo Línea) --- */
 .input-group {
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
+/* Label muy pequeño y separado (como en la referencia) */
 .input-group label {
     display: block;
-    font-size: 0.7rem;
-    font-weight: 800;
+    font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    letter-spacing: 2px; /* Separamos las letras */
+    margin-bottom: 12px;
     color: #000;
 }
 
+/* Input Minimalista: Solo línea inferior */
 .input-group input {
     width: 100%;
-    padding: 15px 0;
+    padding: 18px 0; /* Padding solo arriba y abajo */
     border: none;
-    border-bottom: 2px solid #eeeeee;
+    border-bottom: 2px solid #e0e0e0; /* Línea gris sutil */
     background-color: transparent;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-family: inherit;
-    transition: 0.3s;
+    transition: 0.3s ease;
 }
 
+/* Estado Focus: La línea cambia a rojo Urban Kicks */
 .input-group input:focus {
     outline: none;
     border-bottom-color: #ff4d4d;
 }
 
-/* Botones Urban Kicks */
+/* --- BOTÓN PRINCIPAL EDITORIAL --- */
 .btn-auth-editorial {
     width: 100%;
-    padding: 20px;
-    background-color: #000;
-    color: #fff;
+    padding: 22px; /* Muy alto y presencia */
+    background-color: #000000;
+    color: #ffffff;
     border: none;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 3px; /* Letras muy separadas */
     cursor: pointer;
-    transition: 0.3s;
-    margin-top: 10px;
+    transition: 0.3s ease;
+    margin-top: 20px;
 }
 
 .btn-auth-editorial:hover {
     background-color: #ff4d4d;
-    transform: translateY(-3px);
+    transform: translateY(-3px); /* Efecto de levitación */
 }
 
+/* Enlaces Inferiores */
 .auth-footer {
-    margin-top: 30px;
+    margin-top: 35px;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
     font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .auth-footer a {
     color: #000;
-    text-underline-offset: 4px;
+    text-decoration: underline;
+    text-underline-offset: 4px; /* Separamos el subrayado */
 }
 
-/* --- ESTILOS DEL MODAL (Movidos del HTML al CSS) --- */
-.modal-recuperar {
-    display: none;
-    position: fixed;
-    background: rgba(255,255,255,0.98); /* Blanco casi puro para look editorial */
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 2000;
-    backdrop-filter: blur(10px);
+.auth-footer a:hover {
+    color: #ff4d4d;
 }
 
-.modal-content {
-    max-width: 400px;
-    margin: 15vh auto;
-    padding: 40px;
-    text-align: center;
-}
-
-.modal-input {
-    width: 100%;
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 1px solid #eee;
-    background: #f9f9f9;
-    border-radius: 4px;
-}
-
-.btn-modal {
-    width: 100%;
-    padding: 15px;
-    background: #000;
-    color: #fff;
-    border: none;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.btn-cancelar {
-    background: none;
-    border: none;
-    color: #999;
-    margin-top: 20px;
-    cursor: pointer;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-    letter-spacing: 1px;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Responsivo para móviles */
+@media (max-width: 600px) {
+    .auth-box h2 {
+        font-size: 2.5rem; /* Achicamos un poco en móvil */
+        letter-spacing: -2px;
+    }
 }
