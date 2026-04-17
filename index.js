@@ -20,7 +20,10 @@ const transporter = nodemailer.createTransport({
     secure: true, 
     auth: {
         user: 'soporte@urbankicks.com.ar', 
-        pass: 'TuPasswordDeHostinger' // Reemplaza por tu contraseña real
+        pass: 'Carpeta_123' // Reemplaza por tu contraseña real
+    },
+    tls: {
+        rejectUnauthorized: false // evita bloqueos por certificados no verificados
     }
 });
 
