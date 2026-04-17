@@ -778,73 +778,84 @@ footer {
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /* ============================================================
    DASHBOARD DE USUARIO (perfil.html / mis-compras.html)
-   Este es el panel exclusivo para el CLIENTE, no para vos.
    ============================================================ */
 
-/* Usamos las variables que ya definimos al principio para no crear nuevas */
 .user-body {
-    background-color: var(--bg-hero);
+    background-color: #f8f9fa !important; /* Gris muy claro para que resalten las tarjetas blancas */
     margin: 0;
+    font-family: 'Inter', sans-serif;
 }
 
-/* Cambiamos .sidebar por .user-sidebar para que no choque con la del Admin */
+/* --- SIDEBAR MEJORADA --- */
 .user-sidebar {
     width: 280px;
     background: #000;
     color: white;
     display: flex;
     flex-direction: column;
-    padding-top: 30px;
+    padding-top: 40px;
     position: fixed;
     height: 100vh;
     z-index: 1000;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.05);
 }
 
 .user-avatar-side {
     text-align: center;
-    padding: 20px 0;
-    border-bottom: 1px solid #222;
+    padding: 0 20px 30px;
+    border-bottom: 1px solid #1a1a1a;
     margin-bottom: 20px;
 }
 
 .avatar-circle {
-    width: 60px;
-    height: 60px;
-    background: var(--accent-red);
+    width: 70px;
+    height: 70px;
+    background: #ff4d4d; /* Tu rojo Urban Kicks */
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0 auto 10px;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0 auto 15px;
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.3);
+}
+
+.user-avatar-side p {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
 }
 
 .user-sidebar-link {
-    padding: 18px 30px;
-    color: #bbb;
+    padding: 20px 35px;
+    color: #888;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
     display: flex;
     align-items: center;
     gap: 15px;
-    transition: 0.3s;
+    transition: all 0.3s ease;
 }
 
-.user-sidebar-link:hover, .user-sidebar-link.active {
-    background: #1a1a1a;
-    color: white;
-    border-left: 5px solid var(--accent-red);
+.user-sidebar-link:hover, 
+.user-sidebar-link.active {
+    background: #111;
+    color: #fff;
+    border-left: 6px solid #ff4d4d;
 }
 
-/* --- CONTENIDO DEL PERFIL --- */
+/* --- CONTENIDO PRINCIPAL --- */
 .user-main-content {
     flex: 1;
     margin-left: 280px; 
-    padding: 40px;
+    padding: 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -852,27 +863,31 @@ footer {
 
 .user-section-card {
     width: 100%;
-    max-width: 900px;
-    background: var(--bg-body);
-    border-radius: 12px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    margin-bottom: 30px;
-    border: 1px solid var(--border-color);
+    max-width: 850px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 50px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.03);
+    margin-bottom: 40px;
+    border: none; /* Quitamos el borde para un look más limpio */
 }
 
 .user-section-card h2 {
-    font-size: 1.3rem;
+    font-size: 1.8rem;
+    font-weight: 900;
     text-transform: uppercase;
-    margin-bottom: 30px;
-    color: var(--text-main);
+    letter-spacing: -1px;
+    margin-bottom: 40px;
+    color: #000;
+    border-bottom: 4px solid #ff4d4d;
+    display: inline-block;
 }
 
-/* --- FORMULARIO DE DATOS --- */
+/* --- FORMULARIO DE DATOS (Estilo Minimalista) --- */
 .perfil-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 25px;
+    gap: 35px;
 }
 
 .full-width { grid-column: span 2; }
@@ -881,45 +896,50 @@ footer {
     font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 8px;
+    color: #aaa;
+    margin-bottom: 10px;
     display: block;
+    letter-spacing: 1px;
 }
 
 .form-group-grande input {
     width: 100%;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    background: var(--bg-card);
-    color: var(--text-main);
+    padding: 15px 0; /* Solo padding vertical */
+    border: none;
+    border-bottom: 2px solid #eee; /* Solo línea inferior igual que el login */
+    background: transparent;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #000;
     transition: 0.3s;
 }
 
 .form-group-grande input:focus {
-    border-color: var(--accent-red);
+    border-bottom-color: #ff4d4d;
     outline: none;
 }
 
 .btn-guardar-grande {
     background: #000;
     color: white;
-    padding: 20px;
+    padding: 22px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     font-weight: 800;
     text-transform: uppercase;
+    letter-spacing: 2px;
     cursor: pointer;
     transition: 0.3s;
+    margin-top: 20px;
 }
 
 .btn-guardar-grande:hover {
-    background: var(--accent-red);
-    transform: translateY(-2px);
+    background: #ff4d4d;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
 }
 
-/* --- TABLA DE PEDIDOS (CLIENTE) --- */
+/* --- TABLA DE PEDIDOS (Look Premium) --- */
 .orders-table {
     width: 100%;
     border-collapse: collapse;
@@ -928,36 +948,44 @@ footer {
 .orders-table th {
     text-align: left;
     padding: 15px;
-    background: var(--bg-hero);
-    font-size: 0.7rem;
-    color: var(--text-muted);
+    font-size: 0.75rem;
+    color: #bbb;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #f4f4f4;
 }
 
 .orders-table td {
-    padding: 20px 15px;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
-    color: var(--text-main);
+    padding: 25px 15px;
+    border-bottom: 1px solid #f9f9f9;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
 }
 
 .status-pill {
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 0.7rem;
+    padding: 8px 16px;
+    border-radius: 50px; /* Pill total */
+    font-weight: 800;
+    font-size: 0.65rem;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.shipped { background: #e7f9ee; color: #2ecc71; }
+.shipped { 
+    background: #e7f9ee; 
+    color: #2ecc71; 
+}
 
 /* --- RESPONSIVE DASHBOARD --- */
 @media (max-width: 992px) {
     .user-sidebar { width: 80px; }
-    .user-sidebar-link span, .sidebar-header h3, .sidebar-header p { display: none; }
-    .user-main-content { margin-left: 80px; padding: 25px; }
+    .user-sidebar-link span, 
+    .user-avatar-side p { display: none; }
+    .user-main-content { margin-left: 80px; padding: 30px; }
     .perfil-form-grid { grid-template-columns: 1fr; }
     .full-width { grid-column: span 1; }
+    .user-section-card { padding: 30px; }
 }
 
 /* ============================================================
