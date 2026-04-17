@@ -913,25 +913,35 @@ footer {
     box-shadow: 0 15px 35px rgba(0,0,0,0.1); /* Sombra suave para dar efecto de tarjeta flotante */
 }
 
-/* --- LADO IZQUIERDO: LOGO/IMAGEN --- */
+/* --- LADO IZQUIERDO: LOGO --- */
 .auth-image-side {
-    flex: 1; /* Ocupa el 50% */
-    background-color: #1a1a1a; /* Fondo oscuro para el logo, estilo look editorial */
+    flex: 1;
+    background-color: #1a1a1a; /* El fondo oscuro de la tarjeta izquierda */
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 40px;
 }
 
-.auth-image-content {
-    text-align: center;
+.auth-logo-large {
+    width: 100%;       /* Ocupa el ancho del contenedor blanco */
+    max-width: 280px;  /* Ajusta este tamaño según prefieras el logo */
+    height: auto;
+    display: block;
+    /* QUITAMOS EL FILTER INVERT para que se vea tu logo original */
+    object-fit: contain; 
 }
 
-/* Ajuste específico para tu logo que es muy grande */
-.auth-logo-large {
-    max-width: 300px; /* Ajustá este valor según cómo quieras que se vea de grande */
-    height: auto;
-    filter: brightness(0) invert(1); /* OPCIONAL: Hace el logo blanco para que resalte en el fondo oscuro */
+/* Contenedor blanco interno (el cuadrado que se ve en tu captura) */
+.auth-image-content {
+    background-color: #ffffff; 
+    padding: 20px;
+    border-radius: 4px; /* Un toque sutil de redondeo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;  /* Cuadrado fijo */
+    height: 300px;
 }
 
 /* --- LADO DERECHO: FORMULARIO --- */
