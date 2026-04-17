@@ -782,44 +782,45 @@ footer {
 
 /* Contenedor principal para separar Sidebar de Contenido */
 .user-layout {
-    display: flex;
+    display: flex; /* Esto alinea sidebar y contenido como dos columnas sólidas */
+    width: 100%;
     min-height: 100vh;
-    background-color: #000; /* Fondo oscuro general para consistencia */
+    background-color: #000;
 }
 
 /* --- SIDEBAR CORREGIDA --- */
 .user-sidebar {
     width: 280px;
-    background: #111; /* Un tono ligeramente distinto al fondo para dar profundidad */
+    background: #111;
     color: white;
     display: flex;
     flex-direction: column;
     padding: 40px 20px;
-    position: fixed; /* Mantiene la barra fija */
-    height: 100vh;
-    z-index: 1000;
+    min-height: 100vh;
     border-right: 1px solid #222;
+    flex-shrink: 0; /* Evita que la barra se aplaste si el formulario es muy ancho */
 }
 
 /* --- CONTENIDO PRINCIPAL CON MARGEN --- */
 .user-main-content {
-    flex: 1;
-    margin-left: 280px; /* IMPORTANTE: Debe ser igual al ancho de la sidebar */
-    padding: 60px;
+    flex: 1; /* Esto le dice: "ocupá todo el espacio que dejó la sidebar" */
+    padding: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #000; /* Volvemos al negro puro para el contenido */
+    background-color: #000;
+    min-width: 0; /* Evita errores de desborde */
 }
 
 /* Tarjeta que contiene el formulario */
 .user-section-card {
     width: 100%;
-    max-width: 850px;
-    background: #111; /* Tarjeta ligeramente grisácea para que resalten los inputs */
+    max-width: 800px;
+    background: #111;
     border-radius: 15px;
     padding: 50px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    box-sizing: border-box;
 }
 
 .user-section-card h2 {
