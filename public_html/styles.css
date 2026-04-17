@@ -777,140 +777,87 @@ footer {
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /* ============================================================
-   DASHBOARD DE USUARIO (perfil.html / mis-compras.html)
+   DASHBOARD DE USUARIO (perfil.html) - CORRECCIÓN DE LAYOUT
    ============================================================ */
 
-.user-body {
-    background-color: #f8f9fa !important; /* Gris muy claro para que resalten las tarjetas blancas */
-    margin: 0;
-    font-family: 'Inter', sans-serif;
+/* Contenedor principal para separar Sidebar de Contenido */
+.user-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #000; /* Fondo oscuro general para consistencia */
 }
 
-/* --- SIDEBAR MEJORADA --- */
+/* --- SIDEBAR CORREGIDA --- */
 .user-sidebar {
     width: 280px;
-    background: #000;
+    background: #111; /* Un tono ligeramente distinto al fondo para dar profundidad */
     color: white;
     display: flex;
     flex-direction: column;
-    padding-top: 40px;
-    position: fixed;
+    padding: 40px 20px;
+    position: fixed; /* Mantiene la barra fija */
     height: 100vh;
     z-index: 1000;
-    box-shadow: 10px 0 30px rgba(0,0,0,0.05);
+    border-right: 1px solid #222;
 }
 
-.user-avatar-side {
-    text-align: center;
-    padding: 0 20px 30px;
-    border-bottom: 1px solid #1a1a1a;
-    margin-bottom: 20px;
-}
-
-.avatar-circle {
-    width: 70px;
-    height: 70px;
-    background: #ff4d4d; /* Tu rojo Urban Kicks */
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    font-weight: 900;
-    margin: 0 auto 15px;
-    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.3);
-}
-
-.user-avatar-side p {
-    font-size: 0.9rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 0;
-}
-
-.user-sidebar-link {
-    padding: 20px 35px;
-    color: #888;
-    text-decoration: none;
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 1.5px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.3s ease;
-}
-
-.user-sidebar-link:hover, 
-.user-sidebar-link.active {
-    background: #111;
-    color: #fff;
-    border-left: 6px solid #ff4d4d;
-}
-
-/* --- CONTENIDO PRINCIPAL --- */
+/* --- CONTENIDO PRINCIPAL CON MARGEN --- */
 .user-main-content {
     flex: 1;
-    margin-left: 280px; 
+    margin-left: 280px; /* IMPORTANTE: Debe ser igual al ancho de la sidebar */
     padding: 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: #000; /* Volvemos al negro puro para el contenido */
 }
 
+/* Tarjeta que contiene el formulario */
 .user-section-card {
     width: 100%;
     max-width: 850px;
-    background: #ffffff;
-    border-radius: 20px;
+    background: #111; /* Tarjeta ligeramente grisácea para que resalten los inputs */
+    border-radius: 15px;
     padding: 50px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.03);
-    margin-bottom: 40px;
-    border: none; /* Quitamos el borde para un look más limpio */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
 }
 
 .user-section-card h2 {
+    color: #fff;
     font-size: 1.8rem;
-    font-weight: 900;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: -1px;
     margin-bottom: 40px;
-    color: #000;
-    border-bottom: 4px solid #ff4d4d;
-    display: inline-block;
+    border-left: 5px solid #ff4d4d;
+    padding-left: 15px;
 }
 
-/* --- FORMULARIO DE DATOS (Estilo Minimalista) --- */
+/* --- FORMULARIO ESTILO MINIMALISTA (image_72f6c7.png) --- */
 .perfil-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 35px;
+    gap: 30px;
 }
 
 .full-width { grid-column: span 2; }
 
 .form-group-grande label {
-    font-size: 0.7rem;
-    font-weight: 800;
+    font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
-    color: #aaa;
+    color: #888;
     margin-bottom: 10px;
     display: block;
-    letter-spacing: 1px;
 }
 
 .form-group-grande input {
     width: 100%;
-    padding: 15px 0; /* Solo padding vertical */
+    padding: 12px 0;
     border: none;
-    border-bottom: 2px solid #eee; /* Solo línea inferior igual que el login */
+    border-bottom: 1px solid #444; /* Línea sutil como en tu captura */
     background: transparent;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #000;
+    font-size: 1rem;
+    color: #fff;
     transition: 0.3s;
 }
 
@@ -919,73 +866,19 @@ footer {
     outline: none;
 }
 
-.btn-guardar-grande {
-    background: #000;
-    color: white;
-    padding: 22px;
-    border: none;
-    border-radius: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 20px;
-}
-
-.btn-guardar-grande:hover {
-    background: #ff4d4d;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
-}
-
-/* --- TABLA DE PEDIDOS (Look Premium) --- */
-.orders-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.orders-table th {
-    text-align: left;
-    padding: 15px;
-    font-size: 0.75rem;
-    color: #bbb;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 2px solid #f4f4f4;
-}
-
-.orders-table td {
-    padding: 25px 15px;
-    border-bottom: 1px solid #f9f9f9;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #333;
-}
-
-.status-pill {
-    padding: 8px 16px;
-    border-radius: 50px; /* Pill total */
-    font-weight: 800;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.shipped { 
-    background: #e7f9ee; 
-    color: #2ecc71; 
-}
-
-/* --- RESPONSIVE DASHBOARD --- */
+/* --- RESPONSIVE --- */
 @media (max-width: 992px) {
-    .user-sidebar { width: 80px; }
-    .user-sidebar-link span, 
-    .user-avatar-side p { display: none; }
-    .user-main-content { margin-left: 80px; padding: 30px; }
-    .perfil-form-grid { grid-template-columns: 1fr; }
-    .full-width { grid-column: span 1; }
-    .user-section-card { padding: 30px; }
+    .user-sidebar {
+        width: 80px;
+        padding: 20px 10px;
+    }
+    .user-sidebar span, .user-avatar-side p {
+        display: none; /* Escondemos textos en tablets/celulares */
+    }
+    .user-main-content {
+        margin-left: 80px;
+        padding: 30px;
+    }
 }
 
 /* ============================================================
