@@ -56,6 +56,11 @@
         </div>
 
     <script>
+
+        (function() {
+            const token = localStorage.getItem('urban_token');
+            if (!token) window.location.href = 'index.html';
+        })();
         let listaPromos = [];
         let indiceActual = 0;
 

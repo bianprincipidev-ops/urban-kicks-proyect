@@ -111,10 +111,22 @@
 
     <script>
         // 1. SEGURIDAD: Solo Admins
-        (function() {
+        (async function() {
             const token = localStorage.getItem('urban_token');
-            const role = localStorage.getItem('urban_role');
-            if (!token || role !== 'admin') {
+            if (!token) return window.location.href = 'index.html';
+
+            try {
+                const res = await fetch('/api/usuario/perfil', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                // Si el servidor dice que NO es admin, lo manda afuera
+                if (!res.ok || data.role !== 'admin') {
+                    window.location.href = 'index.html';
+                }
+            } catch {
+                // Si hay error de red, tampoco puede entrar
                 window.location.href = 'index.html';
             }
         })();

@@ -113,7 +113,7 @@ app.post('/api/login', async (req, res) => {
         if (!validPassword) return res.status(401).json({ error: "Credenciales inválidas." });
 
         // rol DIRECTO de la base de datos
-        const userRole = user.role; 
+        const userRole = user.role || (user.is_admin === 1 ? 'admin' : 'user');
 
         const token = jwt.sign(
             { id: user.id, role: userRole }, 
@@ -156,7 +156,12 @@ app.get('/api/usuario/perfil', async (req, res) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
         const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
-        res.json(rows[0]);
+        const u = rows[0];
+        res.json({ 
+            id: u.id, 
+            username: u.username, 
+            role: u.role || (u.is_admin === 1 ? 'admin' : 'user')
+        })
     } catch (error) {
         res.status(401).json({ error: "Sesión inválida" });
     }
