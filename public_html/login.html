@@ -5,141 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Estilos del Modal de Recuperación */
-        .modal-recuperar {
-            display: none; 
-            position: fixed; 
-            background: rgba(0,0,0,0.85); 
-            width: 100%; 
-            height: 100%; 
-            top: 0; 
-            left: 0; 
-            z-index: 2000;
-            backdrop-filter: blur(8px);
-        }
-        .modal-content {
-            background: #fff; 
-            width: 90%;
-            max-width: 400px; 
-            margin: 10vh auto; 
-            padding: 40px; 
-            border-radius: 20px; 
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            color: #1a1a1a;
-        }
-        .modal-content h3 { color: #000; font-size: 1.5rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .modal-content p { font-size: 0.95rem; margin-bottom: 25px; color: #555; line-height: 1.4; }
-        .modal-input {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 15px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            transition: 0.3s;
-        }
-        .modal-input:focus { border-color: #000; outline: none; }
-        .btn-modal {
-            width: 100%;
-            padding: 14px;
-            background: #000;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .btn-modal:hover { background: #333; transform: translateY(-2px); }
-        .btn-modal:disabled { background: #888; cursor: not-allowed; }
-        .btn-cancelar {
-            background: none; 
-            border: none; 
-            color: #888; 
-            margin-top: 20px; 
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 0.9rem;
-            display: block;
-            width: 100%;
-        }
-        .btn-cancelar:hover { color: #000; }
-    </style>
 </head>
 <body class="auth-page">
+
     <div class="auth-container">
-        <div class="auth-image">
-            <div class="auth-image-content">
-                <img src="logo-urban.png" alt="Urban Kicks">
-            </div>
-        </div>
-
-        <div class="auth-form-side">
-            <div class="auth-box">
-                <h2>Iniciar Sesión</h2>
-                <p>¡Qué bueno verte de nuevo!</p>
+        <div class="auth-box">
+            <h2>Iniciar Sesión</h2>
+            <p>¡Qué bueno verte de nuevo!</p>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="tu@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="password" placeholder="********" required>
+                </div>
                 
-                <form id="login-form">
-                    <div class="input-group">
-                        <label>Email</label>
-                        <input type="email" placeholder="tu@email.com" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Contraseña</label>
-                        <input type="password" placeholder="********" required>
-                    </div>
-                    <button type="submit" class="btn-auth">Entrar</button>
-                    
-                    <div class="auth-footer">
-                        ¿No tenés cuenta? <a href="registro.html">Crear cuenta</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div id="modalRecuperar" class="modal-recuperar">
-            <div class="modal-content">
-                <div id="paso1">
-                    <h3>Recuperar Cuenta</h3>
-                    <p>Ingresa tu email para recibir un código de verificación.</p>
-                    <input type="email" id="emailRecuperar" placeholder="tu@email.com" class="modal-input">
-                    <button id="btnEnviarCodigo" onclick="enviarCodigo()" class="btn-modal">ENVIAR CÓDIGO</button>
+                <button type="submit" class="btn-auth-editorial">Entrar</button>
+                
+                <div class="auth-footer">
+                    ¿No tenés cuenta? <a href="registro.html">Crear cuenta</a> <br><br>
+                    <a href="#" onclick="mostrarModalRecuperacion()" style="font-weight: 400; text-transform: none;">¿Olvidaste tu contraseña?</a>
                 </div>
-
-                <div id="paso2" style="display:none;">
-                    <h3>Verificar Código</h3>
-                    <p>Ingresa el código enviado a tu mail y tu nueva contraseña.</p>
-                    <input type="text" id="codigoVerificacion" placeholder="Código de 6 dígitos" class="modal-input">
-                    <input type="password" id="nuevaPassword" placeholder="Nueva Contraseña" class="modal-input">
-                    <button id="btnRestablecer" onclick="cambiarPassword()" class="btn-modal">RESTABLECER CONTRASEÑA</button>
-                </div>
-
-                <button onclick="cerrarModal()" class="btn-cancelar">Volver al login</button>
+            </form>
         </div>
-    </div>
-
     </div>
 
     <div id="modalRecuperar" class="modal-recuperar">
         <div class="modal-content">
             <div id="paso1">
-                <h3>Recuperar Cuenta</h3>
-                <p>Ingresa tu email para recibir un código de verificación.</p>
+                <h2>Recuperar</h2>
+                <p>Enviaremos un código a tu email.</p>
                 <input type="email" id="emailRecuperar" placeholder="tu@email.com" class="modal-input">
                 <button id="btnEnviarCodigo" onclick="enviarCodigo()" class="btn-modal">ENVIAR CÓDIGO</button>
             </div>
 
             <div id="paso2" style="display:none;">
-                <h3>Verificar Código</h3>
-                <p>Ingresa el código enviado a tu mail y tu nueva contraseña.</p>
+                <h2>Verificar</h2>
+                <p>Ingresa el código y tu nueva contraseña.</p>
                 <input type="text" id="codigoVerificacion" placeholder="Código de 6 dígitos" class="modal-input">
                 <input type="password" id="nuevaPassword" placeholder="Nueva Contraseña" class="modal-input">
-                <button id="btnRestablecer" onclick="cambiarPassword()" class="btn-modal">RESTABLECER CONTRASEÑA</button>
+                <button id="btnRestablecer" onclick="cambiarPassword()" class="btn-modal">RESTABLECER</button>
             </div>
 
             <button onclick="cerrarModal()" class="btn-cancelar">Volver al login</button>
@@ -148,7 +56,7 @@
 
     <script>
         // --- LÓGICA DE LOGIN ---
-        document.getElementById('loginForm').onsubmit = async (e) => {
+        document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -163,31 +71,25 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    // Guardamos todo en el navegador
                     localStorage.setItem('urban_token', data.token);
-                    localStorage.setItem('user_role', data.role); // Esto es clave: 'admin' o 'user'
+                    localStorage.setItem('user_role', data.role);
 
-                    // REDIRECCIÓN INTELIGENTE
                     if (data.role === 'admin') {
-                        alert("¡Bienvenida, Admin de Urban Kicks!");
                         window.location.href = 'admin.html';
                     } else {
-                        alert("¡Bienvenido!");
                         window.location.href = 'tienda.html';
                     }
                 } else {
                     alert(data.error);
                 }
             } catch (err) {
-                alert("Error de conexión con el servidor.");
+                alert("Error de conexión.");
             }
         };
 
-        // --- LÓGICA DE RECUPERACIÓN ---
+        // --- LÓGICA DE MODAL ---
         function mostrarModalRecuperacion() {
             document.getElementById('modalRecuperar').style.display = 'block';
-            document.getElementById('paso1').style.display = 'block';
-            document.getElementById('paso2').style.display = 'none';
         }
 
         function cerrarModal() {
@@ -197,66 +99,34 @@
         async function enviarCodigo() {
             const email = document.getElementById('emailRecuperar').value;
             if(!email) return alert("Ingresa tu email.");
-
-            const btn = document.getElementById('btnEnviarCodigo');
-            btn.innerText = "Enviando...";
-            btn.disabled = true;
-
             try {
                 const res = await fetch('/api/usuario/recuperar-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
                 });
-                
                 const data = await res.json();
                 if(data.success) {
-                    alert("¡Código enviado!");
                     document.getElementById('paso1').style.display = 'none';
                     document.getElementById('paso2').style.display = 'block';
-                } else {
-                    alert(data.error);
-                    btn.disabled = false;
-                    btn.innerText = "ENVIAR CÓDIGO";
-                }
-            } catch (err) {
-                alert("Error de conexión.");
-                btn.disabled = false;
-                btn.innerText = "ENVIAR CÓDIGO";
-            }
+                } else { alert(data.error); }
+            } catch (err) { alert("Error de conexión."); }
         }
 
         async function cambiarPassword() {
             const email = document.getElementById('emailRecuperar').value;
             const codigo = document.getElementById('codigoVerificacion').value;
             const nuevaPassword = document.getElementById('nuevaPassword').value;
-
-            if(!codigo || !nuevaPassword) return alert("Completa todos los campos.");
-
-            const btn = document.getElementById('btnRestablecer');
-            btn.innerText = "Procesando...";
-            btn.disabled = true;
-
             try {
                 const res = await fetch('/api/usuario/restablecer-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, codigo, nuevaPassword })
                 });
-
                 const data = await res.json();
-                if(data.success) {
-                    alert("¡Contraseña actualizada!");
-                    location.reload();
-                } else {
-                    alert(data.error);
-                    btn.disabled = false;
-                    btn.innerText = "RESTABLECER CONTRASEÑA";
-                }
-            } catch (err) {
-                alert("Error de conexión.");
-                btn.disabled = false;
-            }
+                if(data.success) { alert("¡Éxito!"); location.reload(); } 
+                else { alert(data.error); }
+            } catch (err) { alert("Error."); }
         }
     </script>
 </body>
