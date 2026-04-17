@@ -777,24 +777,28 @@ footer {
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /* ============================================================
-   DASHBOARD DE USUARIO (perfil.html) - CORRECCIÓN DE LAYOUT
+   FIX CRÍTICO: box-sizing global — sin esto los anchos se rompen
    ============================================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
 /* ============================================================
-   DASHBOARD DE USUARIO (perfil.html) - FINAL CORREGIDO
+   LAYOUT PRINCIPAL
    ============================================================ */
-
-/* Contenedor principal: Actúa como una fila con dos columnas sólidas */
 .user-layout {
-    display: flex; 
+    display: flex;           /* flex hace todo el trabajo */
     width: 100%;
     min-height: 100vh;
     background-color: #000;
+    /* ❌ ELIMINADO: position relative/absolute que no tenías pero
+       muchos agregan y rompe el flujo */
 }
 
-/* --- SIDEBAR: Columna sólida izquierda --- */
+/* --- SIDEBAR --- */
 .user-sidebar {
     width: 280px;
+    flex-shrink: 0;          /* ← CLAVE: evita que se comprima */
     background: #111;
     color: white;
     display: flex;
@@ -802,18 +806,93 @@ footer {
     padding: 40px 20px;
     min-height: 100vh;
     border-right: 1px solid #222;
-    flex-shrink: 0; /* Evita que la barra se achique */
+    /* ❌ NO usar position: fixed/absolute acá — rompe el flex */
 }
 
-/* --- CONTENIDO: Columna sólida derecha --- */
+/* Avatar del sidebar */
+.user-avatar-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+    position: relative;      /* solo para el badge interno */
+}
+
+.avatar-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    background: #ff4d4d;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+}
+
+.user-avatar-side h3 {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.user-avatar-side p {
+    color: #888;
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+/* Links del sidebar */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.user-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #888;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.user-sidebar-link:hover,
+.user-sidebar-link.active {
+    background: #1a1a1a;
+    color: #ff4d4d;
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
 .user-main-content {
-    flex: 1; /* Toma todo el espacio restante */
+    flex: 1;                 /* ocupa TODO el espacio restante */
+    min-width: 0;            /* ← CLAVE: evita overflow en flex */
     padding: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #000;
-    min-width: 0; /* Evita desbordes */
+    /* ❌ NUNCA poner margin-left acá — el flex ya lo posiciona */
 }
 
 /* Tarjeta del formulario */
@@ -823,18 +902,19 @@ footer {
     background: #111;
     border-radius: 15px;
     padding: 50px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    box-sizing: border-box;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    /* box-sizing ya está cubierto por el * global de arriba */
 }
 
 .user-section-card h2 {
     color: #fff;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: 800;
     text-transform: uppercase;
     margin-bottom: 40px;
-    border-left: 5px solid #ff4d4d;
+    border-left: 4px solid #ff4d4d;
     padding-left: 15px;
+    letter-spacing: 0.05em;
 }
 
 /* --- FORMULARIO GRID --- */
@@ -844,26 +924,29 @@ footer {
     gap: 30px;
 }
 
-.full-width { grid-column: span 2; }
+.full-width {
+    grid-column: span 2;
+}
 
 .form-group-grande label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: #888;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     display: block;
 }
 
 .form-group-grande input {
     width: 100%;
-    padding: 12px 0;
+    padding: 10px 0;
     border: none;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid #333;
     background: transparent;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #fff;
-    transition: 0.3s;
+    transition: border-color 0.3s;
 }
 
 .form-group-grande input:focus {
@@ -871,30 +954,47 @@ footer {
     outline: none;
 }
 
-/* --- RESPONSIVE CORREGIDO --- */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 992px) {
     .user-sidebar {
-        width: 80px; /* Se achica la barra */
+        width: 70px;
         padding: 20px 10px;
+        align-items: center;
     }
-    
-    .user-sidebar span, 
+
+    /* Ocultar textos, dejar solo íconos */
+    .user-avatar-side h3,
     .user-avatar-side p,
-    .user-sidebar-link i + span {
-        display: none; /* Oculta textos para dejar solo íconos */
+    .user-sidebar-link span {
+        display: none;
     }
 
+    .user-sidebar-link {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    /* ❌ NUNCA agregar margin-left al main en responsive
+       el flexbox ya reajusta el ancho automáticamente */
     .user-main-content {
-        /* ELIMINADO: margin-left: 80px; */
-        /* Al no ser fixed, el flexbox ya sabe que debe ir al lado */
-        padding: 20px; 
+        padding: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .perfil-form-grid {
+        grid-template-columns: 1fr;
     }
 
-    .perfil-form-grid {
-        grid-template-columns: 1fr; /* Una sola columna en celulares */
+    .full-width {
+        grid-column: span 1;
     }
-    
-    .full-width { grid-column: span 1; }
+
+    .user-section-card {
+        padding: 25px 20px;
+    }
 }
 /* ============================================================
    ESTILO PANTALLA DIVIDIDA (Split Screen) - Inspirado en tu foto
