@@ -777,151 +777,114 @@ footer {
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /* ============================================================
-   FIX CRÍTICO: box-sizing global — sin esto los anchos se rompen
+   ESTILO GLOBAL DASHBOARD - URBAN KICKS
    ============================================================ */
-*, *::before, *::after {
-    box-sizing: border-box;
+:root {
+    --urban-red: #ff4d4d;
+    --bg-dark: #000000;
+    --card-dark: #111111;
+    --border-dark: #222222;
+    --text-muted: #888888;
+}
+
+body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de abajo */
+    margin: 0;
+    background-color: var(--bg-dark);
+    font-family: 'Inter', sans-serif;
+    color: white;
 }
 
 /* ============================================================
-   LAYOUT PRINCIPAL
+   LAYOUT: REGLA DE ORO PARA QUE NO SE TAPEN
    ============================================================ */
-.user-layout {
-    display: flex;           /* flex hace todo el trabajo */
+.dashboard-container {
+    display: flex; /* Alinea Sidebar y Main lado a lado */
     width: 100%;
     min-height: 100vh;
-    background-color: #000;
-    /* ❌ ELIMINADO: position relative/absolute que no tenías pero
-       muchos agregan y rompe el flujo */
+    background-color: var(--bg-dark);
 }
 
-/* --- SIDEBAR --- */
-.user-sidebar {
+/* --- SIDEBAR (Barra Lateral Izquierda) --- */
+.sidebar {
     width: 280px;
-    flex-shrink: 0;          /* ← CLAVE: evita que se comprima */
-    background: #111;
-    color: white;
+    flex-shrink: 0; /* Evita que la barra se achique */
+    background-color: #0a0a0a;
+    border-right: 1px solid var(--border-dark);
     display: flex;
     flex-direction: column;
     padding: 40px 20px;
-    min-height: 100vh;
-    border-right: 1px solid #222;
-    /* ❌ NO usar position: fixed/absolute acá — rompe el flex */
+    /* QUITAMOS EL FIXED PARA QUE NO TAPE NADA */
 }
 
-/* Avatar del sidebar */
-.user-avatar-side {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 30px;
-}
-
-.avatar-circle {
-    width: 60px;
-    height: 60px;
-    background: #1a1a1a;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 800;
+.sidebar-header h3 {
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    margin-top: 10px;
     color: #fff;
-    margin-bottom: 12px;
-    position: relative;      /* solo para el badge interno */
 }
 
-.avatar-badge {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 18px;
-    height: 18px;
-    background: #ff4d4d;
-    border-radius: 50%;
+.sidebar-link {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 9px;
-}
-
-.user-avatar-side h3 {
-    color: #fff;
-    font-size: 0.95rem;
-    font-weight: 700;
-}
-
-.user-avatar-side p {
-    color: #888;
-    font-size: 0.75rem;
-    margin-top: 2px;
-}
-
-/* Links del sidebar */
-.sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.user-sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    color: #888;
+    gap: 12px;
+    padding: 12px 15px;
+    color: var(--text-muted);
     text-decoration: none;
     font-size: 0.85rem;
-    transition: background 0.2s, color 0.2s;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: 0.3s;
+    border-radius: 8px;
+    margin-bottom: 5px;
 }
 
-.user-sidebar-link:hover,
-.user-sidebar-link.active {
+.sidebar-link:hover, .sidebar-link.active {
     background: #1a1a1a;
-    color: #ff4d4d;
+    color: var(--urban-red);
 }
 
 /* --- CONTENIDO PRINCIPAL --- */
-.user-main-content {
-    flex: 1;                 /* ocupa TODO el espacio restante */
-    min-width: 0;            /* ← CLAVE: evita overflow en flex */
-    padding: 40px;
+.main-content {
+    flex: 1; /* Ocupa todo el resto de la pantalla */
+    padding: 50px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    background-color: #000;
-    /* ❌ NUNCA poner margin-left acá — el flex ya lo posiciona */
+    align-items: center; /* Centra las tarjetas */
+    gap: 30px; /* Espacio entre la tarjeta de datos y la de pedidos */
+    min-width: 0;
 }
 
-/* Tarjeta del formulario */
-.user-section-card {
+/* --- TARJETAS (Cards de Datos y Pedidos) --- */
+.section-card {
     width: 100%;
-    max-width: 800px;
-    background: #111;
-    border-radius: 15px;
-    padding: 50px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    /* box-sizing ya está cubierto por el * global de arriba */
+    max-width: 900px;
+    background: var(--card-dark);
+    border-radius: 20px;
+    padding: 40px;
+    border: 1px solid var(--border-dark);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
-.user-section-card h2 {
-    color: #fff;
+.section-card h2 {
     font-size: 1.4rem;
     font-weight: 800;
     text-transform: uppercase;
-    margin-bottom: 40px;
-    border-left: 4px solid #ff4d4d;
-    padding-left: 15px;
-    letter-spacing: 0.05em;
+    margin-bottom: 30px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-card h2 i {
+    color: var(--urban-red);
 }
 
 /* --- FORMULARIO GRID --- */
 .perfil-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px;
+    gap: 25px;
 }
 
 .full-width {
@@ -929,72 +892,94 @@ footer {
 }
 
 .form-group-grande label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #888;
-    margin-bottom: 8px;
     display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
 }
 
 .form-group-grande input {
     width: 100%;
-    padding: 10px 0;
-    border: none;
-    border-bottom: 1px solid #333;
     background: transparent;
-    font-size: 0.95rem;
+    border: none;
+    border-bottom: 2px solid var(--border-dark);
+    padding: 10px 0;
     color: #fff;
-    transition: border-color 0.3s;
+    font-size: 1rem;
+    transition: 0.3s;
 }
 
 .form-group-grande input:focus {
-    border-bottom-color: #ff4d4d;
     outline: none;
+    border-bottom-color: var(--urban-red);
 }
+
+/* --- BOTÓN GUARDAR --- */
+.btn-guardar-grande {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-guardar-grande:hover {
+    background: var(--urban-red);
+    color: #fff;
+    transform: translateY(-3px);
+}
+
+/* --- TABLA DE PEDIDOS --- */
+.table-container {
+    overflow-x: auto;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table th {
+    text-align: left;
+    padding: 15px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-dark);
+}
+
+.orders-table td {
+    padding: 20px 15px;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 0.9rem;
+}
+
+.status-pill {
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+.shipped { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
 
 /* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 992px) {
-    .user-sidebar {
-        width: 70px;
-        padding: 20px 10px;
-        align-items: center;
-    }
-
-    /* Ocultar textos, dejar solo íconos */
-    .user-avatar-side h3,
-    .user-avatar-side p,
-    .user-sidebar-link span {
-        display: none;
-    }
-
-    .user-sidebar-link {
-        justify-content: center;
-        padding: 12px;
-    }
-
-    /* ❌ NUNCA agregar margin-left al main en responsive
-       el flexbox ya reajusta el ancho automáticamente */
-    .user-main-content {
-        padding: 20px;
-    }
-}
-
-@media (max-width: 600px) {
-    .perfil-form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .full-width {
-        grid-column: span 1;
-    }
-
-    .user-section-card {
-        padding: 25px 20px;
-    }
+    .sidebar { width: 80px; padding: 20px 10px; }
+    .sidebar span, .sidebar-header, .user-avatar-side p { display: none; }
+    .main-content { padding: 20px; }
+    .perfil-form-grid { grid-template-columns: 1fr; }
+    .full-width { grid-column: span 1; }
 }
 /* ============================================================
    ESTILO PANTALLA DIVIDIDA (Split Screen) - Inspirado en tu foto
