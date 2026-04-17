@@ -888,130 +888,160 @@ footer {
 }
 
 /* ============================================================
-   AUTENTICACIÓN LOOK EDITORIAL (login.html / registro.html)
-   Inspirado en tu referencia: Instagram DUoeHtIDJsX
+   ESTILO PANTALLA DIVIDIDA (Split Screen) - Inspirado en tu foto
    ============================================================ */
-   
-/* Reset específico para estas páginas */
-.auth-page {
-    background-color: #ffffff;
-    margin: 0;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Usamos helvética para el look minimal */
-}
 
-/* Contenedor principal centrado */
-.auth-container {
+/* Contenedor principal que ocupa toda la pantalla */
+.auth-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background-color: #f4f7f6; /* Un gris muy suave de fondo para que resalten las tarjetas blancas */
+    margin: 0;
     padding: 20px;
 }
 
-/* Caja del formulario */
-.auth-box {
+/* El contenedor que se divide en dos */
+.split-container {
+    display: flex;
     width: 100%;
-    max-width: 440px; /* Un poco más ancho para la tipografía grande */
-    text-align: left;
+    max-width: 1100px; /* Ancho máximo para que no se estire demasiado en monitores grandes */
+    background-color: #ffffff;
+    border-radius: 20px; /* Bordes redondeados como en la foto */
+    overflow: hidden; /* Para que el fondo oscuro de la izquierda no se salga del borde redondeado */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1); /* Sombra suave para dar efecto de tarjeta flotante */
 }
 
-/* Tipografía Principal GIGANTE y Compacta (Estilo Revista) */
-.auth-box h2 {
-    font-size: 3.2rem; /* Tamaño muy grande */
-    font-weight: 900;  /* Muy pesada */
+/* --- LADO IZQUIERDO: LOGO/IMAGEN --- */
+.auth-image-side {
+    flex: 1; /* Ocupa el 50% */
+    background-color: #1a1a1a; /* Fondo oscuro para el logo, estilo look editorial */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.auth-image-content {
+    text-align: center;
+}
+
+/* Ajuste específico para tu logo que es muy grande */
+.auth-logo-large {
+    max-width: 300px; /* Ajustá este valor según cómo quieras que se vea de grande */
+    height: auto;
+    filter: brightness(0) invert(1); /* OPCIONAL: Hace el logo blanco para que resalte en el fondo oscuro */
+}
+
+/* --- LADO DERECHO: FORMULARIO --- */
+.auth-form-side {
+    flex: 1; /* Ocupa el 50% */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px; /* Mucho aire para que se vea premium */
+}
+
+.auth-form-content {
+    width: 100%;
+    max-width: 360px; /* Ancho compacto para el formulario */
+}
+
+/* Títulos con el look de tu image_6.png */
+.form-header h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
     text-transform: uppercase;
-    line-height: 0.85; /* Súper compacta */
-    letter-spacing: -3px; /* Letras muy juntas */
-    margin-bottom: 15px;
-    color: #000000;
+    margin-bottom: 5px;
+    color: #000;
 }
 
-/* Párrafo bajada de título */
-.auth-box p {
-    font-size: 1.1rem;
+.form-header p {
     color: #666;
-    margin-bottom: 50px;
-    letter-spacing: -0.5px;
+    margin-bottom: 40px;
+    font-size: 1rem;
 }
 
-/* --- CAMPOS DE ENTRADA EDITORIAL (Estilo Línea) --- */
+/* --- ESTILOS DE INPUTS (Como en tu image_6.png) --- */
 .input-group {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
-/* Label muy pequeño y separado (como en la referencia) */
 .input-group label {
     display: block;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px; /* Separamos las letras */
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     color: #000;
 }
 
-/* Input Minimalista: Solo línea inferior */
 .input-group input {
     width: 100%;
-    padding: 18px 0; /* Padding solo arriba y abajo */
+    padding: 15px 0;
     border: none;
-    border-bottom: 2px solid #e0e0e0; /* Línea gris sutil */
+    border-bottom: 2px solid #eee; /* Solo línea inferior */
     background-color: transparent;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-family: inherit;
-    transition: 0.3s ease;
+    transition: 0.3s;
 }
 
-/* Estado Focus: La línea cambia a rojo Urban Kicks */
 .input-group input:focus {
     outline: none;
-    border-bottom-color: #ff4d4d;
+    border-bottom-color: #ff4d4d; /* La línea cambia a rojo Urban Kicks */
 }
 
-/* --- BOTÓN PRINCIPAL EDITORIAL --- */
-.btn-auth-editorial {
+/* --- BOTÓN ENTRAR (Negro) --- */
+.btn-entrar-split {
     width: 100%;
-    padding: 22px; /* Muy alto y presencia */
+    padding: 18px;
     background-color: #000000;
     color: #ffffff;
     border: none;
-    font-weight: 800;
+    border-radius: 8px; /* Pequeño redondeo */
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 3px; /* Letras muy separadas */
     cursor: pointer;
-    transition: 0.3s ease;
+    transition: 0.3s;
     margin-top: 20px;
 }
 
-.btn-auth-editorial:hover {
-    background-color: #ff4d4d;
-    transform: translateY(-3px); /* Efecto de levitación */
+.btn-entrar-split:hover {
+    background-color: #ff4d4d; /* Cambia a rojo al pasar el mouse */
+    transform: translateY(-3px);
 }
 
-/* Enlaces Inferiores */
+/* --- PIE DEL FORMULARIO --- */
 .auth-footer {
-    margin-top: 35px;
+    margin-top: 30px;
     text-align: center;
     font-size: 0.85rem;
-    text-transform: uppercase;
+}
+
+.forgot-password {
+    color: #666;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.auth-footer p a {
+    color: #ff4d4d; /* Rojo para "Crear cuenta" */
+    text-decoration: none;
     font-weight: 700;
-    letter-spacing: 1px;
 }
 
-.auth-footer a {
-    color: #000;
-    text-decoration: underline;
-    text-underline-offset: 4px; /* Separamos el subrayado */
-}
-
-.auth-footer a:hover {
-    color: #ff4d4d;
-}
-
-/* Responsivo para móviles */
-@media (max-width: 600px) {
-    .auth-box h2 {
-        font-size: 2.5rem; /* Achicamos un poco en móvil */
-        letter-spacing: -2px;
+/* --- RESPONSIVE --- */
+@media (max-width: 850px) {
+    .split-container {
+        flex-direction: column; /* Se apilan en vertical en celulares */
+    }
+    .auth-image-side {
+        padding: 40px;
+    }
+    .auth-form-side {
+        padding: 40px 20px;
     }
 }

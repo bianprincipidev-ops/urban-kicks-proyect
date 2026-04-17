@@ -3,44 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link rel="preload" as="image" href="logo-urban.png" fetchpriority="high">
-
-    <title>Registro | Urban Kicks</title>
+    <title>Login | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preload" as="image" href="logo-urban.png" fetchpriority="high">
 </head>
 <body class="auth-page">
-    <div class="auth-container">
-        <div class="auth-image">
-            <div class="auth-image-content">
-                <img src="logo-urban.png" alt="Urban Kicks" loading="eager">
-            </div>
-        </div>
 
-        <div class="auth-form-side">
-            <div class="auth-box">
-                <h2>Crear Cuenta</h2>
-                <p>Sumate a la comunidad Urban Kicks</p>
-                
-                <form id="register-form">
-                    <div class="input-group">
-                        <label>Nombre Completo</label>
-                        <input type="text" placeholder="Tu nombre" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Email</label>
-                        <input type="email" placeholder="tu@email.com" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Contraseña</label>
-                        <input type="password" placeholder="Mínimo 8 caracteres" required>
-                    </div>
-                    <button type="submit" class="btn-auth-editorial">Registrarme</button>
+    <div class="auth-wrapper">
+        <div class="split-container">
+            
+            <div class="auth-image-side">
+                <div class="auth-image-content">
+                    <img src="logo-urban.png" alt="Urban Kicks" class="auth-logo-large" loading="eager">
+                </div>
+            </div>
+
+            <div class="auth-form-side">
+                <div class="auth-form-content">
                     
-                    <div class="auth-footer">
-                        ¿Ya tenés cuenta? <a href="login.html">Iniciá sesión</a>
+                    <div class="form-header">
+                        <h2>CREAR CUENTA</h2>
+                        <p>¡Bienvenido a Urban Kicks!</p>
                     </div>
-                </form>
+
+                    <form id="registroForm">
+                        <div class="input-group">
+                            <label>NOMBRE</label>
+                            <input type="text" id="name" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="input-group">
+                            <label>EMAIL</label>
+                            <input type="email" id="email" placeholder="tu@email.com" required>
+                        </div>
+                        <div class="input-group">
+                            <label>CONTRASEÑA</label>
+                            <input type="password" id="password" placeholder="********" required>
+                        </div>
+                        <div class="input-group">
+                            <label>CONFIRMAR CONTRASEÑA</label>
+                            <input type="password" id="confirmPassword" placeholder="********" required>
+                        </div>
+
+                        <button type="submit" class="btn-entrar-split">CREAR CUENTA</button>
+                        
+                        <div class="auth-footer">
+                            <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                            <p>¿Ya tienes cuenta? <a href="login.html">Iniciar sesión</a></p>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

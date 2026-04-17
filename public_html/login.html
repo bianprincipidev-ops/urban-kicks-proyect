@@ -3,40 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link rel="preload" as="image" href="logo-urban.png" fetchpriority="high">
-
     <title>Login | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preload" as="image" href="logo-urban.png" fetchpriority="high">
 </head>
 <body class="auth-page">
 
-    <div class="auth-container">
-        <div class="auth-image">
-            <div class="auth-image-content">
-                <img src="logo-urban.png" alt="Urban Kicks" loading="eager">
-            </div>
-        </div>
-        <div class="auth-box">
-            <h2>Iniciar<br>Sesión</h2> <p>¡Qué bueno verte de nuevo!</p>
+    <div class="auth-wrapper">
+        <div class="split-container">
             
-            <form id="login-form">
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="email" placeholder="tu@email.com" required>
+            <div class="auth-image-side">
+                <div class="auth-image-content">
+                    <img src="logo-urban.png" alt="Urban Kicks" class="auth-logo-large" loading="eager">
                 </div>
-                <div class="input-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="password" placeholder="********" required>
+            </div>
+
+            <div class="auth-form-side">
+                <div class="auth-form-content">
+                    
+                    <div class="form-header">
+                        <h2>INICIAR SESIÓN</h2>
+                        <p>¡Qué bueno verte de nuevo!</p>
+                    </div>
+                    
+                    <form id="login-form">
+                        <div class="input-group">
+                            <label>EMAIL</label>
+                            <input type="email" id="email" placeholder="tu@email.com" required>
+                        </div>
+                        <div class="input-group">
+                            <label>CONTRASEÑA</label>
+                            <input type="password" id="password" placeholder="********" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-entrar-split">ENTRAR</button>
+                        
+                        <div class="auth-footer">
+                            <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                            <p>¿No tenés cuenta? <a href="registro.html">Crear cuenta</a></p>
+                        </div>
+                    </form>
                 </div>
-                
-                <button type="submit" class="btn-auth-editorial">Entrar</button>
-                
-                <div class="auth-footer">
-                    ¿No tenés cuenta? <a href="registro.html">Crear cuenta</a> <br><br>
-                    <a href="#" onclick="alert('Funcionalidad en desarrollo')" style="font-weight: 400; text-transform: none; text-decoration: none; color: #666; font-size: 0.75rem;">¿Olvidaste tu contraseña?</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
