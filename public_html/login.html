@@ -70,7 +70,7 @@
     </div>
 
     <script>
-        // --- LÓGICA DE LOGIN ---
+// --- LÓGICA DE LOGIN (CORREGIDA) ---
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -86,8 +86,9 @@
                 const data = await res.json();
 
                 if (res.ok) {
+                    // USA ESTOS NOMBRES (urban_...)
                     localStorage.setItem('urban_token', data.token);
-                    localStorage.setItem('user_role', data.role);
+                    localStorage.setItem('urban_role', data.role); 
 
                     if (data.role === 'admin') {
                         alert("¡Bienvenida, Admin de Urban Kicks!");
