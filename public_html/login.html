@@ -39,12 +39,33 @@
                         <button type="submit" class="btn-entrar-split">ENTRAR</button>
                         
                         <div class="auth-footer">
-                            <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                            <a href="javascript:void(0)" onclick="mostrarModalRecuperacion()" class="forgot-password">¿Olvidaste tu contraseña?</a>
                             <p>¿No tenés cuenta? <a href="registro.html">Crear cuenta</a></p>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="modalRecuperar" class="modal-recuperar">
+        <div class="modal-content">
+            <div id="paso1">
+                <h2>Recuperar</h2>
+                <p>Enviaremos un código a tu email.</p>
+                <input type="email" id="emailRecuperar" placeholder="tu@email.com" class="modal-input">
+                <button id="btnEnviarCodigo" onclick="enviarCodigo()" class="btn-modal">ENVIAR CÓDIGO</button>
+            </div>
+
+            <div id="paso2" style="display:none;">
+                <h2>Verificar</h2>
+                <p>Ingresa el código y tu nueva contraseña.</p>
+                <input type="text" id="codigoVerificacion" placeholder="Código de 6 dígitos" class="modal-input">
+                <input type="password" id="nuevaPassword" placeholder="Nueva Contraseña" class="modal-input">
+                <button id="btnRestablecer" onclick="cambiarPassword()" class="btn-modal">RESTABLECER</button>
+            </div>
+
+            <button onclick="cerrarModal()" class="btn-cancelar">Volver al login</button>
         </div>
     </div>
 
@@ -82,6 +103,65 @@
                 alert("Error de conexión con el servidor.");
             }
         };
+
+        // --- LÓGICA DEL MODAL DE RECUPERACIÓN ---
+        function mostrarModalRecuperacion() {
+            document.getElementById('modalRecuperar').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalRecuperar').style.display = 'none';
+        }
+
+        async function enviarCodigo() {
+            const email = document.getElementById('emailRecuperar').value;
+            if(!email) return alert("Ingresa tu email.");
+
+            try {
+                const res = await fetch('/api/usuario/recuperar-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await res.json();
+                if(data.success) {
+                    alert("¡Código enviado!");
+                    document.getElementById('paso1').style.display = 'none';
+                    document.getElementById('paso2').style.display = 'block';
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert("Error de conexión.");
+            }
+        }
+
+        async function cambiarPassword() {
+            const email = document.getElementById('emailRecuperar').value;
+            const codigo = document.getElementById('codigoVerificacion').value;
+            const nuevaPassword = document.getElementById('nuevaPassword').value;
+
+            if(!codigo || !nuevaPassword) return alert("Completa todos los campos.");
+
+            try {
+                const res = await fetch('/api/usuario/restablecer-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, codigo, nuevaPassword })
+                });
+
+                const data = await res.json();
+                if(data.success) {
+                    alert("¡Contraseña actualizada!");
+                    location.reload();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert("Error de conexión.");
+            }
+        }
     </script>
 </body>
 </html>
