@@ -780,15 +780,19 @@ footer {
    DASHBOARD DE USUARIO (perfil.html) - CORRECCIÓN DE LAYOUT
    ============================================================ */
 
-/* Contenedor principal para separar Sidebar de Contenido */
+/* ============================================================
+   DASHBOARD DE USUARIO (perfil.html) - FINAL CORREGIDO
+   ============================================================ */
+
+/* Contenedor principal: Actúa como una fila con dos columnas sólidas */
 .user-layout {
-    display: flex; /* Esto alinea sidebar y contenido como dos columnas sólidas */
+    display: flex; 
     width: 100%;
     min-height: 100vh;
     background-color: #000;
 }
 
-/* --- SIDEBAR CORREGIDA --- */
+/* --- SIDEBAR: Columna sólida izquierda --- */
 .user-sidebar {
     width: 280px;
     background: #111;
@@ -798,21 +802,21 @@ footer {
     padding: 40px 20px;
     min-height: 100vh;
     border-right: 1px solid #222;
-    flex-shrink: 0; /* Evita que la barra se aplaste si el formulario es muy ancho */
+    flex-shrink: 0; /* Evita que la barra se achique */
 }
 
-/* --- CONTENIDO PRINCIPAL CON MARGEN --- */
+/* --- CONTENIDO: Columna sólida derecha --- */
 .user-main-content {
-    flex: 1; /* Esto le dice: "ocupá todo el espacio que dejó la sidebar" */
+    flex: 1; /* Toma todo el espacio restante */
     padding: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #000;
-    min-width: 0; /* Evita errores de desborde */
+    min-width: 0; /* Evita desbordes */
 }
 
-/* Tarjeta que contiene el formulario */
+/* Tarjeta del formulario */
 .user-section-card {
     width: 100%;
     max-width: 800px;
@@ -833,7 +837,7 @@ footer {
     padding-left: 15px;
 }
 
-/* --- FORMULARIO ESTILO MINIMALISTA (image_72f6c7.png) --- */
+/* --- FORMULARIO GRID --- */
 .perfil-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -855,7 +859,7 @@ footer {
     width: 100%;
     padding: 12px 0;
     border: none;
-    border-bottom: 1px solid #444; /* Línea sutil como en tu captura */
+    border-bottom: 1px solid #444;
     background: transparent;
     font-size: 1rem;
     color: #fff;
@@ -867,21 +871,31 @@ footer {
     outline: none;
 }
 
-/* --- RESPONSIVE --- */
+/* --- RESPONSIVE CORREGIDO --- */
 @media (max-width: 992px) {
     .user-sidebar {
-        width: 80px;
+        width: 80px; /* Se achica la barra */
         padding: 20px 10px;
     }
-    .user-sidebar span, .user-avatar-side p {
-        display: none; /* Escondemos textos en tablets/celulares */
+    
+    .user-sidebar span, 
+    .user-avatar-side p,
+    .user-sidebar-link i + span {
+        display: none; /* Oculta textos para dejar solo íconos */
     }
-    .user-main-content {
-        margin-left: 80px;
-        padding: 30px;
-    }
-}
 
+    .user-main-content {
+        /* ELIMINADO: margin-left: 80px; */
+        /* Al no ser fixed, el flexbox ya sabe que debe ir al lado */
+        padding: 20px; 
+    }
+
+    .perfil-form-grid {
+        grid-template-columns: 1fr; /* Una sola columna en celulares */
+    }
+    
+    .full-width { grid-column: span 1; }
+}
 /* ============================================================
    ESTILO PANTALLA DIVIDIDA (Split Screen) - Inspirado en tu foto
    ============================================================ */
