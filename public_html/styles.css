@@ -976,27 +976,124 @@ footer {
     font-size: 1rem;
 }
 
+/* ============================================================
+   MODAL DE RECUPERACIÓN (Reseteo de Contraseña)
+   ============================================================ */
+
 .modal-recuperar {
-    display: none;
-    position: fixed;
-    z-index: 9999; /* Muy alto para que tape todo */
+    display: none; 
+    position: fixed; 
+    z-index: 9999; /* Por encima de todo */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.6); /* Fondo oscurecido */
-    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro transparente */
+    backdrop-filter: blur(8px); /* Efecto de desenfoque premium */
+    animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
-    background-color: #fff;
-    margin: 10% auto;
+    background-color: #ffffff;
+    margin: 10vh auto;
     padding: 40px;
-    border-radius: 15px;
     width: 90%;
-    max-width: 400px;
+    max-width: 420px;
+    border-radius: 15px;
     text-align: center;
-    box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* Títulos dentro del modal */
+.modal-content h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+    color: #000;
+}
+
+.modal-content p {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+/* Inputs del modal (Siguiendo el estilo de los otros) */
+.modal-input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+.modal-input:focus {
+    outline: none;
+    border-color: #ff4d4d;
+    background-color: #fff;
+}
+
+/* Botones del modal */
+.btn-modal {
+    width: 100%;
+    padding: 16px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-modal:hover {
+    background-color: #ff4d4d;
+    transform: translateY(-2px);
+}
+
+/* Botón cancelar / cerrar */
+.btn-cancelar {
+    display: inline-block;
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-cancelar:hover {
+    color: #ff4d4d;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Ajuste para dispositivos móviles */
+@media (max-width: 480px) {
+    .modal-content {
+        margin: 15vh auto;
+        padding: 30px 20px;
+    }
 }
 
 /* --- ESTILOS DE INPUTS (Como en tu image_6.png) --- */
