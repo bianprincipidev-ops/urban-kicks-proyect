@@ -217,6 +217,50 @@ app.post('/api/usuario/restablecer-password', async (req, res) => {
     }
 });
 
+// --- ACTUALIZAR PERFIL DE USUARIO ---
+app.post('/api/usuario/actualizar', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: "No autorizado" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+        const { full_name, dni, username, email, phone, address, postal_code, city, province, password, avatar_url } = req.body;
+
+        // 1. Preparamos la consulta básica
+        let query = `
+            UPDATE users SET 
+            full_name = ?, dni = ?, username = ?, email = ?, 
+            phone = ?, address = ?, postal_code = ?, city = ?, province = ?
+        `;
+        let params = [full_name, dni, username, email, phone, address, postal_code, city, province];
+
+        // 2. Si envió una nueva contraseña, la hasheamos y la agregamos
+        if (password && password.trim() !== "") {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            query += `, password = ?`;
+            params.push(hashedPassword);
+        }
+
+        // 3. Si envió un nuevo avatar (base64 comprimido que envías desde el front)
+        if (avatar_url) {
+            query += `, avatar_url = ?`;
+            params.push(avatar_url);
+        }
+
+        // 4. Cerramos la consulta con el ID del usuario
+        query += ` WHERE id = ?`;
+        params.push(decoded.id);
+
+        await pool.query(query, params);
+
+        res.json({ success: true, message: "Perfil actualizado correctamente" });
+
+    } catch (error) {
+        console.error("Error al actualizar perfil:", error);
+        res.status(500).json({ success: false, error: "Error interno al guardar" });
+    }
+});
+
 app.use((req, res) => res.status(404).send("No encontrado"));
 
 const PORT = process.env.PORT || 3000;
