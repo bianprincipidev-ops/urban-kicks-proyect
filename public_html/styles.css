@@ -326,16 +326,23 @@ footer {
     .footer-socials, .payment-methods { justify-content: center; }
 }
 
-/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /* ============================================================
-   PANEL DE ADMINISTRADOR (admin.html)
-   Controla la barra lateral negra y la tabla de productos
+   PANEL DE ADMINISTRADOR (admin.html) - URBAN KICKS PRO
    ============================================================ */
+
+:root {
+    --admin-bg: #f8f9fa;
+    --sidebar-black: #111111;
+    --accent-red: #ff4d4d; /* El rojo característico */
+    --text-main: #333;
+    --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
 .admin-body { 
-    background-color: #f4f7f6 !important; 
+    background-color: var(--admin-bg) !important; 
     margin: 0; 
-    font-family: 'Inter', 
-    sans-serif; 
+    font-family: 'Inter', sans-serif; 
+    color: var(--text-main);
 }
 
 .admin-layout { 
@@ -343,117 +350,183 @@ footer {
     min-height: 100vh; 
 }
 
+/* --- SIDEBAR REFORMADA --- */
 .sidebar { 
-    width: 260px; 
-    background-color: #000; 
+    width: 280px; 
+    background-color: var(--sidebar-black); 
     color: white; 
-    padding: 20px; 
+    padding: 30px 20px; 
     position: fixed; 
     height: 100vh; 
     display: flex; 
     flex-direction: column; 
-    z-index: 1100; 
+    z-index: 1100;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
 }
 
 .admin-logo { 
-    width: 140px; 
-    margin: 0 auto 40px; 
-    display: block; 
+    width: 160px; 
+    margin: 0 auto 50px; 
+    display: block;
+    filter: brightness(0) invert(1); /* Asegura que el logo se vea blanco en fondo negro */
+}
+
+.sidebar-nav {
+    flex-grow: 1;
 }
 
 .sidebar-nav a { 
     display: flex; 
     align-items: center; 
-    gap: 10px; 
-    color: #888; 
+    gap: 15px; 
+    color: #ababab; 
     text-decoration: none; 
-    padding: 15px; 
-    border-radius: 8px; 
-    margin-bottom: 5px; 
-    transition: 0.3s; 
-    font-weight: 500; 
+    padding: 14px 20px; 
+    border-radius: 12px; 
+    margin-bottom: 8px; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    font-weight: 500;
+    font-size: 0.95rem;
 }
 
-.sidebar-nav a:hover, .sidebar-nav a.active { 
+.sidebar-nav a i { font-size: 1.2rem; }
+
+.sidebar-nav a:hover { 
+    background-color: rgba(255, 255, 255, 0.05); 
+    color: white; 
+    transform: translateX(5px);
+}
+
+.sidebar-nav a.active { 
     background-color: var(--accent-red); 
     color: white; 
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.3);
 }
 
+/* --- CONTENIDO PRINCIPAL --- */
 .admin-main { 
     flex: 1; 
-    margin-left: 260px; 
-    padding: 40px; 
+    margin-left: 280px; 
+    padding: 50px; 
 }
 
 .admin-header { 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    margin-bottom: 30px; 
-    padding: 20px 30px; 
-    background-color: #000; 
-    border-radius: 12px; 
-    border-bottom: 3px solid var(--accent-red); 
+    margin-bottom: 40px; 
+    padding: 25px 35px; 
+    background-color: #ffffff; 
+    border-radius: 20px; 
+    box-shadow: var(--card-shadow);
+    border-left: 6px solid var(--accent-red);
 }
 
 .admin-header h2 { 
-    color: #ffffff !important; 
-    font-weight: 700; 
+    color: #000 !important; 
+    font-weight: 800; 
     margin: 0; 
-    text-transform: uppercase; 
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    font-size: 1.5rem;
+}
+
+/* --- TABLA DE PRODUCTOS ESTILO MODERNO --- */
+.admin-table-container {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
 }
 
 .admin-table { 
     width: 100%; 
-    border-collapse: separate; 
-    border-spacing: 0 12px; 
+    border-collapse: collapse;
+}
+
+.admin-table thead th {
+    text-align: left;
+    padding: 15px 20px;
+    color: #999;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #eee;
 }
 
 .admin-table tbody tr { 
-    background: #fff; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
+    transition: 0.2s;
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.admin-table tbody tr:hover { 
+    background-color: #fcfcfc;
 }
 
 .admin-table td { 
-    padding: 15px 20px; 
-    vertical-align: middle; 
+    padding: 20px; 
+    vertical-align: middle;
+    font-size: 0.95rem;
+    color: #444;
 }
 
-.admin-table td:first-child { 
-    border-radius: 12px 0 0 12px; 
+/* Miniatura de producto en tabla */
+.td-product-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f0f0f0;
 }
 
-.admin-table td:last-child { 
-    border-radius: 0 12px 12px 0; 
-}
-
+/* --- BOTONES --- */
 .btn-nuevo { 
     background-color: #000; 
     color: #fff; 
     border: none; 
-    padding: 12px 25px; 
-    border-radius: 8px; 
+    padding: 14px 28px; 
+    border-radius: 12px; 
     cursor: pointer; 
-    font-weight: bold; 
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .btn-nuevo:hover { 
-    background-color: var(--accent-red); 
+    background-color: var(--accent-red);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
 }
 
 .btn-del { 
     background-color: #fff0f0; 
     color: var(--accent-red); 
     border: none; 
-    padding: 10px; 
-    border-radius: 8px; 
-    cursor: pointer; 
+    padding: 10px 15px; 
+    border-radius: 10px; 
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
 }
 
 .btn-del:hover { 
     background-color: var(--accent-red); 
     color: white; 
 }
+
+/* Badge de stock */
+.stock-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.stock-in { background: #e6fcf5; color: #0ca678; }
+.stock-low { background: #fff9db; color: #f08c00; }
 
 /* ============================================================
    DETALLE DE PRODUCTO (detalle.html)
