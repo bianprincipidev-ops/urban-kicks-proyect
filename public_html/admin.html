@@ -121,12 +121,10 @@
                 });
                 const data = await res.json();
 
-                // Si el servidor dice que NO es admin, lo manda afuera
                 if (!res.ok || data.role !== 'admin') {
                     window.location.href = 'index.html';
                 }
             } catch {
-                // Si hay error de red, tampoco puede entrar
                 window.location.href = 'index.html';
             }
         })();
@@ -138,14 +136,15 @@
             
             // Actualizar estilo links
             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(event) event.currentTarget.classList.add('active');
         }
 
         function abrirModal(id) { document.getElementById(id).style.display = "block"; }
         function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
 
-        // 3. CARGAR PRODUCTOS
+        // 3. CARGAR PRODUCTOS Y PROMOS (Actualizado)
         async function cargarTablas() {
+            // --- Cargar Productos ---
             try {
                 const resProd = await fetch('/api/productos');
                 const productos = await resProd.json();
@@ -162,7 +161,27 @@
                         </td>
                     </tr>
                 `).join('');
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Error productos:", err); }
+
+            // --- Cargar Promociones ---
+            try {
+                const resPromo = await fetch('/api/promociones');
+                const promos = await resPromo.json();
+                const tbodyPromo = document.getElementById('lista-promos-admin');
+                if (tbodyPromo) {
+                    tbodyPromo.innerHTML = promos.map(p => `
+                        <tr>
+                            <td><strong>${p.title}</strong></td>
+                            <td>${p.subtitle}</td>
+                            <td>
+                                <button class="btn-del" onclick="eliminarItem('/api/promociones', ${p.id})">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) { console.error("Error promos:", err); }
         }
 
         async function eliminarItem(ruta, id) {
@@ -191,6 +210,43 @@
                 body: data 
             });
             if(res.ok) { alert("¡Producto cargado!"); location.reload(); }
+        });
+
+        // 5. ENVÍO FORM PROMO (Corregido con ID de imagen correcto)
+        document.getElementById('form-promo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button');
+            btn.innerText = "Subiendo...";
+            btn.disabled = true;
+
+            const data = new FormData();
+            data.append('title', document.getElementById('promo-title').value);
+            data.append('subtitle', document.getElementById('promo-subtitle').value);
+            data.append('imagen', document.getElementById('promo-image').files[0]); // Verifica que el id del input sea promo-image
+
+            try {
+                const res = await fetch('/api/promociones/nuevo', { 
+                    method: 'POST', 
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                    body: data 
+                });
+
+                if(res.ok) { 
+                    alert("¡Promoción cargada con éxito!"); 
+                    cerrarModal('modalPromo');
+                    e.target.reset(); 
+                    cargarTablas(); 
+                } else {
+                    const result = await res.json();
+                    alert("Error: " + (result.error || "No se pudo subir"));
+                }
+            } catch (err) {
+                alert("Error de conexión al subir la promo");
+            } finally {
+                btn.innerText = "SUBIR PROMOCIÓN";
+                btn.disabled = false;
+            }
         });
 
         function logoutAdmin() {

@@ -99,6 +99,36 @@ app.post('/api/productos/nuevo', upload.single('imagen'), async (req, res) => {
     }
 });
 
+// --- SUBIR NUEVA PROMOCIÓN ---
+app.post('/api/promociones/nuevo', upload.single('imagen'), async (req, res) => {
+    const { title, subtitle } = req.body;
+    
+    if (!req.file) return res.status(400).json({ error: "Debes subir una imagen para la promo" });
+    
+    const image_url = `/uploads/${req.file.filename}`;
+    
+    try {
+        await pool.query(
+            'INSERT INTO promotions (title, subtitle, image_url) VALUES (?, ?, ?)',
+            [title, subtitle, image_url]
+        );
+        res.json({ success: true, message: "Promoción guardada correctamente" });
+    } catch (error) {
+        console.error("Error al guardar promo:", error);
+        res.status(500).json({ error: "Error al guardar la promoción en la base de datos" });
+    }
+});
+
+// --- OBTENER TODAS LAS PROMOS ---
+app.get('/api/promociones', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM promotions ORDER BY id DESC');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al cargar promociones' });
+    }
+});
+
 // Login
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
