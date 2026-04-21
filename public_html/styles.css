@@ -200,37 +200,46 @@ header {
     margin: 0 auto;
 }
 
-/* --- CARRUSEL DINÁMICO --- */
+/* --- CARRUSEL DINÁMICO REVISADO --- */
 .hero {
-    height: 70vh; /* ocupa el 70% de la altura de la pantalla */
+    height: 70vh; 
     background-color: #000;
     display: flex;
     position: relative;
     overflow: hidden;
+    width: 100%;
 }
 
 .hero-container {
     display: flex;
     width: 100%;
     height: 100%;
-    flex-direction: row; /* fuerza el lado a lado */
+    flex-direction: row;
 }
 
 /* Flechas de control */
 .carousel-control {
-    background: rgba(0, 0, 0, 0.5);
+    position: absolute; /* Vital para que aparezcan sobre la imagen */
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
     border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    transition: 0.3s;
-}
-
-.hero:hover .carousel-control {
-    opacity: 1; /* Aparecen al hacer hover */
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .carousel-control:hover {
     background: var(--accent-red);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .prev { left: 20px; }
@@ -239,11 +248,12 @@ header {
 /* Puntos indicadores */
 .dots-container {
     position: absolute;
-    bottom: 30px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     gap: 10px;
+    z-index: 10;
 }
 
 .dot {
@@ -252,45 +262,47 @@ header {
     background: rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
 }
 
 .dot.active {
     background: var(--accent-red);
-    width: 30px; /* Efecto de píldora para el activo */
+    width: 30px; 
     border-radius: 10px;
 }
 
 /* LADO IZQ: TEXTO */
 .hero-content {
-    flex: 0 0 50%; /* Ocupa la mitad del ancho */
+    flex: 0 0 50%; 
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-left: 8%;
-    background-color: #000; /* fondo negro puro */
+    padding: 0 5% 0 8%;
+    background-color: #000;
     z-index: 2;
 }
 
 .hero-content h1 {
-    font-size: 4rem;
+    font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 900;
     color: #fff;
-    line-height: 1;
+    line-height: 1.1;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    animation: fadeInSlide 0.8s ease-out;
 }
 
 .hero-content p {
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 2vw, 1.5rem);
     color: var(--accent-red);
     font-weight: 700;
     letter-spacing: 1px;
+    animation: fadeInSlide 1s ease-out;
 }
 
 /* LADO DERECHO: IMG */
 .hero-image-container {
-    flex: 0 0 50%; /* Ocupa la mitad del ancho */
+    flex: 0 0 50%; 
     height: 100%;
     background-color: #fff; 
     display: flex;
@@ -299,46 +311,56 @@ header {
     position: relative;
 }
 
+/* Transición suave entre negro y blanco */
 .hero-image-container::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 100px;
+    width: 150px;
     height: 100%;
     background: linear-gradient(to right, #000, transparent);
     z-index: 1;
 }
 
 #hero-image {
-    width: 90%;
-    height: 90%;
-    object-fit: contain; /* Hace que la imagen cubra todo su espacio sin deformarse */
+    width: 85%;
+    height: 85%;
+    object-fit: contain; /* Para que el logo del banco se vea completo */
     z-index: 2;
+    transition: opacity 0.5s ease;
 }
 
-/* para telefono: uno arriba de otro */
+/* Responsive para celulares */
 @media (max-width: 768px) {
-    .hero-content {
+    .hero-container {
         flex-direction: column;
-        text-align: center;
     }
     .hero-content {
-        padding: 40px 5%;
+        flex: 0 0 50%;
+        padding: 20px;
+        text-align: center;
         order: 2;
     }
     .hero-image-container {
-        height: 50%;
+        flex: 0 0 50%;
         width: 100%;
         order: 1;
     }
+    .hero-image-container::before {
+        width: 100%;
+        height: 50px;
+        top: auto;
+        bottom: 0;
+        background: linear-gradient(to top, #000, transparent);
+    }
+    .hero-content h1 { font-size: 2rem; }
 }
 
 @keyframes fadeInSlide {
     from { opacity: 0; transform: translateX(-30px); }
     to { opacity: 1; transform: translateX(0); }
 }
-
 /* --- TARJETA DE PRODUCTO --- */
 .card {
     background: var(--bg-card);
