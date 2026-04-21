@@ -69,6 +69,7 @@ header {
     display: block;
 }
 
+/* ENLACES DE NAVEGACION */
 .nav-links a {
     color: white;
     text-decoration: none;
@@ -76,13 +77,32 @@ header {
     font-weight: 600;
     font-size: 0.9rem;
     text-transform: uppercase;
-    transition: color 0.3s;
+    transition: color 0.3s ease;
+    position: relative;
+    display: inline-block;
 }
 
 .nav-links a:hover {
     color: var(--accent-red);
 }
 
+/* clase para resaltar la categoria seleccionada */
+.nav-links a.active-link {
+    color: #ff4d4d !important;
+    font-weight: bold;
+}
+
+.nav-links a.active-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #ff4d4d;
+}
+
+/* ICONOS Y OTROS */
 .header-icons {
     display: flex;
     gap: 15px;

@@ -88,14 +88,24 @@
                 <input type="text" id="name" placeholder="Nombre (Ej: Jordan 4 Retro)" required>
                 <textarea id="description" placeholder="Descripción detallada" rows="3"></textarea>
                 <input type="number" id="price" placeholder="Precio ($)" required>
-                <input type="number" id="category_id" placeholder="ID Categoría (1)" required>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">Categoría:</label>
+                    <select id="category_id" required style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px;">
+                        <option value="1">Urbano</option>
+                        <option value="2">Hombre</option>
+                        <option value="3">Mujer</option>
+                    </select>
+                </div>
+
+                <input type="text" id="color" placeholder="Color (Ej: Blanco/Negro)">
+
                 <label style="color: #888; font-size: 0.8rem;">Imagen del producto:</label>
                 <input type="file" id="imagen" accept="image/*" required>
                 <button type="submit" class="btn-cargar">PUBLICAR PRODUCTO</button>
             </form>
         </div>
     </div>
-
     <div id="modalPromo" class="modal">
         <div class="modal-content">
             <span class="close" style="color:white; float:right; cursor:pointer;" onclick="cerrarModal('modalPromo')">&times;</span>
@@ -218,22 +228,33 @@
         }
 
         // 4. ENVÍO FORM PRODUCTO
-        document.getElementById('productForm').addEventListener('submit', async (e) => {
+        document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
-            const data = new FormData();
-            data.append('name', document.getElementById('name').value);
-            data.append('description', document.getElementById('description').value);
-            data.append('price', document.getElementById('price').value);
-            data.append('category_id', document.getElementById('category_id').value);
-            data.append('imagen', document.getElementById('imagen').files[0]);
 
-            const res = await fetch('/api/productos/nuevo', { 
-                method: 'POST', 
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
-                body: data 
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('price', document.getElementById('price').value);
+            formData.append('category_id', document.getElementById('category_id').value); // Toma el ID 1, 2 o 3
+            formData.append('color', document.getElementById('color').value);
+            formData.append('image', document.getElementById('imagen').files[0]);
+
+            const res = await fetch('/api/productos', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('urban_token')}`
+                },
+                body: formData
             });
-            if(res.ok) { alert("¡Producto cargado!"); location.reload(); }
-        });
+
+            if (res.ok) {
+                alert("Producto cargado con éxito");
+                cerrarModal('modalProducto');
+                cargarTablas(); // Refresca la lista
+            } else {
+                alert("Error al cargar producto");
+            }
+        };
 
         // 5. ENVÍO FORM PROMO (Corregido con ID de imagen correcto)
         document.getElementById('form-promo').addEventListener('submit', async (e) => {

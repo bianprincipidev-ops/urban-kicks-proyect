@@ -164,6 +164,21 @@ app.delete('/api/promociones/:id', async (req, res) => {
     }
 });
 
+app.post('/api/productos', upload.single('image'), async (req, res) => {
+    const { name, description, price, category_id, color } = req.body; // 'color' también está en tu DB
+    const image_url = `/uploads/${req.file.filename}`;
+    
+    try {
+        await pool.query(
+            'INSERT INTO products (name, description, price, image_url, category_id, color) VALUES (?, ?, ?, ?, ?, ?)',
+            [name, description, price, image_url, category_id, color]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Login
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;

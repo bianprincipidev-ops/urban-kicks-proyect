@@ -14,9 +14,9 @@
             <a href="tienda.html"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
         </div>
         <nav class="nav-links">
-            <a href="#">Zapatillas</a>
-            <a href="#">Hombre</a>
-            <a href="#">Mujer</a>
+            <a href="javascript:void(0)" onclick="cargarProductos('1')">Urbano</a>
+            <a href="javascript:void(0)" onclick="cargarProductos('2')">Hombre</a>
+            <a href="javascript:void(0)" onclick="cargarProductos('3')">Mujer</a>
         </nav>
         <div class="header-icons">
             <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar modo">
@@ -69,6 +69,7 @@
         let listaPromos = [];
         let indiceActual = 0;
         let intervalPromo; // Variable para controlar el tiempo automático
+        let productosCache = []; // Cache para productos, evitando múltiples fetchs
 
         // --- 1. MODO OSCURO ---
         function toggleTheme() {
@@ -204,16 +205,44 @@
         }
 
         // --- 4. GRILLA ---
-        async function cargarProductos() {
+        async function cargarProductos(categoriaId = 'todos') {
             const contenedor = document.getElementById('contenedor-productos');
-            if(!contenedor) return;
+            if (!contenedor) return;
+
+            // --- 1. Efecto Visual: Marcar link activo ---
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active-link');
+                const onclickAttr = link.getAttribute('onclick') || "";
+                if (onclickAttr.includes(`'${categoriaId}'`)) {
+                    link.classList.add('active-link');
+                }
+            });
 
             try {
-                const respuesta = await fetch('/api/productos');
-                const productos = await respuesta.json();
+                // --- 2. Cargar datos si no están en caché ---
+                if (productosCache.length === 0) {
+                    const respuesta = await fetch('/api/productos');
+                    productosCache = await respuesta.json();
+                }
+
+                // --- 3. Filtrar productos ---
+                const productosFiltrados = categoriaId === 'todos' 
+                    ? productosCache 
+                    : productosCache.filter(p => p.category_id == categoriaId);
+
+                // --- 4. Renderizar en el HTML ---
                 contenedor.innerHTML = ''; 
 
-                productos.forEach(prod => {
+                if (productosFiltrados.length === 0) {
+                    contenedor.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #888;">
+                            <i class="ri-information-line" style="font-size: 2rem;"></i>
+                            <p>No hay productos en esta categoría por el momento.</p>
+                        </div>`;
+                    return;
+                }
+
+                productosFiltrados.forEach(prod => {
                     contenedor.innerHTML += `
                         <div class="card">
                             <img src="${prod.image_url}" alt="${prod.name}">
@@ -227,6 +256,7 @@
                     `;
                 });
             } catch (error) {
+                console.error("Error al cargar productos:", error);
                 contenedor.innerHTML = '<p>Error al conectar con la base de datos.</p>';
             }
         }
