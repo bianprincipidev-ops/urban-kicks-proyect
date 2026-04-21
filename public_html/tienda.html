@@ -55,12 +55,12 @@
     <div class="grid-productos" id="contenedor-productos">
         </div>
 
-    <script>
-
+<script>
         (function() {
             const token = localStorage.getItem('urban_token');
             if (!token) window.location.href = 'index.html';
         })();
+
         let listaPromos = [];
         let indiceActual = 0;
 
@@ -84,64 +84,61 @@
             const icon = document.getElementById('theme-icon');
             if(icon) icon.className = savedTheme === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
             
-            verificarSesion();
+            verificarSesion(); // Aquí manejamos los botones del header
             iniciarCarrusel(); 
             cargarProductos(); 
         };
         
-        // LOGICA DE SESION 
+        // LOGICA DE SESION (UNIFICADA)
         function verificarSesion() {
             const token = localStorage.getItem('urban_token');
-            const role = localStorage.getItem('user_role'); // Obtenemos el rol
+            const role = localStorage.getItem('urban_role'); // Usamos urban_role para ser consistentes
             const userLink = document.getElementById('user-link');
             const btnLogout = document.getElementById('btn-logout');
-            const headerIcons = document.querySelector('.header-icons'); // El contenedor de iconos
+            const headerIcons = document.querySelector('.header-icons');
 
             if (token) {
                 userLink.href = 'perfil.html';
-                btnLogout.style.display = 'inline-block';
+                userLink.title = 'Mi Perfil';
+                if(btnLogout) btnLogout.style.display = 'inline-block';
 
-                // ✅ Si es ADMIN, agregamos el botón del panel si no existe ya
+                // ✅ Botón Admin con el estilo de "píldora" que te pasé antes
                 if (role === 'admin' && !document.getElementById('admin-btn')) {
                     const adminBtn = document.createElement('a');
                     adminBtn.id = 'admin-btn';
                     adminBtn.href = 'admin.html';
-                    adminBtn.title = 'Panel de Administración';
-                    adminBtn.innerHTML = '<i class="ri-settings-5-line" style="color: #ff4d4d;"></i>';
-                    // Lo insertamos antes del botón de logout
-                    headerIcons.insertBefore(adminBtn, btnLogout);
+                    adminBtn.className = 'admin-badge-link'; // Usamos la clase del CSS pro
+                    adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
+                    headerIcons.insertBefore(adminBtn, userLink);
                 }
             } else {
                 userLink.href = 'login.html';
-                btnLogout.style.display = 'none';
-                // Si no está logueado, nos aseguramos de quitar el botón admin si existía
-                const adminBtn = document.getElementById('admin-btn');
-                if (adminBtn) adminBtn.remove();
+                if(btnLogout) btnLogout.style.display = 'none';
             }
         }
 
-        // FUNCION LOGOUT
         function logout() {
             if(confirm("¿Estás seguro de que quieres cerrar sesión?")) {
-                localStorage.removeItem('urban_token');
-                localStorage.removeItem('user_role');
-                alert("Sesión cerrada.");
-                window.location.reload(); // Recarga para actualizar el header
+                localStorage.clear(); // Limpiamos todo de una
+                window.location.href = 'index.html';
             }
         }
 
-        // --- 3. CARRUSEL ---
+        // --- 3. CARRUSEL (CORREGIDO) ---
         async function iniciarCarrusel() {
             try {
                 const res = await fetch('/api/promociones');
                 listaPromos = await res.json();
+                console.log("Promociones cargadas:", listaPromos); // Para debug
 
                 if (listaPromos.length > 0) {
                     mostrarPromo(0);
-                    setInterval(() => {
-                        indiceActual = (indiceActual + 1) % listaPromos.length;
-                        mostrarPromo(indiceActual);
-                    }, 5000);
+                    if (listaPromos.length > 1) {
+                        setInterval(() => {
+                            indiceActual = (indiceActual + 1) % listaPromos.length;
+                            mostrarPromo(indiceActual);
+                        }, 5000);
+                    }
                 }
             } catch (error) {
                 console.error("Error al cargar el carrusel:", error);
@@ -155,14 +152,21 @@
             const subtitulo = document.getElementById('hero-subtitle');
             const imagen = document.getElementById('hero-image');
 
-            if(!section) return;
+            if(!section || !p) return;
 
             section.style.opacity = 0;
             
             setTimeout(() => {
                 titulo.innerHTML = p.title.replace(" ", "<br>"); 
                 subtitulo.innerText = p.subtitle;
-                if (p.image_url) imagen.src = p.image_url;
+                
+                // IMPORTANTE: p.image_url debe coincidir con tu DB
+                if (p.image_url) {
+                    imagen.src = p.image_url;
+                    imagen.style.display = "block";
+                } else {
+                    imagen.style.display = "none";
+                }
                 section.style.opacity = 1;
             }, 500);
         }
@@ -175,7 +179,6 @@
             try {
                 const respuesta = await fetch('/api/productos');
                 const productos = await respuesta.json();
-                
                 contenedor.innerHTML = ''; 
 
                 productos.forEach(prod => {
@@ -192,35 +195,9 @@
                     `;
                 });
             } catch (error) {
-                console.error("Error al cargar productos:", error);
                 contenedor.innerHTML = '<p>Error al conectar con la base de datos.</p>';
             }
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const role = localStorage.getItem('urban_role');
-            const token = localStorage.getItem('urban_token');
-            const headerIcons = document.querySelector('.header-icons');
-            const userLink = document.getElementById('user-link');
-
-            // 1. Si hay token, cambiamos el link de "user" para que vaya al Perfil en vez de al Login
-            if (token && userLink) {
-                userLink.href = 'perfil.html';
-                userLink.title = 'Mi Perfil';
-            }
-
-            // 2. Si es ADMIN, inyectamos el botón del Panel
-            if (token && role === 'admin' && headerIcons) {
-                const adminBtn = document.createElement('a');
-                adminBtn.href = 'admin.html';
-                adminBtn.className = 'admin-badge-link';
-                adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
-                adminBtn.title = 'Ir al Panel de Control';
-                
-                // Lo insertamos antes del icono de usuario
-                headerIcons.insertBefore(adminBtn, userLink);
-            }
-        });
     </script>
 </body>
 <footer>
