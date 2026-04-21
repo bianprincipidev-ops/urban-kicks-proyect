@@ -200,24 +200,6 @@ header {
     margin: 0 auto;
 }
 
-/* Ajuste para que el banner de promo se vea de fondo completo o mejor centrado */
-.promo-banner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #111;
-    border-radius: 20px;
-    padding: 40px;
-    margin: 20px 5%;
-    border: 1px solid #222;
-}
-
-.promo-image img {
-    max-width: 400px; /* O el tamaño que prefieras */
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
 /* --- TARJETA DE PRODUCTO --- */
 .card {
     background: var(--bg-card);
