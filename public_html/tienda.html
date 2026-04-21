@@ -45,8 +45,8 @@
             <div class="hero-content">
                 <h1 id="hero-title"></h1>
                 <p id="hero-subtitle"></p>
-                <a href="#" class="btn-hero">VER OFERTA</a>
             </div>
+
             <div class="hero-image-container">
                 <img id="hero-image" src="" alt="Promo Urban Kicks">
             </div>
@@ -154,10 +154,10 @@
             const imagen = document.getElementById('hero-image');
 
             // Animación de salida rápida
-            section.style.opacity = 0.5;
+            section.style.opacity = 0;
             
             setTimeout(() => {
-                titulo.innerHTML = p.title.replace(" ", "<br>"); 
+                titulo.innerHTML = p.title.replace(" ", "<br>"); // el .replace es para forzar el salto de línea, si el título tiene un espacio, si quiero el texto en una sola linea lo tengo que quitar
                 subtitulo.innerText = p.subtitle;
                 if (p.image_url) imagen.src = p.image_url;
 
@@ -230,7 +230,7 @@
                 contenedor.innerHTML = '<p>Error al conectar con la base de datos.</p>';
             }
         }
-    </script>
+</script>
 </body>
 <footer>
     <div class="footer-container">

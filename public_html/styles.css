@@ -202,23 +202,22 @@ header {
 
 /* --- CARRUSEL DINÁMICO --- */
 .hero {
-    position: relative;
-    overflow: hidden;
-    min-height: 500px;
+    height: 80vh; /* ocupa el 80% de la altura de la pantalla */
+    background-color: #000;
     display: flex;
     align-items: center;
-    background: #000;
-    transition: opacity 0.5s ease-in-out;
+    position: relative;
 }
 
 .hero-container {
     display: flex;
     width: 100%;
+    height: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 5%;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 /* Flechas de control */
@@ -277,13 +276,59 @@ header {
 
 /* Animación de entrada de la imagen */
 #hero-image {
-    max-width: 100%;
-    height: auto;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+width: 100%;
+    height: 100%;
+    object-fit: cover; /* Hace que la imagen cubra todo su espacio sin deformarse */
+    mask-image: linear-gradient(to left, black 80%, transparent); /* Opcional: desvanecido hacia el texto */
 }
 
 .hero-content {
-    animation: fadeInSlide 0.8s ease-out;
+    flex: 1;
+    padding: 0 5% 0 10%;
+    text-align: left;
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-size: clamp(2.5rem, 5vw, 4.5rem); /* Tamaño fluido según pantalla */
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: var(--accent-red);
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.hero-image-container {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* para telefono: uno arriba de otro */
+@media (max-width: 768px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .hero-content {
+        padding: 40px 5%;
+        order: 2;
+    }
+    .hero-image-container {
+        height: 50%;
+        width: 100%;
+        order: 1;
+    }
 }
 
 @keyframes fadeInSlide {
