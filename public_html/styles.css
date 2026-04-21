@@ -200,6 +200,97 @@ header {
     margin: 0 auto;
 }
 
+/* --- CARRUSEL DINÁMICO --- */
+.hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    background: #000;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.hero-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 5%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Flechas de control */
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 77, 77, 0.2);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 2rem;
+    transition: 0.3s;
+    opacity: 0; /* Escondidas por defecto */
+}
+
+.hero:hover .carousel-control {
+    opacity: 1; /* Aparecen al hacer hover */
+}
+
+.carousel-control:hover {
+    background: var(--accent-red);
+}
+
+.prev { left: 20px; }
+.next { right: 20px; }
+
+/* Puntos indicadores */
+.dots-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.dot.active {
+    background: var(--accent-red);
+    width: 30px; /* Efecto de píldora para el activo */
+    border-radius: 10px;
+}
+
+/* Animación de entrada de la imagen */
+#hero-image {
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-content {
+    animation: fadeInSlide 0.8s ease-out;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 /* --- TARJETA DE PRODUCTO --- */
 .card {
     background: var(--bg-card);

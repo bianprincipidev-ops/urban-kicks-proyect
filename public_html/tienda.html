@@ -37,17 +37,22 @@
         <p id="text-promo-top">🚀 ¡ENVÍO GRATIS DENTRO DE RÍO CUARTO! 🚀</p>
     </div>
 
-    <section class="hero" id="hero-section">
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 id="hero-title">Cargando<br>Novedades...</h1>
-                <p id="hero-subtitle">Buscando las mejores ofertas para vos.</p>
-                <button class="btn-oferta">VER OFERTA</button>
+    <section id="hero-section" class="hero">
+        <button class="carousel-control prev" onclick="cambiarPromo(-1)"><i class="ri-arrow-left-s-line"></i></button>
+        <button class="carousel-control next" onclick="cambiarPromo(1)"><i class="ri-arrow-right-s-line"></i></button>
+
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 id="hero-title"></h1>
+                <p id="hero-subtitle"></p>
+                <a href="#" class="btn-hero">VER OFERTA</a>
             </div>
-            <div class="hero-img">
-                <img src="vans-hero.png" id="hero-image" alt="Promoción Urban Kicks">
+            <div class="hero-image-container">
+                <img id="hero-image" src="" alt="Promo Urban Kicks">
             </div>
         </div>
+
+        <div id="carousel-dots" class="dots-container"></div>
     </section>
 
     <h2 class="section-title">Novedades de la Temporada</h2>
@@ -63,6 +68,7 @@
 
         let listaPromos = [];
         let indiceActual = 0;
+        let intervalPromo; // Variable para controlar el tiempo automático
 
         // --- 1. MODO OSCURO ---
         function toggleTheme() {
@@ -124,21 +130,15 @@
             }
         }
 
-        // --- 3. CARRUSEL (CORREGIDO) ---
         async function iniciarCarrusel() {
             try {
                 const res = await fetch('/api/promociones');
                 listaPromos = await res.json();
-                console.log("Promociones cargadas:", listaPromos); // Para debug
 
                 if (listaPromos.length > 0) {
+                    crearDots();
                     mostrarPromo(0);
-                    if (listaPromos.length > 1) {
-                        setInterval(() => {
-                            indiceActual = (indiceActual + 1) % listaPromos.length;
-                            mostrarPromo(indiceActual);
-                        }, 5000);
-                    }
+                    resetAutoPlay(); // Inicia el pase automático
                 }
             } catch (error) {
                 console.error("Error al cargar el carrusel:", error);
@@ -146,29 +146,61 @@
         }
 
         function mostrarPromo(index) {
-            const p = listaPromos[index];
+            indiceActual = index;
+            const p = listaPromos[indiceActual];
             const section = document.getElementById('hero-section');
             const titulo = document.getElementById('hero-title');
             const subtitulo = document.getElementById('hero-subtitle');
             const imagen = document.getElementById('hero-image');
 
-            if(!section || !p) return;
-
-            section.style.opacity = 0;
+            // Animación de salida rápida
+            section.style.opacity = 0.5;
             
             setTimeout(() => {
                 titulo.innerHTML = p.title.replace(" ", "<br>"); 
                 subtitulo.innerText = p.subtitle;
-                
-                // IMPORTANTE: p.image_url debe coincidir con tu DB
-                if (p.image_url) {
-                    imagen.src = p.image_url;
-                    imagen.style.display = "block";
-                } else {
-                    imagen.style.display = "none";
-                }
+                if (p.image_url) imagen.src = p.image_url;
+
+                // Actualizar puntos
+                document.querySelectorAll('.dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === indiceActual);
+                });
+
                 section.style.opacity = 1;
-            }, 500);
+            }, 300);
+        }
+
+        // Función para botones Prev/Next
+        function cambiarPromo(direccion) {
+            indiceActual += direccion;
+            
+            if (indiceActual < 0) indiceActual = listaPromos.length - 1;
+            if (indiceActual >= listaPromos.length) indiceActual = 0;
+            
+            mostrarPromo(indiceActual);
+            resetAutoPlay(); // Si el usuario toca, reseteamos el tiempo para que no salte rápido
+        }
+
+        // Crear los puntos dinámicamente
+        function crearDots() {
+            const dotsContainer = document.getElementById('carousel-dots');
+            dotsContainer.innerHTML = '';
+            listaPromos.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.onclick = () => {
+                    mostrarPromo(i);
+                    resetAutoPlay();
+                };
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        function resetAutoPlay() {
+            clearInterval(intervalPromo);
+            intervalPromo = setInterval(() => {
+                cambiarPromo(1);
+            }, 7000); // Se pasa solo cada 7 segundos, dando tiempo al usuario
         }
 
         // --- 4. GRILLA ---
