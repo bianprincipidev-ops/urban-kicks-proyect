@@ -129,6 +129,41 @@ app.get('/api/promociones', async (req, res) => {
     }
 });
 
+// Borrar Productos
+app.delete('/api/productos/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        
+        const [result] = await pool.query('DELETE FROM products WHERE id = ?', [id]);
+        
+        if (result.affectedRows > 0) {
+            res.json({ success: true, message: "Producto eliminado" });
+        } else {
+            res.status(404).json({ error: "Producto no encontrado" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "No se puede eliminar el producto porque tiene registros asociados (ej: en carritos o pedidos)." });
+    }
+});
+
+// Borrar Promociones 
+app.delete('/api/promociones/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [result] = await pool.query('DELETE FROM promotions WHERE id = ?', [id]);
+        
+        if (result.affectedRows > 0) {
+            res.json({ success: true, message: "Promoción eliminada" });
+        } else {
+            res.status(404).json({ error: "Promoción no encontrada" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
+
 // Login
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;

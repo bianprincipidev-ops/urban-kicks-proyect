@@ -142,25 +142,28 @@
         function abrirModal(id) { document.getElementById(id).style.display = "block"; }
         function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
 
-        // 3. CARGAR PRODUCTOS Y PROMOS (Actualizado)
+        // 3. CARGAR PRODUCTOS Y PROMOS
         async function cargarTablas() {
             // --- Cargar Productos ---
             try {
                 const resProd = await fetch('/api/productos');
                 const productos = await resProd.json();
                 const tbodyProd = document.getElementById('lista-productos-admin');
-                tbodyProd.innerHTML = productos.map(p => `
-                    <tr>
-                        <td><img src="${p.image_url}" width="50" style="border-radius:5px;"></td>
-                        <td><strong>${p.name}</strong></td>
-                        <td>$${p.price}</td>
-                        <td>
-                            <button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})">
-                                <i class="ri-delete-bin-line"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
+                
+                if (tbodyProd) {
+                    tbodyProd.innerHTML = productos.map(p => `
+                        <tr>
+                            <td><img src="${p.image_url}" width="50" style="border-radius:5px;"></td>
+                            <td><strong>${p.name}</strong></td>
+                            <td>$${p.price}</td>
+                            <td>
+                                <button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
             } catch (err) { console.error("Error productos:", err); }
 
             // --- Cargar Promociones ---
@@ -168,6 +171,7 @@
                 const resPromo = await fetch('/api/promociones');
                 const promos = await resPromo.json();
                 const tbodyPromo = document.getElementById('lista-promos-admin');
+                
                 if (tbodyPromo) {
                     tbodyPromo.innerHTML = promos.map(p => `
                         <tr>
@@ -185,12 +189,31 @@
         }
 
         async function eliminarItem(ruta, id) {
-            if(confirm("¿Eliminar este ítem permanentemente?")) {
-                const res = await fetch(`${ruta}/${id}`, { 
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` }
-                });
-                if(res.ok) { cargarTablas(); }
+            if (!id) {
+                alert("Error: No se encontró el ID del elemento.");
+                return;
+            }
+
+            if(confirm("¿Estás seguro de eliminar este ítem?")) {
+                try {
+                    const res = await fetch(`${ruta}/${id}`, { 
+                        method: 'DELETE',
+                        headers: { 
+                            'Authorization': `Bearer ${localStorage.getItem('urban_token')}` 
+                        }
+                    });
+
+                    if(res.ok) { 
+                        // En lugar de recargar toda la página, solo refrescamos las tablas
+                        cargarTablas(); 
+                    } else {
+                        const error = await res.json();
+                        alert("No se pudo eliminar: " + (error.error || "Error del servidor"));
+                    }
+                } catch (err) {
+                    console.error("Error al eliminar:", err);
+                    alert("Error de conexión.");
+                }
             }
         }
 
