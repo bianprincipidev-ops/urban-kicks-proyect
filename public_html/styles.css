@@ -105,6 +105,43 @@ header {
     background: rgba(255,255,255,0.1);
 }
 
+.admin-badge-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: #ff4d4d; /* Tu rojo accent */
+    color: white !important;
+    padding: 5px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    box-shadow: 0 4px 10px rgba(255, 77, 77, 0.2);
+}
+
+.admin-badge-link i {
+    font-size: 1rem;
+}
+
+.admin-badge-link:hover {
+    background-color: #000;
+    transform: translateY(-2px);
+}
+
+/* En celulares ocultamos el texto "Admin" y dejamos solo el escudo */
+@media (max-width: 600px) {
+    .admin-badge-link span {
+        display: none;
+    }
+    .admin-badge-link {
+        padding: 5px 8px;
+        margin-right: 5px;
+    }
+}
+
 /* --- SECCIÓN HERO --- */
 .hero {
     background-color: var(--bg-hero);

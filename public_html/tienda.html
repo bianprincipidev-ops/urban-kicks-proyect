@@ -196,6 +196,31 @@
                 contenedor.innerHTML = '<p>Error al conectar con la base de datos.</p>';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = localStorage.getItem('urban_role');
+            const token = localStorage.getItem('urban_token');
+            const headerIcons = document.querySelector('.header-icons');
+            const userLink = document.getElementById('user-link');
+
+            // 1. Si hay token, cambiamos el link de "user" para que vaya al Perfil en vez de al Login
+            if (token && userLink) {
+                userLink.href = 'perfil.html';
+                userLink.title = 'Mi Perfil';
+            }
+
+            // 2. Si es ADMIN, inyectamos el botón del Panel
+            if (token && role === 'admin' && headerIcons) {
+                const adminBtn = document.createElement('a');
+                adminBtn.href = 'admin.html';
+                adminBtn.className = 'admin-badge-link';
+                adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
+                adminBtn.title = 'Ir al Panel de Control';
+                
+                // Lo insertamos antes del icono de usuario
+                headerIcons.insertBefore(adminBtn, userLink);
+            }
+        });
     </script>
 </body>
 <footer>
