@@ -368,7 +368,7 @@ footer {
     width: 160px; 
     margin: 0 auto 50px; 
     display: block;
-    filter: brightness(0) invert(1); /* Asegura que el logo se vea blanco en fondo negro */
+    object-fit: contain;
 }
 
 .sidebar-nav {
