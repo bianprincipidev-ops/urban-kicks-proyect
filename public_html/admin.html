@@ -6,6 +6,33 @@
     <title>Admin - Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        /* Estilos específicos para las filas de talles */
+        .stock-container {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .size-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .size-input { flex: 2; padding: 8px; background: #222; border: 1px solid #444; color: white; border-radius: 4px; }
+        .stock-input { flex: 1; padding: 8px; background: #222; border: 1px solid #444; color: white; border-radius: 4px; }
+        .btn-size {
+            padding: 0 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+        }
+        .btn-add { background: #444; }
+        .btn-remove { background: #ff4d4d; }
+    </style>
 </head>
 <body class="admin-body">
 
@@ -83,11 +110,10 @@
             <h3>Cargar Zapatilla</h3>
             <form id="productForm">
                 <input type="text" id="name" placeholder="Nombre (Ej: Jordan 4)" required>
-                <textarea id="description" placeholder="Descripción" rows="3"></textarea>
+                <textarea id="description" placeholder="Descripción" rows="2"></textarea>
                 <input type="number" id="price" placeholder="Precio ($)" required>
                 
-                <div style="margin-bottom: 15px;">
-                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">Categoría:</label>
+                <div style="margin-bottom: 10px;">
                     <select id="category_id" required style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px;">
                         <option value="1">Urbano</option>
                         <option value="2">Hombre</option>
@@ -96,6 +122,18 @@
                 </div>
 
                 <input type="text" id="color" placeholder="Color">
+
+                <div class="stock-container">
+                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Talles y Stock:</label>
+                    <div id="sizes-wrapper">
+                        <div class="size-row">
+                            <input type="text" class="size-input" placeholder="Talle (Ej: 40)" required>
+                            <input type="number" class="stock-input" placeholder="Cant." required>
+                            <button type="button" class="btn-size btn-add" onclick="agregarFilaTalle()">+</button>
+                        </div>
+                    </div>
+                </div>
+
                 <label style="color: #888; font-size: 0.8rem;">Imagen:</label>
                 <input type="file" id="imagen" accept="image/*" required>
                 <button type="submit" class="btn-cargar">PUBLICAR PRODUCTO</button>
@@ -135,11 +173,24 @@
             document.getElementById('sec-productos').style.display = seccion === 'productos' ? 'block' : 'none';
             document.getElementById('sec-promos').style.display = seccion === 'promos' ? 'block' : 'none';
             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-            if(event) event.currentTarget.classList.add('active');
+            if(event && event.currentTarget) event.currentTarget.classList.add('active');
         }
 
         function abrirModal(id) { document.getElementById(id).style.display = "block"; }
         function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
+
+        // --- FUNCIÓN AGREGAR TALLES ---
+        function agregarFilaTalle() {
+            const wrapper = document.getElementById('sizes-wrapper');
+            const div = document.createElement('div');
+            div.className = 'size-row';
+            div.innerHTML = `
+                <input type="text" class="size-input" placeholder="Talle" required>
+                <input type="number" class="stock-input" placeholder="Cant." required>
+                <button type="button" class="btn-size btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            wrapper.appendChild(div);
+        }
 
         // 3. CARGAR TABLAS
         async function cargarTablas() {
@@ -191,6 +242,16 @@
         // 5. ENVÍOS
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
+
+            // RECOLECTAR TALLES
+            const rows = document.querySelectorAll('.size-row');
+            let sizesData = [];
+            rows.forEach(row => {
+                const s = row.querySelector('.size-input').value;
+                const q = row.querySelector('.stock-input').value;
+                if(s && q) sizesData.push({ size: s, stock: q });
+            });
+
             const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
             formData.append('description', document.getElementById('description').value);
@@ -198,13 +259,27 @@
             formData.append('category_id', document.getElementById('category_id').value);
             formData.append('color', document.getElementById('color').value);
             formData.append('image', document.getElementById('imagen').files[0]);
+            formData.append('sizes', JSON.stringify(sizesData)); // Enviamos talles como JSON
 
             const res = await fetch('/api/productos', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                 body: formData
             });
-            if(res.ok) { alert("Producto cargado"); cerrarModal('modalProducto'); e.target.reset(); cargarTablas(); }
+
+            if(res.ok) { 
+                alert("Producto cargado con éxito"); 
+                cerrarModal('modalProducto'); 
+                e.target.reset();
+                // Resetear wrapper de talles
+                document.getElementById('sizes-wrapper').innerHTML = `
+                    <div class="size-row">
+                        <input type="text" class="size-input" placeholder="Talle (Ej: 40)" required>
+                        <input type="number" class="stock-input" placeholder="Cant." required>
+                        <button type="button" class="btn-size btn-add" onclick="agregarFilaTalle()">+</button>
+                    </div>`;
+                cargarTablas(); 
+            }
         };
 
         document.getElementById('form-promo').onsubmit = async (e) => {
