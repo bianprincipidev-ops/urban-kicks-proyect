@@ -30,11 +30,8 @@
             
             <div class="size-selector">
                 <span>Seleccionar Talle:</span>
-                <div class="size-options">
-                    <button class="size-btn">38</button>
-                    <button class="size-btn">39</button>
-                    <button class="size-btn">40</button>
-                    <button class="size-btn">41</button>
+                <div class="size-options" id="contenedor-talles">
+                    <p style="color: #888;">Cargando talles...</p>
                 </div>
             </div>
 
@@ -44,52 +41,73 @@
 
     <script>
         let productoActual = null;
+        let talleSeleccionado = null; // Para guardar el talle que elija el usuario
 
-            window.onload = async () => {
-                // --- ESTO ES LO QUE TE FALTA: APLICAR EL TEMA ---
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                document.documentElement.setAttribute('data-theme', savedTheme);
-                // -----------------------------------------------
+        window.onload = async () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
 
-                const params = new URLSearchParams(window.location.search);
-                const id = params.get('id');
-                if (!id) return window.location.href = 'tienda.html';
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) return window.location.href = 'tienda.html';
 
-                try {
-                    const res = await fetch(`/api/productos/${id}`);
-                    const prod = await res.json();
-                    
-                    if (res.ok) {
-                        productoActual = prod;
-                        document.getElementById('nombre-producto').innerText = prod.name;
-                        document.getElementById('precio-producto').innerText = `$${Number(prod.price).toLocaleString('es-AR')}`;
-                        document.getElementById('img-producto').src = prod.image_url;
-                        document.getElementById('descripcion-producto').innerText = prod.description || 'Sin descripción.';
+            try {
+                const res = await fetch(`/api/productos/${id}`);
+                const prod = await res.json();
+                
+                if (res.ok) {
+                    productoActual = prod;
+                    document.getElementById('nombre-producto').innerText = prod.name;
+                    document.getElementById('precio-producto').innerText = `$${Number(prod.price).toLocaleString('es-AR')}`;
+                    document.getElementById('img-producto').src = prod.image_url;
+                    document.getElementById('descripcion-producto').innerText = prod.description || 'Sin descripción.';
+
+                    // --- RENDERIZAR TALLES DESDE LA DB ---
+                    const contenedorTalles = document.getElementById('contenedor-talles');
+                    if (prod.sizes && prod.sizes.length > 0) {
+                        contenedorTalles.innerHTML = prod.sizes.map(s => `
+                            <button class="size-btn" onclick="seleccionarTalle(this, '${s.size}')">
+                                ${s.size}
+                            </button>
+                        `).join('');
+                    } else {
+                        contenedorTalles.innerHTML = '<p style="color: #ff4d4d;">Sin stock por el momento</p>';
                     }
-                } catch (e) { console.error(e); }
-            };
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        // Función para marcar visualmente el talle elegido
+        function seleccionarTalle(elemento, talle) {
+            // Quitar clase activa de todos
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active-size'));
+            // Agregar al seleccionado
+            elemento.classList.add('active-size');
+            talleSeleccionado = talle;
+        }
 
         function agregarAlCarrito() {
-                if (!productoActual) return;
-
-                // 1. Obtener lo que ya hay en el carrito o crear un array vacío
-                let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-                
-                // 2. Empujar el nuevo producto al array
-                carrito.push({
-                    id: productoActual.id,
-                    name: productoActual.name,
-                    price: productoActual.price,
-                    image: productoActual.image_url,
-                    cantidad: 1
-                });
-
-                // 3. Guardar el carrito actualizado en la memoria (localStorage)
-                localStorage.setItem('urban_cart', JSON.stringify(carrito));
-                
-                // 4. LLEVAR AL CLIENTE AL CARRITO AUTOMÁTICAMENTE
-                window.location.href = 'carrito.html';
+            if (!productoActual) return;
+            
+            if (!talleSeleccionado) {
+                alert("Por favor, selecciona un talle antes de añadir al carrito.");
+                return;
             }
+
+            let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+            
+            carrito.push({
+                id: productoActual.id,
+                name: productoActual.name,
+                price: productoActual.price,
+                image: productoActual.image_url,
+                size: talleSeleccionado, // Guardamos también el talle
+                cantidad: 1
+            });
+
+            localStorage.setItem('urban_cart', JSON.stringify(carrito));
+            window.location.href = 'carrito.html';
+        }
     </script>
 </body>
 </html>

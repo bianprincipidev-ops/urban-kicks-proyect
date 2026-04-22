@@ -61,14 +61,35 @@ app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public_html',
 
 // --- RUTAS DE API ---
 
-// Obtener producto por ID
+// Obtener producto por ID (Actualizado para incluir talles)
 app.get('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
+
+        // 1. Buscamos los datos básicos del producto
         const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [id]);
-        if (rows.length === 0) return res.status(404).json({ error: "Producto no encontrado" });
-        res.json(rows[0]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Producto no encontrado" });
+        }
+
+        const producto = rows[0];
+
+        // 2. Buscamos los talles asociados a este producto en la tabla product_sizes
+        // Solo traemos los que tengan stock mayor a 0
+        const [talles] = await pool.query(
+            'SELECT size, stock FROM product_sizes WHERE product_id = ? AND stock > 0', 
+            [id]
+        );
+
+        // 3. Metemos los talles dentro del objeto producto
+        producto.sizes = talles;
+
+        // 4. Enviamos todo junto al detalle.html
+        res.json(producto);
+
     } catch (error) {
+        console.error("Error al obtener producto:", error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
