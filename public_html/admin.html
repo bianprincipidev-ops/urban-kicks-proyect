@@ -37,26 +37,45 @@
                 <div class="user-info">Administrador <i class="ri-user-settings-line" style="color: #ff4d4d;"></i></div>
             </header>
 
-            <section id="sec-productos" class="admin-section">
-                <div class="section-header">
-                    <h3>Gestión de Stock</h3>
-                    <button class="btn-nuevo" onclick="abrirModal('modalProducto')">+ Nuevo Producto</button>
+            <div id="modalProducto" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="cerrarModal('modalProducto')">&times;</span>
+                    <h3>Cargar Nueva Zapatilla</h3>
+                    <form id="productForm">
+                        <div class="form-grid">
+                            <input type="text" id="name" placeholder="Modelo (Ej: Vans Old Skool)" required>
+                            <input type="number" id="price" placeholder="Precio ($)" required>
+                            
+                            <select id="category_id" required>
+                                <option value="" disabled selected>Seleccionar Categoría</option>
+                                <option value="1">Urbano</option>
+                                <option value="2">Hombre</option>
+                                <option value="3">Mujer</option>
+                            </select>
+                            
+                            <input type="text" id="color" placeholder="Color (Ej: Negro/Blanco)">
+                        </div>
+
+                        <textarea id="description" placeholder="Descripción detallada" rows="2"></textarea>
+
+                        <div class="stock-container">
+                            <label>Talles y Stock Disponible:</label>
+                            <div id="sizes-wrapper">
+                                <div class="size-row">
+                                    <input type="text" class="size-input" placeholder="Talle (38)" required>
+                                    <input type="number" class="stock-input" placeholder="Cant." required>
+                                    <button type="button" class="btn-add-size" onclick="agregarFilaTalle()">+</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <label class="file-label">Imagen del producto:</label>
+                        <input type="file" id="imagen" accept="image/*" required>
+                        
+                        <button type="submit" class="btn-cargar">PUBLICAR PRODUCTO</button>
+                    </form>
                 </div>
-                <div style="overflow-x: auto;">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Imagen</th>
-                                <th>Modelo</th>
-                                <th>Precio</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lista-productos-admin">
-                            </tbody>
-                    </table>
-                </div>
-            </section>
+            </div>
 
             <section id="sec-promos" class="admin-section" style="display:none;">
                 <div class="section-header">
@@ -152,6 +171,22 @@
         function abrirModal(id) { document.getElementById(id).style.display = "block"; }
         function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
 
+        // FUNCION TALLES DINAMICOS
+        function agregarFilaTalle() {
+            const wrapper = document.getElementById('sizes-wrapper');
+            const div = document.createElement('div');
+            div.className = 'size-row';
+            div.style.display = 'flex'; // Asegura que queden en línea
+            div.style.gap = '10px';
+            div.style.marginBottom = '10px';
+            div.innerHTML = `
+                <input type="text" class="size-input" placeholder="Talle" required style="flex:2;">
+                <input type="number" class="stock-input" placeholder="Cant." required style="flex:1;">
+                <button type="button" class="btn-remove-size" onclick="this.parentElement.remove()" style="background:#ff4d4d; color:white; border:none; padding:0 15px; border-radius:4px; cursor:pointer;">-</button>
+            `;
+            wrapper.appendChild(div);
+        }
+
         // 3. CARGAR PRODUCTOS Y PROMOS
         async function cargarTablas() {
             // --- Cargar Productos ---
@@ -231,13 +266,25 @@
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
 
+            // RECOLECTAR TALLES
+            const rows = document.querySelectorAll('.size-row');
+            let sizesData = [];
+            rows.forEach(row => {
+                const s = row.querySelector('.size-input').value;
+                const q = row.querySelector('.stock-input').value;
+                if(s && q) sizesData.push({ size: s, stock: q });
+            });
+
             const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
             formData.append('description', document.getElementById('description').value);
             formData.append('price', document.getElementById('price').value);
-            formData.append('category_id', document.getElementById('category_id').value); // Toma el ID 1, 2 o 3
+            formData.append('category_id', document.getElementById('category_id').value);
             formData.append('color', document.getElementById('color').value);
             formData.append('image', document.getElementById('imagen').files[0]);
+            
+            // Enviamos el array de talles como un String JSON
+            formData.append('sizes', JSON.stringify(sizesData));
 
             const res = await fetch('/api/productos', {
                 method: 'POST',
@@ -249,14 +296,23 @@
 
             if (res.ok) {
                 alert("Producto cargado con éxito");
+                // Limpiar el contenedor de talles para la próxima carga
+                document.getElementById('sizes-wrapper').innerHTML = `
+                    <div class="size-row">
+                        <input type="text" class="size-input" placeholder="Talle (38)" required>
+                        <input type="number" class="stock-input" placeholder="Cant." required>
+                        <button type="button" class="btn-add-size" onclick="agregarFilaTalle()">+</button>
+                    </div>
+                `;
                 cerrarModal('modalProducto');
-                cargarTablas(); // Refresca la lista
+                e.target.reset();
+                cargarTablas(); 
             } else {
                 alert("Error al cargar producto");
             }
         };
 
-        // 5. ENVÍO FORM PROMO (Corregido con ID de imagen correcto)
+        // 5. ENVÍO FORM PROMO
         document.getElementById('form-promo').addEventListener('submit', async (e) => {
             e.preventDefault();
             

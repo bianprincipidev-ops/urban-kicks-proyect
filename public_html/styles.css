@@ -821,6 +821,40 @@ footer {
 .stock-in { background: #e6fcf5; color: #0ca678; }
 .stock-low { background: #fff9db; color: #f08c00; }
 
+.stock-container {
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+.size-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.size-input { flex: 2; }
+.stock-input { flex: 1; }
+
+.btn-add-size {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-remove-size {
+    background: var(--accent-red);
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 @media (max-width: 992px) {
     .sidebar {
         width: 80px;
