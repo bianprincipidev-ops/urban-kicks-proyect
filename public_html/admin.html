@@ -12,7 +12,7 @@
     <div class="admin-layout">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="logo-urban.png" alt="Urban Kicks Logo" class="admin-logo">
+                <img src="logo-urban.png" alt="Urban Kicks" class="admin-logo">
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="sidebar-link active" onclick="mostrarSeccion('productos')">
@@ -82,8 +82,8 @@
             <span class="close" onclick="cerrarModal('modalProducto')">&times;</span>
             <h3>Cargar Zapatilla</h3>
             <form id="productForm">
-                <input type="text" id="name" placeholder="Nombre (Ej: Jordan 4 Retro)" required>
-                <textarea id="description" placeholder="Descripción detallada" rows="3"></textarea>
+                <input type="text" id="name" placeholder="Nombre (Ej: Jordan 4)" required>
+                <textarea id="description" placeholder="Descripción" rows="3"></textarea>
                 <input type="number" id="price" placeholder="Precio ($)" required>
                 
                 <div style="margin-bottom: 15px;">
@@ -95,8 +95,8 @@
                     </select>
                 </div>
 
-                <input type="text" id="color" placeholder="Color (Ej: Blanco/Negro)">
-                <label style="color: #888; font-size: 0.8rem;">Imagen del producto:</label>
+                <input type="text" id="color" placeholder="Color">
+                <label style="color: #888; font-size: 0.8rem;">Imagen:</label>
                 <input type="file" id="imagen" accept="image/*" required>
                 <button type="submit" class="btn-cargar">PUBLICAR PRODUCTO</button>
             </form>
@@ -108,8 +108,8 @@
             <span class="close" onclick="cerrarModal('modalPromo')">&times;</span>
             <h3>Nueva Promoción</h3>
             <form id="form-promo">
-                <input type="text" id="promo-title" placeholder="Título (Ej: Hot Sale)" required>
-                <textarea id="promo-subtitle" placeholder="Subtítulo informativo"></textarea>
+                <input type="text" id="promo-title" placeholder="Título" required>
+                <textarea id="promo-subtitle" placeholder="Subtítulo"></textarea>
                 <input type="file" id="promo-image" accept="image/*" required>
                 <button type="submit" class="btn-cargar">SUBIR PROMOCIÓN</button>
             </form>
@@ -120,7 +120,7 @@
         // 1. SEGURIDAD
         (async function() {
             const token = localStorage.getItem('urban_token');
-            if (!token) return window.location.href = 'index.html';
+            if (!token) window.location.href = 'index.html';
             try {
                 const res = await fetch('/api/usuario/perfil', {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -143,56 +143,52 @@
 
         // 3. CARGAR TABLAS
         async function cargarTablas() {
-            // Productos
             try {
                 const res = await fetch('/api/productos');
                 const productos = await res.json();
-                document.getElementById('lista-productos-admin').innerHTML = productos.map(p => `
-                    <tr>
-                        <td><img src="${p.image_url}" width="50" style="border-radius:5px;"></td>
-                        <td><strong>${p.name}</strong></td>
-                        <td>$${p.price}</td>
-                        <td>
-                            <button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})">
-                                <i class="ri-delete-bin-line"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error(err); }
+                const tbody = document.getElementById('lista-productos-admin');
+                if(tbody) {
+                    tbody.innerHTML = productos.map(p => `
+                        <tr>
+                            <td><img src="${p.image_url}" width="50" style="border-radius:5px;"></td>
+                            <td><strong>${p.name}</strong></td>
+                            <td>$${p.price}</td>
+                            <td><button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
 
-            // Promos
             try {
                 const res = await fetch('/api/promociones');
                 const promos = await res.json();
-                document.getElementById('lista-promos-admin').innerHTML = promos.map(p => `
-                    <tr>
-                        <td><strong>${p.title}</strong></td>
-                        <td>${p.subtitle}</td>
-                        <td>
-                            <button class="btn-del" onclick="eliminarItem('/api/promociones', ${p.id})">
-                                <i class="ri-delete-bin-line"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error(err); }
+                const tbodyPromo = document.getElementById('lista-promos-admin');
+                if(tbodyPromo) {
+                    tbodyPromo.innerHTML = promos.map(p => `
+                        <tr>
+                            <td><strong>${p.title}</strong></td>
+                            <td>${p.subtitle}</td>
+                            <td><button class="btn-del" onclick="eliminarItem('/api/promociones', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
         }
 
         // 4. ELIMINAR
         async function eliminarItem(ruta, id) {
-            if(confirm("¿Eliminar este ítem?")) {
+            if(confirm("¿Eliminar ítem?")) {
                 try {
                     await fetch(`${ruta}/${id}`, { 
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` }
                     });
                     cargarTablas();
-                } catch (err) { console.error(err); }
+                } catch (e) { console.error(e); }
             }
         }
 
-        // 5. ENVÍO PRODUCTO (SIMPLE)
+        // 5. ENVÍOS
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData();
@@ -208,16 +204,9 @@
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                 body: formData
             });
-
-            if (res.ok) {
-                alert("Producto cargado");
-                cerrarModal('modalProducto');
-                e.target.reset();
-                cargarTablas();
-            }
+            if(res.ok) { alert("Producto cargado"); cerrarModal('modalProducto'); e.target.reset(); cargarTablas(); }
         };
 
-        // 6. ENVÍO PROMO
         document.getElementById('form-promo').onsubmit = async (e) => {
             e.preventDefault();
             const data = new FormData();
@@ -230,20 +219,10 @@
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                 body: data 
             });
-
-            if(res.ok) { 
-                alert("Promoción cargada"); 
-                cerrarModal('modalPromo');
-                e.target.reset();
-                cargarTablas(); 
-            }
+            if(res.ok) { alert("Promo cargada"); cerrarModal('modalPromo'); e.target.reset(); cargarTablas(); }
         };
 
-        function logoutAdmin() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-
+        function logoutAdmin() { localStorage.clear(); window.location.href = 'index.html'; }
         window.onload = cargarTablas;
     </script>
 </body>
