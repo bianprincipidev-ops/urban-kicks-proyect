@@ -367,42 +367,50 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
-            if (!res.ok || data.role !== 'admin') {
-                window.location.href = 'index.html';
-            }
-        } catch {
-            window.location.href = 'index.html';
-        }
+            if (!res.ok || data.role !== 'admin') window.location.href = 'index.html';
+        } catch { window.location.href = 'index.html'; }
     })();
 
     // 2. NAVEGACIÓN Y MODALES
     function mostrarSeccion(seccion) {
-        document.getElementById('sec-productos').style.display = seccion === 'productos' ? 'block' : 'none';
-        document.getElementById('sec-promos').style.display = seccion === 'promos' ? 'block' : 'none';
+        const secProd = document.getElementById('sec-productos');
+        const secPromo = document.getElementById('sec-promos');
+        if(secProd) secProd.style.display = seccion === 'productos' ? 'block' : 'none';
+        if(secPromo) secPromo.style.display = seccion === 'promos' ? 'block' : 'none';
         
         document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-        if(event) event.currentTarget.classList.add('active');
+        if(event && event.currentTarget) event.currentTarget.classList.add('active');
     }
 
-    function abrirModal(id) { document.getElementById(id).style.display = "block"; }
-    function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
+    function abrirModal(id) { 
+        const modal = document.getElementById(id);
+        if(modal) modal.style.display = "block"; 
+    }
+    
+    function cerrarModal(id) { 
+        const modal = document.getElementById(id);
+        if(modal) modal.style.display = "none"; 
+    }
 
     // --- FUNCIÓN PARA TALLES DINÁMICOS ---
     function agregarFilaTalle() {
         const wrapper = document.getElementById('sizes-wrapper');
+        if(!wrapper) return;
         const div = document.createElement('div');
         div.className = 'size-row';
         div.style = "display: flex; gap: 10px; margin-bottom: 10px;";
         div.innerHTML = `
             <input type="text" class="size-input" placeholder="Talle" required style="flex:2;">
             <input type="number" class="stock-input" placeholder="Cant." required style="flex:1;">
-            <button type="button" class="btn-remove-size" onclick="this.parentElement.remove()" style="background:#ff4d4d; color:white; border:none; padding:0 15px; border-radius:4px; cursor:pointer;">-</button>
+            <button type="button" onclick="this.parentElement.remove()" style="background:#ff4d4d; color:white; border:none; padding:0 15px; border-radius:4px; cursor:pointer;">-</button>
         `;
         wrapper.appendChild(div);
     }
 
     // 3. CARGAR PRODUCTOS Y PROMOS EN TABLAS
     async function cargarTablas() {
+        console.log("Cargando tablas...");
+        // Productos
         try {
             const resProd = await fetch('/api/productos');
             const productos = await resProd.json();
@@ -421,8 +429,9 @@
                     </tr>
                 `).join('');
             }
-        } catch (err) { console.error("Error productos:", err); }
+        } catch (err) { console.error("Error cargando productos:", err); }
 
+        // Promos
         try {
             const resPromo = await fetch('/api/promociones');
             const promos = await resPromo.json();
@@ -440,10 +449,10 @@
                     </tr>
                 `).join('');
             }
-        } catch (err) { console.error("Error promos:", err); }
+        } catch (err) { console.error("Error cargando promos:", err); }
     }
 
-    // 4. ELIMINAR ÍTEMS (Productos o Promos)
+    // 4. ELIMINAR ÍTEMS
     async function eliminarItem(ruta, id) {
         if (!id) return alert("ID no encontrado");
         if(confirm("¿Estás seguro de eliminar este ítem?")) {
@@ -452,78 +461,86 @@
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` }
                 });
-                if(res.ok) { cargarTablas(); }
-                else { alert("Error al eliminar"); }
-            } catch (err) { console.error(err); }
+                if(res.ok) { 
+                    cargarTablas(); 
+                } else { 
+                    alert("Error al eliminar del servidor"); 
+                }
+            } catch (err) { console.error("Error eliminando:", err); }
         }
     }
 
-    // 5. ENVÍO FORM PRODUCTO (Con Talles)
-    document.getElementById('productForm').onsubmit = async (e) => {
-        e.preventDefault();
+    // 5. ENVÍO FORM PRODUCTO
+    const prodForm = document.getElementById('productForm');
+    if(prodForm) {
+        prodForm.onsubmit = async (e) => {
+            e.preventDefault();
+            console.log("Enviando producto...");
 
-        // Recolectar talles de las filas dinámicas
-        const rows = document.querySelectorAll('.size-row');
-        let sizesData = [];
-        rows.forEach(row => {
-            const s = row.querySelector('.size-input').value;
-            const q = row.querySelector('.stock-input').value;
-            if(s && q) sizesData.push({ size: s, stock: q });
-        });
+            const rows = document.querySelectorAll('.size-row');
+            let sizesData = [];
+            rows.forEach(row => {
+                const s = row.querySelector('.size-input').value;
+                const q = row.querySelector('.stock-input').value;
+                if(s && q) sizesData.push({ size: s, stock: q });
+            });
 
-        const formData = new FormData();
-        formData.append('name', document.getElementById('name').value);
-        formData.append('description', document.getElementById('description').value);
-        formData.append('price', document.getElementById('price').value);
-        formData.append('category_id', document.getElementById('category_id').value);
-        formData.append('color', document.getElementById('color').value);
-        formData.append('image', document.getElementById('imagen').files[0]);
-        formData.append('sizes', JSON.stringify(sizesData)); // Array a JSON string
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('price', document.getElementById('price').value);
+            formData.append('category_id', document.getElementById('category_id').value);
+            formData.append('color', document.getElementById('color').value);
+            formData.append('image', document.getElementById('imagen').files[0]);
+            formData.append('sizes', JSON.stringify(sizesData));
 
-        const res = await fetch('/api/productos', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
-            body: formData
-        });
+            try {
+                const res = await fetch('/api/productos', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                    body: formData
+                });
 
-        if (res.ok) {
-            alert("Producto cargado con éxito");
-            e.target.reset();
-            // Resetear visualmente las filas de talles
-            document.getElementById('sizes-wrapper').innerHTML = `
-                <div class="size-row" style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" class="size-input" placeholder="Talle (38)" required style="flex:2;">
-                    <input type="number" class="stock-input" placeholder="Cant." required style="flex:1;">
-                    <button type="button" class="btn-add-size" onclick="agregarFilaTalle()" style="background:#444; color:white; border:none; padding:0 15px; border-radius:4px; cursor:pointer;">+</button>
-                </div>`;
-            cerrarModal('modalProducto');
-            cargarTablas(); 
-        } else {
-            alert("Error al cargar producto");
-        }
-    };
+                if (res.ok) {
+                    alert("Producto cargado con éxito");
+                    prodForm.reset();
+                    document.getElementById('sizes-wrapper').innerHTML = `
+                        <div class="size-row" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" class="size-input" placeholder="Talle (38)" required style="flex:2;">
+                            <input type="number" class="stock-input" placeholder="Cant." required style="flex:1;">
+                            <button type="button" onclick="agregarFilaTalle()" style="background:#444; color:white; border:none; padding:0 15px; border-radius:4px; cursor:pointer;">+</button>
+                        </div>`;
+                    cerrarModal('modalProducto');
+                    cargarTablas(); 
+                } else { alert("Error en la carga."); }
+            } catch (err) { console.error("Error enviando form:", err); }
+        };
+    }
 
     // 6. ENVÍO FORM PROMO
-    document.getElementById('form-promo').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = new FormData();
-        data.append('title', document.getElementById('promo-title').value);
-        data.append('subtitle', document.getElementById('promo-subtitle').value);
-        data.append('imagen', document.getElementById('promo-image').files[0]);
+    const promoForm = document.getElementById('form-promo');
+    if(promoForm) {
+        promoForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const data = new FormData();
+            data.append('title', document.getElementById('promo-title').value);
+            data.append('subtitle', document.getElementById('promo-subtitle').value);
+            data.append('imagen', document.getElementById('promo-image').files[0]);
 
-        const res = await fetch('/api/promociones/nuevo', { 
-            method: 'POST', 
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
-            body: data 
-        });
+            const res = await fetch('/api/promociones/nuevo', { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                body: data 
+            });
 
-        if(res.ok) { 
-            alert("¡Promoción cargada!"); 
-            cerrarModal('modalPromo');
-            e.target.reset();
-            cargarTablas(); 
-        }
-    });
+            if(res.ok) { 
+                alert("¡Promoción cargada!"); 
+                cerrarModal('modalPromo');
+                promoForm.reset();
+                cargarTablas(); 
+            }
+        };
+    }
 
     function logoutAdmin() {
         localStorage.clear();
