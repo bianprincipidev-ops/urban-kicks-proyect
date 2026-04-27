@@ -37,6 +37,16 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+// AGREGÁ ESTO JUSTO ABAJO:
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('ERROR EN LA BASE DE DATOS:', err);
+    } else {
+        console.log('CONEXIÓN A DB EXITOSA');
+        connection.release();
+    }
+});
+
 // Carpetas Estáticas
 app.use(express.static(path.join(__dirname, 'public_html')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
