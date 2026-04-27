@@ -95,12 +95,33 @@ app.get('/api/productos/:id', async (req, res) => {
 });
 
 // Obtener todos los productos
+// app.get('/api/productos', async (req, res) => {
+//     try {
+//         const [rows] = await pool.query('SELECT * FROM products ORDER BY id DESC');
+//         res.json(rows);
+//     } catch (error) {
+//         res.status(500).json({ error: 'Error al cargar productos' });
+//     }
+// });
+
 app.get('/api/productos', async (req, res) => {
-    try {
-        const [rows] = await pool.query('SELECT * FROM products ORDER BY id DESC');
-        res.json(rows);
+    try{
+        //1. Traemos los productos básicos
+        const [productos] = await pool.query('SELECT * FROM products ORDER BY id DESC');
+
+        //2. Vincular los talles a cada producto antes de enviarlos
+        for (let i = 0; i < productos.length; i++) {
+            const [talles] = await pool.query('SELECT size, stock FROM product_sizes WHERE product_id = ?',
+                [productos[i].id]
+            );
+            // Agg la propiedad 'sizes' para que el front la reconozca
+            productos[i].sizes = talles;
+        }
+
+        res.json(productos);
     } catch (error) {
-        res.status(500).json({ error: 'Error al cargar productos' });
+        console.error("Error al obtener productos:", error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
     }
 });
 
