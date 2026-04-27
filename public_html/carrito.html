@@ -69,9 +69,8 @@
         }
 
         function finalizarCompra() {
-            // 1. EL NÚMERO DE TELÉFONO (Cambiá el '123456789' por el de tu tía después)
-            // Importante: Sin el +, solo el código de país y el número (Ej: 5493581234567)
-            const numeroTelefono = "123456789"; 
+            // 1. EL NÚMERO DE TELÉFONO
+            const numeroTelefono = "3585756996"; 
 
             const carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
             if (carrito.length === 0) return alert("El carrito está vacío");
@@ -81,7 +80,7 @@
             let total = 0;
 
             carrito.forEach((item, index) => {
-                mensaje += `👟 *${item.name}*\n   Precio: $${Number(item.price).toLocaleString('es-AR')}\n\n`;
+                mensaje += `👟 *${item.name}*\n   Talle: ${item.size || 'No especificado'}\n   Precio: $${Number(item.price).toLocaleString('es-AR')}\n\n`;
                 total += Number(item.price);
             });
 
@@ -95,6 +94,8 @@
 
             // 5. Redirigir al cliente
             window.open(urlWhatsapp, '_blank');
+            // 6. Limpiar carrito (Opcional pero recomendado)
+            localStorage.removeItem('urban_cart');
         }
     </script>
 </body>
