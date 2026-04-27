@@ -32,6 +32,41 @@
         }
         .btn-add { background: #444; }
         .btn-remove { background: #ff4d4d; }
+
+        /* Estilos para los botones de talle en la tabla */
+        .admin-stock-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-width: 250px;
+        }
+
+        .btn-venta {
+            background: #222;
+            color: #eee;
+            border: 1px solid #444;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-venta:hover {
+            background: #ff4d4d;
+            border-color: #ff4d4d;
+            color: white;
+        }
+
+        .btn-venta span {
+            font-weight: bold;
+            margin-left: 3px;
+            color: #ff4d4d;
+        }
+
+        .btn-venta:hover span {
+            color: white;
+        }
     </style>
 </head>
 <body class="admin-body">
@@ -202,17 +237,36 @@
                     tbody.innerHTML = productos.map(p => `
                         <tr>
                             <td><img src="${p.image_url}" width="50" style="border-radius:5px;"></td>
-                            <td><strong>${p.name}</strong></td>
+                            <td>
+                                <strong>${p.name}</strong><br>
+                                <small style="color: #888;">${p.color || ''}</small>
+                            </td>
                             <td>$${p.price}</td>
-                            <td><button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
+                            <td>
+                                <div class="admin-stock-controls">
+                                    ${p.sizes && p.sizes.length > 0 
+                                        ? p.sizes.map(s => `
+                                            <button class="btn-venta" title="Click para descontar 1 unidad" onclick="confirmarVenta(${p.id}, '${s.size}', ${s.stock})">
+                                                T${s.size} <span>(${s.stock})</span>
+                                            </button>
+                                        `).join('')
+                                        : '<span style="color: #666; font-size: 0.8rem;">Sin talles</span>'
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </td>
                         </tr>
                     `).join('');
                 }
             } catch (e) { console.error(e); }
 
             try {
-                const res = await fetch('/api/promociones');
-                const promos = await res.json();
+                const resPromo = await fetch('/api/promociones');
+                const promos = await resPromo.json();
                 const tbodyPromo = document.getElementById('lista-promos-admin');
                 if(tbodyPromo) {
                     tbodyPromo.innerHTML = promos.map(p => `
@@ -224,6 +278,39 @@
                     `).join('');
                 }
             } catch (e) { console.error(e); }
+        }
+
+        // FUNCIÓN PARA CONFIRMAR VENTA Y ACTUALIZAR STOCK
+        async function confirmarVenta(productId, talle, stockActual) {
+            if (stockActual <= 0) {
+                alert("Este talle ya no tiene stock disponible.");
+                return;
+            }
+
+            if (confirm(`¿Confirmar venta del talle ${talle}? Se restará 1 unidad del stock.`)) {
+                try {
+                    const res = await fetch('/api/productos/confirmar-venta', {
+                        method: 'PUT',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('urban_token')}`
+                        },
+                        body: JSON.stringify({ product_id: productId, size: talle })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        alert("¡Venta confirmada! Stock actualizado.");
+                        cargarTablas(); // Esto refresca la tabla para ver el nuevo stock
+                    } else {
+                        alert("Error: " + (data.error || "No se pudo actualizar el stock"));
+                    }
+                } catch (error) {
+                    console.error("Error en la venta:", error);
+                    alert("Error de conexión con el servidor.");
+                }
+            }
         }
 
         // 4. ELIMINAR

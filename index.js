@@ -388,6 +388,34 @@ app.post('/api/usuario/actualizar', async (req, res) => {
     }
 });
 
+// Ruta para descontar stock manualmente desde el Admin
+app.put('/api/productos/confirmar-venta', async (req, res) => {
+    const { product_id, size } = req.body;
+
+    try {
+        // 1. Verificamos si hay stock antes de descontar
+        const [rows] = await pool.query(
+            'SELECT stock FROM product_sizes WHERE product_id = ? AND size = ?',
+            [product_id, size]
+        );
+
+        if (rows.length === 0 || rows[0].stock <= 0) {
+            return res.status(400).json({ error: "No hay stock disponible para descontar" });
+        }
+
+        // 2. Restamos 1 unidad
+        await pool.query(
+            'UPDATE product_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ?',
+            [product_id, size]
+        );
+
+        res.json({ success: true, message: "Stock actualizado" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error al actualizar stock" });
+    }
+});
+
 app.use((req, res) => res.status(404).send("No encontrado"));
 
 const PORT = process.env.PORT || 3000;
