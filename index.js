@@ -38,7 +38,7 @@ const pool = mysql.createPool({
 
 // Carpetas Estáticas
 app.use(express.static(path.join(__dirname, 'public_html')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('/home/u981899354/imagenes_urban'));
 
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)){
@@ -46,8 +46,13 @@ if (!fs.existsSync(uploadDir)){
 }
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => { cb(null, 'uploads/'); },
-    filename: (req, file, cb) => { cb(null, Date.now() + '-' + file.originalname); }
+    destination: function (req, file, cb) {
+        // Usamos la ruta absoluta para que no se borren
+        cb(null, '/home/u981899354/imagenes_urban'); 
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
 });
 const upload = multer({ storage: storage });
 
