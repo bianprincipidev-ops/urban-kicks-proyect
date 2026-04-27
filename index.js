@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const nodemailer = require('nodemailer');
-
+const path = require('path');
 const app = express();
 
 // --- CONFIGURACIONES ---
@@ -93,16 +93,6 @@ app.get('/api/productos/:id', async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
-
-// Obtener todos los productos
-// app.get('/api/productos', async (req, res) => {
-//     try {
-//         const [rows] = await pool.query('SELECT * FROM products ORDER BY id DESC');
-//         res.json(rows);
-//     } catch (error) {
-//         res.status(500).json({ error: 'Error al cargar productos' });
-//     }
-// });
 
 app.get('/api/productos', async (req, res) => {
     try{
