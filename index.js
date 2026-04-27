@@ -7,7 +7,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const nodemailer = require('nodemailer');
-const path = require('path');
 const app = express();
 
 // --- CONFIGURACIONES ---
@@ -35,16 +34,6 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-});
-
-// AGREGÁ ESTO JUSTO ABAJO:
-pool.getConnection((err, connection) => {
-    if (err) {
-        console.error('ERROR EN LA BASE DE DATOS:', err);
-    } else {
-        console.log('CONEXIÓN A DB EXITOSA');
-        connection.release();
-    }
 });
 
 // Carpetas Estáticas
