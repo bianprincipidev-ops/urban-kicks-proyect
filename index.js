@@ -443,7 +443,7 @@ app.put('/api/productos/confirmar-venta', async (req, res) => {
 });
 
 // SUBIR O ACTUALIZAR TABLA DE TALLE (ADMIN)
-app.post('/api/admin/talles', authMiddleware, upload.single('imagen_talle'), (req, res) => {
+app.post('/api/admin/talles', authMiddleware, upload.single('imagen_talle'), async (req, res) => {
     const { marca } = req.body;
     const imagen_url = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -455,19 +455,23 @@ app.post('/api/admin/talles', authMiddleware, upload.single('imagen_talle'), (re
         ON DUPLICATE KEY UPDATE imagen_url = VALUES(imagen_url)
     `;
 
-    pool.query(query, [marca.toLowerCase(), imagen_url], (err) => {
-        if (err) return res.status(500).json({ success: false, err });
+    try {
+        await pool.query(query, [marca.toLowerCase(), imagen_url]);
         res.json({ success: true, message: "Tabla de talles actualizada" });
-    });
+    } catch (err) {
+        res.status(500).json({ success: false, err });
+    }
 });
 
 // OBTENER TABLA DE TALLE (CLIENTE)
-app.get('/api/talles/:marca', (req, res) => {
-    const query = "SELECT imagen_url FROM tabla_talles WHERE marca = ?";
-    pool.query(query, [req.params.marca.toLowerCase()], (err, results) => {
-        if (err || results.length === 0) return res.json({ success: false });
+app.get('/api/talles/:marca', async (req, res) => {
+    try {
+        const [results] = await pool.query("SELECT imagen_url FROM tabla_talles WHERE marca = ?", [req.params.marca.toLowerCase()]);
+        if (results.length === 0) return res.json({ success: false });
         res.json({ success: true, imagen_url: results[0].imagen_url });
-    });
+    } catch (err) {
+        res.json({ success: false });
+    }
 });
 
 app.use((req, res) => res.status(404).send("No encontrado"));
