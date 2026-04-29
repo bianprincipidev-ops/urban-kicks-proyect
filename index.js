@@ -443,7 +443,7 @@ app.put('/api/productos/confirmar-venta', async (req, res) => {
 });
 
 // SUBIR O ACTUALIZAR TABLA DE TALLE (ADMIN)
-app.post('/api/admin/talles', authMiddleware, upload.single('imagen_talle'), async (req, res) => {
+app.post('/api/admin/talles', upload.single('imagen_talle'), async (req, res) => {
     const { marca } = req.body;
     const imagen_url = req.file ? `/uploads/${req.file.filename}` : null;
 
