@@ -344,29 +344,33 @@
                     if (result.success) {
                         msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Cambios guardados con éxito!</p>`;
                         
-                        // 1. OBTENER LOS DATOS QUE YA TENEMOS EN LOCALSTORAGE
-                        const userLocal = JSON.parse(localStorage.getItem('usuario')) || {};
+                        try {
+                            // 1. Verificamos qué hay en el localStorage antes de tocar nada
+                            const rawUser = localStorage.getItem('usuario');
+                            const userLocal = rawUser ? JSON.parse(rawUser) : {};
 
-                        // 2. ACTUALIZAR EL OBJETO LOCAL CON LOS NUEVOS DATOS
-                        const updatedUser = { ...userLocal, ...updatedData };
-                        
-                        // 3. VOLVER A GUARDAR EN LOCALSTORAGE
-                        localStorage.setItem('usuario', JSON.stringify(updatedUser));
+                            // 2. Creamos el nuevo objeto mezclando lo que había con lo nuevo
+                            // Usamos result.user (si tu backend lo devuelve) o updatedData
+                            const updatedUser = { ...userLocal, ...updatedData };
+                            
+                            // 3. Guardamos
+                            localStorage.setItem('usuario', JSON.stringify(updatedUser));
 
-                        // 4. Actualizar visualmente el nombre (esto ya lo tenías)
-                        const nuevoNombre = updatedData.full_name || updatedData.username;
-                        if(document.getElementById('display-username')) {
-                            document.getElementById('display-username').innerText = nuevoNombre.toUpperCase();
+                            // 4. Actualización visual rápida
+                            const nuevoNombre = updatedData.full_name || updatedData.username;
+                            if(document.getElementById('display-username')) {
+                                document.getElementById('display-username').innerText = nuevoNombre.toUpperCase();
+                            }
+                        } catch (e) {
+                            console.error("Error actualizando localStorage:", e);
                         }
 
-                        // Limpiamos el campo de contraseña
+                        // Limpiamos contraseña
                         document.getElementById('new_password').value = "";
 
                         // Forzar un pequeño refresco para asegurar que todo el sitio tomó los cambios
                         setTimeout(() => { window.location.reload(); }, 1500);
-                        
-                    }
-                        
+                                               
                     } else {
                         msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error: ${result.message || 'Error al actualizar'}</p>`;
                     }
