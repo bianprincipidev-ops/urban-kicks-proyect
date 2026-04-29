@@ -304,7 +304,7 @@
 
             const res = await fetch('/api/admin/talles', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }, // Tu token de admin
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                 body: formData
             });
             const data = await res.json();
