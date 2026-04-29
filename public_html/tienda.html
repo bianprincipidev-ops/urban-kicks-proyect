@@ -17,6 +17,7 @@
             <a href="javascript:void(0)" onclick="cargarProductos('1')">Urbano</a>
             <a href="javascript:void(0)" onclick="cargarProductos('2')">Hombre</a>
             <a href="javascript:void(0)" onclick="cargarProductos('3')">Mujer</a>
+            <a href="javascript:void(0)" onclick="abrirModalTalles()">Tabla de Talles</a>
             
         </nav>
         <div class="header-icons">
@@ -33,6 +34,25 @@
             </button>
         </div>
     </header>
+
+    <div id="modalTalles" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="cerrarModalTalles()">&times;</span>
+            <h3>Tabla de Talles</h3>
+            <div style="margin-bottom: 12px;">
+                <select id="selectMarcaTalle" onchange="cargarTablaTalle()" style="width:100%; padding:10px; background:#222; color:white; border:1px solid #444; border-radius:5px;">
+                    <option value="">-- Seleccioná una marca --</option>
+                    <option value="nike">Nike</option>
+                    <option value="adidas">Adidas</option>
+                    <option value="jordan">Jordan</option>
+                    <option value="vans">Vans</option>
+                </select>
+            </div>
+            <div id="contenedor-tabla-talle" style="text-align:center; color:#888;">
+                Seleccioná una marca para ver su tabla.
+            </div>
+        </div>
+    </div>
 
     <div class="promo-bar">
         <p id="text-promo-top">🚀 ¡ENVÍO GRATIS DENTRO DE RÍO CUARTO! 🚀</p>
@@ -265,6 +285,41 @@
             } catch (error) {
                 console.error("Error al cargar productos:", error);
                 contenedor.innerHTML = '<p>Error al conectar con la base de datos.</p>';
+            }
+        }
+
+        function abrirModalTalles() {
+            document.getElementById('modalTalles').style.display = 'block';
+        }
+
+        function cerrarModalTalles() {
+            document.getElementById('modalTalles').style.display = 'none';
+            document.getElementById('selectMarcaTalle').value = '';
+            document.getElementById('contenedor-tabla-talle').innerHTML = 'Seleccioná una marca para ver su tabla.';
+        }
+
+        async function cargarTablaTalle() {
+            const marca = document.getElementById('selectMarcaTalle').value;
+            const contenedor = document.getElementById('contenedor-tabla-talle');
+            
+            if (!marca) {
+                contenedor.innerHTML = 'Seleccioná una marca para ver su tabla.';
+                return;
+            }
+
+            contenedor.innerHTML = 'Cargando...';
+
+            try {
+                const res = await fetch(`/api/talles/${marca}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    contenedor.innerHTML = `<img src="${data.imagen_url}" style="max-width:100%; border-radius:8px;">`;
+                } else {
+                    contenedor.innerHTML = '<p style="color:#888;">No hay tabla disponible para esta marca todavía.</p>';
+                }
+            } catch {
+                contenedor.innerHTML = '<p style="color:#dc3545;">Error al cargar la tabla.</p>';
             }
         }
 </script>
