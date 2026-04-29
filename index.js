@@ -455,7 +455,7 @@ app.post('/api/admin/talles', authMiddleware, upload.single('imagen_talle'), (re
         ON DUPLICATE KEY UPDATE imagen_url = VALUES(imagen_url)
     `;
 
-    db.query(query, [marca.toLowerCase(), imagen_url], (err) => {
+    pool.query(query, [marca.toLowerCase(), imagen_url], (err) => {
         if (err) return res.status(500).json({ success: false, err });
         res.json({ success: true, message: "Tabla de talles actualizada" });
     });
