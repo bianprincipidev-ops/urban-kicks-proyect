@@ -62,7 +62,11 @@ app.get('/tienda', (req, res) => res.sendFile(path.join(__dirname, 'public_html'
 app.get('/detalle', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'detalle.html')));
 app.get('/carrito', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'carrito.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'admin.html')));
-
+app.get('/perfil', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'perfil.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'login.html')));
+app.get('*', (req, res) => {
+    res.redirect('/');
+});
 // --- RUTAS DE API ---
 
 // Obtener producto por ID (Actualizado para incluir talles)
