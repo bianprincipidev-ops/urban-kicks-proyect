@@ -83,6 +83,9 @@
                 <a href="#" class="sidebar-link" onclick="mostrarSeccion('promos')">
                     <i class="ri-advertisement-line"></i> <span>Promociones</span>
                 </a>
+                <a href="#" class="sidebar-link" onclick="mostrarSeccion('talles')">
+                    <i class="ri-ruler-line"></i> <span>Tablas de Talles</span>
+                </a>
                 <a href="tienda.html" class="sidebar-link">
                     <i class="ri-store-line"></i> <span>Ver Tienda</span>
                 </a>
@@ -119,22 +122,31 @@
                 </div>
             </section>
 
-            <section id="sec-promos" class="admin-section" style="display:none;">
+            <section id="sec-talles" class="admin-section" style="display:none;">
                 <div class="section-header">
-                    <h3>Promociones</h3>
-                    <button class="btn-nuevo" onclick="abrirModal('modalPromo')">+ Nueva Promo</button>
+                    <h3>Tablas de Talles</h3>
                 </div>
-                <div style="overflow-x: auto;">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Título</th>
-                                <th>Subtítulo</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lista-promos-admin"></tbody>
-                    </table>
+                <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid #333; max-width: 500px;">
+                    <form id="formTalles">
+                        <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 6px;">Marca:</label>
+                        <input 
+                            type="text" 
+                            id="marcaTalle" 
+                            placeholder="Ej: Nike, Adidas, Jordan..." 
+                            required
+                            style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px; margin-bottom: 12px;">
+                        
+                        <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 6px;">Imagen de la tabla:</label>
+                        <input 
+                            type="file" 
+                            id="fileTalle" 
+                            accept="image/*" 
+                            required
+                            style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px; margin-bottom: 16px;">
+                        
+                        <button type="submit" class="btn-cargar">SUBIR / ACTUALIZAR TABLA</button>
+                    </form>
+                    <p id="msg-talles" style="margin-top: 10px;"></p>
                 </div>
             </section>
         </main>
@@ -222,6 +234,7 @@
         function mostrarSeccion(seccion) {
             document.getElementById('sec-productos').style.display = seccion === 'productos' ? 'block' : 'none';
             document.getElementById('sec-promos').style.display = seccion === 'promos' ? 'block' : 'none';
+            document.getElementById('sec-talles').style.display = seccion === 'talles' ? 'block' : 'none';
             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
             if(event && event.currentTarget) event.currentTarget.classList.add('active');
         }
@@ -298,6 +311,7 @@
         // SUBIR TABLA DE TALLES
         document.getElementById('formTalles').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const msg = document.getElementById('msg-talles');
             const formData = new FormData();
             formData.append('marca', document.getElementById('marcaTalle').value);
             formData.append('imagen_talle', document.getElementById('fileTalle').files[0]);
@@ -308,7 +322,9 @@
                 body: formData
             });
             const data = await res.json();
-            alert(data.message);
+            msg.innerHTML = data.success 
+                ? `<span style="color:#28a745;">✅ ${data.message}</span>` 
+                : `<span style="color:#dc3545;">❌ Error al subir</span>`;
         });
 
         // FUNCIÓN PARA CONFIRMAR VENTA Y ACTUALIZAR STOCK
