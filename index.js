@@ -442,6 +442,34 @@ app.put('/api/productos/confirmar-venta', async (req, res) => {
     }
 });
 
+// SUBIR O ACTUALIZAR TABLA DE TALLE (ADMIN)
+app.post('/api/admin/talles', authMiddleware, upload.single('imagen_talle'), (req, res) => {
+    const { marca } = req.body;
+    const imagen_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    if (!marca || !imagen_url) return res.status(400).json({ success: false, message: "Datos incompletos" });
+
+    const query = `
+        INSERT INTO tabla_talles (marca, imagen_url)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE imagen_url = VALUES(imagen_url)
+    `;
+
+    db.query(query, [marca.toLowerCase(), imagen_url], (err) => {
+        if (err) return res.status(500).json({ success: false, err });
+        res.json({ success: true, message: "Tabla de talles actualizada" });
+    });
+});
+
+// OBTENER TABLA DE TALLE (CLIENTE)
+app.get('/api/talles/:marca', (req, res) => {
+    const query = "SELECT imagen_url FROM tabla_talles WHERE marca = ?";
+    db.query(query, [req.params.marca.toLowerCase()], (err, results) => {
+        if (err || results.length === 0) return res.json({ success: false });
+        res.json({ success: true, imagen_url: results[0].imagen_url });
+    });
+});
+
 app.use((req, res) => res.status(404).send("No encontrado"));
 
 const PORT = process.env.PORT || 3000;

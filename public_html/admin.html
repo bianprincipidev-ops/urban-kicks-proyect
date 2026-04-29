@@ -190,6 +190,20 @@
         </div>
     </div>
 
+    <div class="admin-section">
+        <h3>Gestionar Tablas de Talles</h3>
+        <form id="formTalles">
+            <select id="marcaTalle" required>
+                <option value="nike">Nike</option>
+                <option value="adidas">Adidas</option>
+                <option value="jordan">Jordan</option>
+                <option value="vans">Vans</option>
+            </select>
+            <input type="file" id="fileTalle" accept="image/*" required>
+            <button type="submit">Subir/Actualizar Tabla</button>
+        </form>
+    </div>
+
     <script>
         // 1. SEGURIDAD
         (async function() {
@@ -280,6 +294,22 @@
                 }
             } catch (e) { console.error(e); }
         }
+
+        // SUBIR TABLA DE TALLES
+        document.getElementById('formTalles').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('marca', document.getElementById('marcaTalle').value);
+            formData.append('imagen_talle', document.getElementById('fileTalle').files[0]);
+
+            const res = await fetch('/api/admin/talles', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }, // Tu token de admin
+                body: formData
+            });
+            const data = await res.json();
+            alert(data.message);
+        });
 
         // FUNCIÓN PARA CONFIRMAR VENTA Y ACTUALIZAR STOCK
         async function confirmarVenta(productId, talle, stockActual) {
