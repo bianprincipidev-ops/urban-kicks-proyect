@@ -344,14 +344,28 @@
                     if (result.success) {
                         msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Cambios guardados con éxito!</p>`;
                         
-                        // En lugar de reload(), actualizamos el nombre en el sidebar manualmente
+                        // 1. OBTENER LOS DATOS QUE YA TENEMOS EN LOCALSTORAGE
+                        const userLocal = JSON.parse(localStorage.getItem('usuario')) || {};
+
+                        // 2. ACTUALIZAR EL OBJETO LOCAL CON LOS NUEVOS DATOS
+                        const updatedUser = { ...userLocal, ...updatedData };
+                        
+                        // 3. VOLVER A GUARDAR EN LOCALSTORAGE
+                        localStorage.setItem('usuario', JSON.stringify(updatedUser));
+
+                        // 4. Actualizar visualmente el nombre (esto ya lo tenías)
                         const nuevoNombre = updatedData.full_name || updatedData.username;
                         if(document.getElementById('display-username')) {
                             document.getElementById('display-username').innerText = nuevoNombre.toUpperCase();
                         }
-            
-                        // Limpiamos el campo de contraseña por seguridad
+
+                        // Limpiamos el campo de contraseña
                         document.getElementById('new_password').value = "";
+
+                        // Forzar un pequeño refresco para asegurar que todo el sitio tomó los cambios
+                        setTimeout(() => { window.location.reload(); }, 1500);
+                        
+                    }
                         
                     } else {
                         msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error: ${result.message || 'Error al actualizar'}</p>`;
