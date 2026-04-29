@@ -297,8 +297,18 @@ app.get('/api/usuario/perfil', async (req, res) => {
         res.json({ 
             id: u.id, 
             username: u.username, 
-            role: u.role || (u.is_admin === 1 ? 'admin' : 'user')
-        })
+            role: u.role || (u.is_admin === 1 ? 'admin' : 'user'),
+            // Agregás todos los campos que usa el formulario
+            full_name: u.full_name || '',
+            dni: u.dni || '',
+            email: u.email || '',
+            phone: u.phone || '',
+            address: u.address || '',
+            postal_code: u.postal_code || '',
+            city: u.city || '',
+            province: u.province || '',
+            avatar_url: u.avatar_url || ''
+        });
     } catch (error) {
         res.status(401).json({ error: "Sesión inválida" });
     }
@@ -395,7 +405,8 @@ app.post('/api/usuario/actualizar', async (req, res) => {
 
         await pool.query(query, params);
 
-        res.json({ success: true, message: "Perfil actualizado correctamente" });
+        const [rows] = await pool.query('SELECT id, full_name, dni, username, email, phone, address, postal_code, city, province, avatar_url FROM users WHERE id = ?', [decoded.id]);
+        res.json({ success: true, message: "Perfil actualizado correctamente", user: rows[0] });
 
     } catch (error) {
         console.error("Error al actualizar perfil:", error);
