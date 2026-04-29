@@ -464,7 +464,7 @@ app.post('/api/admin/talles', authMiddleware, upload.single('imagen_talle'), (re
 // OBTENER TABLA DE TALLE (CLIENTE)
 app.get('/api/talles/:marca', (req, res) => {
     const query = "SELECT imagen_url FROM tabla_talles WHERE marca = ?";
-    db.query(query, [req.params.marca.toLowerCase()], (err, results) => {
+    pool.query(query, [req.params.marca.toLowerCase()], (err, results) => {
         if (err || results.length === 0) return res.json({ success: false });
         res.json({ success: true, imagen_url: results[0].imagen_url });
     });
