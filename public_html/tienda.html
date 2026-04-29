@@ -42,10 +42,6 @@
             <div style="margin-bottom: 12px;">
                 <select id="selectMarcaTalle" onchange="cargarTablaTalle()" style="width:100%; padding:10px; background:#222; color:white; border:1px solid #444; border-radius:5px;">
                     <option value="">-- Seleccioná una marca --</option>
-                    <option value="nike">Nike</option>
-                    <option value="adidas">Adidas</option>
-                    <option value="jordan">Jordan</option>
-                    <option value="vans">Vans</option>
                 </select>
             </div>
             <div id="contenedor-tabla-talle" style="text-align:center; color:#888;">
@@ -288,8 +284,23 @@
             }
         }
 
-        function abrirModalTalles() {
+        async function abrirModalTalles() {
             document.getElementById('modalTalles').style.display = 'block';
+            
+            try {
+                const res = await fetch('/api/talles');
+                const data = await res.json();
+                const select = document.getElementById('selectMarcaTalle');
+                
+                // Limpiamos y recargamos las opciones
+                select.innerHTML = '<option value="">-- Seleccioná una marca --</option>';
+                
+                data.marcas.forEach(marca => {
+                    select.innerHTML += `<option value="${marca}">${marca.charAt(0).toUpperCase() + marca.slice(1)}</option>`;
+                });
+            } catch {
+                // Si falla, el select queda solo con la opción por defecto
+            }
         }
 
         function cerrarModalTalles() {

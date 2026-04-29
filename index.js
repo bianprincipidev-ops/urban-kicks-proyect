@@ -442,6 +442,27 @@ app.put('/api/productos/confirmar-venta', async (req, res) => {
     }
 });
 
+// OBTENER TODAS LAS MARCAS (sin parámetro - va PRIMERO)
+app.get('/api/talles', async (req, res) => {
+    try {
+        const [results] = await pool.query("SELECT marca FROM tabla_talles ORDER BY marca ASC");
+        res.json({ success: true, marcas: results.map(r => r.marca) });
+    } catch (err) {
+        res.json({ success: false, marcas: [] });
+    }
+});
+
+// OBTENER TABLA DE TALLE POR MARCA (con parámetro - va DESPUÉS)
+app.get('/api/talles/:marca', async (req, res) => {
+    try {
+        const [results] = await pool.query("SELECT imagen_url FROM tabla_talles WHERE marca = ?", [req.params.marca.toLowerCase()]);
+        if (results.length === 0) return res.json({ success: false });
+        res.json({ success: true, imagen_url: results[0].imagen_url });
+    } catch (err) {
+        res.json({ success: false });
+    }
+});
+
 // SUBIR O ACTUALIZAR TABLA DE TALLE (ADMIN)
 app.post('/api/admin/talles', upload.single('imagen_talle'), async (req, res) => {
     const { marca } = req.body;
@@ -460,17 +481,6 @@ app.post('/api/admin/talles', upload.single('imagen_talle'), async (req, res) =>
         res.json({ success: true, message: "Tabla de talles actualizada" });
     } catch (err) {
         res.status(500).json({ success: false, err });
-    }
-});
-
-// OBTENER TABLA DE TALLE (CLIENTE)
-app.get('/api/talles/:marca', async (req, res) => {
-    try {
-        const [results] = await pool.query("SELECT imagen_url FROM tabla_talles WHERE marca = ?", [req.params.marca.toLowerCase()]);
-        if (results.length === 0) return res.json({ success: false });
-        res.json({ success: true, imagen_url: results[0].imagen_url });
-    } catch (err) {
-        res.json({ success: false });
     }
 });
 
