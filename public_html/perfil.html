@@ -235,7 +235,7 @@
         // --- 2. CARGAR PERFIL COMPLETO ---
         async function inicializarDashboard() {
             if (!token) {
-                window.location.href = '/index';
+                window.location.href = '/';
                 return;
             }
             try {
@@ -405,7 +405,7 @@
         function logout() {
             if(confirm("¿Cerrar sesión?")) {
                 localStorage.clear();
-                window.location.href = '/index';
+                window.location.href = '/';
             }
         }
     
