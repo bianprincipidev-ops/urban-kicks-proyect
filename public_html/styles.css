@@ -1725,3 +1725,38 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
         padding: 40px 20px;
     }
 }
+
+@media (max-width: 768px) {
+    .dashboard-container .sidebar {
+        position: relative !important;
+        width: 60px !important;
+        padding: 10px 5px !important;
+        min-height: auto !important;
+    }
+    .dashboard-container .main-content {
+        padding: 15px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-detail-container {
+        flex-direction: column;
+        padding: 20px;
+        gap: 20px;
+        min-height: auto;
+    }
+    .product-image img {
+        max-width: 100%;
+    }
+    .product-info {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-image-container {
+        flex: 0 0 250px !important;
+        min-height: 250px;
+        width: 100%;
+    }
+}
