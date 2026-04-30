@@ -1,4 +1,27 @@
-/* --- VARIABLES Y TEMAS --- */
+/* ============================================================
+   URBAN KICKS - styles.css
+   Organización:
+   1. Variables y Temas
+   2. Reset y Base
+   3. Header y Navegación
+   4. Hero / Carrusel
+   5. Grilla de Productos
+   6. Tarjeta de Producto
+   7. Detalle de Producto
+   8. Carrito
+   9. Footer
+   10. Panel Admin
+   11. Dashboard / Perfil
+   12. Login / Registro (Split Screen)
+   13. Modales
+   14. WhatsApp Flotante
+   15. Media Queries (TODOS JUNTOS AL FINAL)
+   ============================================================ */
+
+
+/* ============================================================
+   1. VARIABLES Y TEMAS
+   ============================================================ */
 :root {
     --bg-body: #ffffff;
     --bg-header: #000000;
@@ -10,9 +33,15 @@
     --accent-red: #ff4d4d;
     --success-green: #28a745;
     --success-hover: #218838;
+    --urban-red: #ff4d4d;
+    --bg-dark: #000000;
+    --card-dark: #111111;
+    --border-dark: #222222;
+    --admin-bg: #f8f9fa;
+    --sidebar-black: #111111;
+    --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
-/* El modo oscuro ahora cambia también el color del texto muted para que sea legible */
 [data-theme="dark"] {
     --bg-body: #0d0d0d;
     --bg-header: #000000;
@@ -23,22 +52,24 @@
     --border-color: #333333;
 }
 
-/* --- RESET --- */
-* { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
+
+/* ============================================================
+   2. RESET Y BASE
+   ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
-    transition: background-color 0.3s ease, color 0.3s ease; /* Transición más específica */
-    overflow-x: hidden; /* Evita scrolls horizontales accidentales */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
 }
 
-/* --- BARRA DE PROMO SUPERIOR --- */
 .promo-bar {
     background-color: var(--accent-red);
     color: white;
@@ -50,15 +81,18 @@ body {
     letter-spacing: 1px;
 }
 
-/* --- HEADER CON LOGO --- */
+
+/* ============================================================
+   3. HEADER Y NAVEGACIÓN
+   ============================================================ */
 header {
-    background-color: var(--bg-header); /* Usamos la variable para consistencia */
+    background-color: var(--bg-header);
     padding: 10px 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 3px solid var(--accent-red);
-    position: sticky; /* Recomendado para que el usuario siempre vea el menú */
+    position: sticky;
     top: 0;
     z-index: 1000;
 }
@@ -69,7 +103,6 @@ header {
     display: block;
 }
 
-/* ENLACES DE NAVEGACION */
 .nav-links a {
     color: white;
     text-decoration: none;
@@ -86,7 +119,6 @@ header {
     color: var(--accent-red);
 }
 
-/* clase para resaltar la categoria seleccionada */
 .nav-links a.active-link {
     color: #ff4d4d !important;
     font-weight: bold;
@@ -102,7 +134,6 @@ header {
     background-color: #ff4d4d;
 }
 
-/* ICONOS Y OTROS */
 .header-icons {
     display: flex;
     gap: 15px;
@@ -129,7 +160,7 @@ header {
     display: flex;
     align-items: center;
     gap: 5px;
-    background-color: #ff4d4d; /* Tu rojo accent */
+    background-color: #ff4d4d;
     color: white !important;
     padding: 5px 12px;
     border-radius: 6px;
@@ -151,78 +182,12 @@ header {
     transform: translateY(-2px);
 }
 
-/* En celulares ocultamos el texto "Admin" y dejamos solo el escudo */
-@media (max-width: 600px) {
-    .admin-badge-link span {
-        display: none;
-    }
-    .admin-badge-link {
-        padding: 5px 8px;
-        margin-right: 5px;
-    }
-}
 
-/* --- SECCIÓN HERO --- */
+/* ============================================================
+   4. HERO / CARRUSEL
+   ============================================================ */
 .hero {
-    background-color: var(--bg-hero);
-    padding: 60px 5%;
-    min-height: 400px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.hero-content {
-    display: flex;
-    align-items: center;
-    max-width: 1200px;
-    width: 100%;
-    gap: 40px;
-}
-
-.hero-text {
-    flex: 1;
-}
-
-.hero-text h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem); /* Tamaño fluido según pantalla */
-    text-transform: uppercase;
-    line-height: 1.1; 
-    margin-bottom: 20px;
-}
-
-.hero-text p {
-    font-size: 1.2rem;
-    margin: 20px 0;
-    color: var(--text-muted);
-}
-
-.hero-img img { 
-    max-width: 100%;
-    height: auto;
-}
-
-/* --- GRILLA DE PRODUCTOS --- */
-.section-title {
-    text-align: center;
-    margin: 60px 0 30px;
-    font-size: 1.8rem;
-    font-weight: 800;
-    text-transform: uppercase;
-}
-
-.grid-productos {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); 
-    gap: 20px;
-    padding: 20px 5%;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-/* --- CARRUSEL DINÁMICO REVISADO --- */
-.hero {
-    height: 70vh; 
+    height: 70vh;
     background-color: #000;
     display: flex;
     position: relative;
@@ -237,9 +202,8 @@ header {
     flex-direction: row;
 }
 
-/* Flechas de control */
 .carousel-control {
-    position: absolute; /* Vital para que aparezcan sobre la imagen */
+    position: absolute;
     top: 50%;
     transform: translateY(-50%);
     background: rgba(0, 0, 0, 0.6);
@@ -265,7 +229,6 @@ header {
 .prev { left: 20px; }
 .next { right: 20px; }
 
-/* Puntos indicadores */
 .dots-container {
     position: absolute;
     bottom: 20px;
@@ -287,13 +250,12 @@ header {
 
 .dot.active {
     background: var(--accent-red);
-    width: 30px; 
+    width: 30px;
     border-radius: 10px;
 }
 
-/* LADO IZQ: TEXTO */
 .hero-content {
-    flex: 0 0 50%; 
+    flex: 0 0 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -320,18 +282,16 @@ header {
     animation: fadeInSlide 1s ease-out;
 }
 
-/* LADO DERECHO: IMG */
 .hero-image-container {
-    flex: 0 0 50%; 
+    flex: 0 0 50%;
     height: 100%;
-    background-color: #fff; 
+    background-color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
 }
 
-/* Transición suave entre negro y blanco */
 .hero-image-container::before {
     content: '';
     position: absolute;
@@ -346,78 +306,41 @@ header {
 #hero-image {
     width: 85%;
     height: 85%;
-    object-fit: contain; /* Para que el logo del banco se vea completo */
+    object-fit: contain;
     z-index: 2;
     transition: opacity 0.5s ease;
-}
-
-/* Responsive para celulares */
-@media (max-width: 768px) {
-    .hero {
-        height: auto;
-        min-height: 400px;
-    }
-    .hero-container {
-        flex-direction: column;
-    }
-    .hero-content {
-        flex: 0 0 auto;
-        padding: 20px;
-        text-align: center;
-        order: 2;
-    }
-    .hero-image-container {
-        flex: 0 0 200px;
-        width: 100%;
-        order: 1;
-    }
-    .hero-content h1 { font-size: 2rem; }
-    header {
-        flex-wrap: wrap;
-        gap: 10px;
-        padding: 10px 4%;
-    }
-    .nav-links {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        justify-content: center;
-    }
-    .nav-links a {
-        margin: 0;
-        font-size: 0.75rem;
-    }
-    .dashboard-container {
-        flex-direction: column;
-    }
-    .sidebar {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        padding: 10px 15px;
-        overflow-x: auto;
-        position: relative;
-    }
-    .sidebar-header, .user-avatar-side {
-        display: none;
-    }
-    .main-content {
-        padding: 20px 15px;
-    }
-    .perfil-form-grid {
-        grid-template-columns: 1fr;
-    }
-    .full-width {
-        grid-column: span 1;
-    }
 }
 
 @keyframes fadeInSlide {
     from { opacity: 0; transform: translateX(-30px); }
     to { opacity: 1; transform: translateX(0); }
 }
-/* --- TARJETA DE PRODUCTO --- */
+
+
+/* ============================================================
+   5. GRILLA DE PRODUCTOS
+   ============================================================ */
+.section-title {
+    text-align: center;
+    margin: 60px 0 30px;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.grid-productos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   6. TARJETA DE PRODUCTO
+   ============================================================ */
 .card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -439,15 +362,14 @@ header {
     height: 180px;
     object-fit: contain;
     margin-bottom: 15px;
-    /* Ajuste de fondo para modo oscuro en imágenes */
-    background: rgba(0,0,0,0.03); 
+    background: rgba(0,0,0,0.03);
     border-radius: 5px;
 }
 
 .card h3 {
     font-size: 1rem;
     margin-bottom: 8px;
-    height: 2.4em; /* Mantiene alineación si el nombre es largo */
+    height: 2.4em;
     overflow: hidden;
 }
 
@@ -476,584 +398,74 @@ header {
     transition: 0.3s;
 }
 
-.btn-comprar:hover { 
-    background-color: var(--success-hover); 
+.btn-comprar:hover {
+    background-color: var(--success-hover);
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 1100px) {
-    .grid-productos { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (max-width: 850px) {
-    .grid-productos { grid-template-columns: repeat(2, 1fr); }
-    .hero-text h1 { font-size: 2.5rem; }
-}
-
-@media (max-width: 600px) {
-    .grid-productos { grid-template-columns: 1fr; }
-    .hero-content { flex-direction: column; text-align: center; }
-}
-
-/* WHATSAPP FLOTANTE */
-.whatsapp-float {
-    position: fixed;
-    width: 60px;
-    height: 60px;
-    bottom: 40px;
-    right: 40px;
-    background-color: #25d366; /* Verde original de WhatsApp */
-    color: #fff;
-    border-radius: 50px;
-    text-align: center;
-    font-size: 35px;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.whatsapp-float:hover {
-    transform: scale(1.1);
-    background-color: #20ba5a;
-    box-shadow: 2px 2px 20px rgba(37, 211, 102, 0.5);
-}
-
-/* Para que en celulares no tape tanto espacio */
-@media screen and (max-width: 768px) {
-    .whatsapp-float {
-        width: 50px;
-        height: 50px;
-        bottom: 20px;
-        right: 20px;
-        font-size: 30px;
-    }
-}
-
-/* --- FOOTER --- */
-footer {
-    background-color: #000000;
-    color: #ffffff;
-    padding: 60px 5% 20px;
-    margin-top: 50px;
-    border-top: 3px solid var(--accent-red);
-}
-
-.footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.5fr;
-    gap: 40px;
-}
-
-.footer-column h3 {
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-    color: var(--accent-red);
-}
-
-.footer-column p, .footer-column ul li a {
-    font-size: 0.9rem;
-    color: #bbbbbb;
-    line-height: 1.6;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.footer-column ul { list-style: none; }
-
-.footer-column ul li { margin-bottom: 10px; }
-
-.footer-column ul li a:hover { color: #ffffff; }
-
-.footer-logo {
-    height: 50px;
-    margin-bottom: 20px;
-}
-
-.footer-socials {
-    display: flex;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.footer-socials a {
-    color: white;
-    font-size: 1.5rem;
-    transition: 0.3s;
-}
-
-.footer-socials a:hover {
-    transform: translateY(-3px);
-    color: var(--accent-red);
-}
-
-.payment-methods {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin-top: 15px;
-}
-
-.payment-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #ccc; /* Color sutil para el footer */
-}
-
-.payment-item i {
-    font-size: 2rem; /* Tamaño del icono */
-    margin-bottom: 5px;
-    color: #ff4500; /* El color naranja de tu marca */
-}
-
-.payment-item span {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.copyright {
-    font-size: 0.75rem;
-    border-top: 1px solid #333;
-    padding-top: 20px;
-    margin-top: 20px;
-    text-align: center;
-    color: #888;
-}
-
-@media (max-width: 850px) {
-    .footer-container { grid-template-columns: 1fr 1fr; }
-}
-
-@media (max-width: 500px) {
-    .footer-container { grid-template-columns: 1fr; text-align: center; }
-    .footer-socials, .payment-methods { justify-content: center; }
-}
 
 /* ============================================================
-   PANEL DE ADMINISTRADOR (admin.html) - URBAN KICKS PRO
+   7. DETALLE DE PRODUCTO
    ============================================================ */
-
-:root {
-    --admin-bg: #f8f9fa;
-    --sidebar-black: #111111;
-    --accent-red: #ff4d4d; /* El rojo característico */
-    --text-main: #333;
-    --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
-}
-
-.admin-body { 
-    background-color: var(--admin-bg) !important; 
-    margin: 0; 
-    font-family: 'Inter', sans-serif; 
-    color: var(--text-main);
-}
-
-.admin-layout { 
-    display: flex; 
-    min-height: 100vh; 
-}
-
-/* --- SIDEBAR REFORMADA --- */
-.sidebar { 
-    width: 280px; 
-    background-color: var(--sidebar-black); 
-    color: white; 
-    padding: 30px 20px; 
-    position: fixed; 
-    height: 100vh; 
-    display: flex; 
-    flex-direction: column; 
-    z-index: 1100;
-    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
-}
-
-.admin-logo { 
-    width: 160px; 
-    margin: 0 auto 50px; 
-    display: block;
-    object-fit: contain;
-}
-
-.sidebar-nav {
-    flex-grow: 1;
-}
-
-.sidebar-nav a { 
-    display: flex; 
-    align-items: center; 
-    gap: 15px; 
-    color: #ababab; 
-    text-decoration: none; 
-    padding: 14px 20px; 
-    border-radius: 12px; 
-    margin-bottom: 8px; 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-.sidebar-nav a i { font-size: 1.2rem; }
-
-.sidebar-nav a:hover { 
-    background-color: rgba(255, 255, 255, 0.05); 
-    color: white; 
-    transform: translateX(5px);
-}
-
-.sidebar-nav a.active { 
-    background-color: var(--accent-red); 
-    color: white; 
-    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.3);
-}
-
-/* --- CONTENIDO PRINCIPAL --- */
-.admin-main { 
-    flex: 1; 
-    margin-left: 280px; 
-    padding: 50px; 
-}
-
-.admin-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 40px; 
-    padding: 25px 35px; 
-    background-color: #ffffff; 
-    border-radius: 20px; 
-    box-shadow: var(--card-shadow);
-    border-left: 6px solid var(--accent-red);
-}
-
-.admin-header h2 { 
-    color: #000 !important; 
-    font-weight: 800; 
-    margin: 0; 
-    text-transform: uppercase;
-    letter-spacing: -0.5px;
-    font-size: 1.5rem;
-}
-
-/* --- TABLA DE PRODUCTOS ESTILO MODERNO --- */
-.admin-table-container {
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: var(--card-shadow);
-}
-
-.admin-table { 
-    width: 100%; 
-    border-collapse: collapse;
-}
-
-.admin-table thead th {
-    text-align: left;
-    padding: 15px 20px;
-    color: #999;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid #eee;
-}
-
-.admin-table tbody tr { 
-    transition: 0.2s;
-    border-bottom: 1px solid #f9f9f9;
-}
-
-.admin-table tbody tr:hover { 
-    background-color: #fcfcfc;
-}
-
-.admin-table td { 
-    padding: 20px; 
-    vertical-align: middle;
-    font-size: 0.95rem;
-    color: #444;
-}
-
-/* Miniatura de producto en tabla */
-.td-product-img {
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
-    object-fit: cover;
-    background: #f0f0f0;
-}
-
-/* --- BOTONES --- */
-.btn-nuevo { 
-    background-color: #000; 
-    color: #fff; 
-    border: none; 
-    padding: 14px 28px; 
-    border-radius: 12px; 
-    cursor: pointer; 
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    transition: 0.3s;
+.product-detail-container {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 60px;
+    padding: 60px 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 80vh;
 }
 
-.btn-nuevo:hover { 
-    background-color: var(--accent-red);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
-}
-
-.btn-del { 
-    background-color: #fff0f0; 
-    color: var(--accent-red); 
-    border: none; 
-    padding: 10px 15px; 
-    border-radius: 10px; 
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.btn-del:hover { 
-    background-color: var(--accent-red); 
-    color: white; 
-}
-
-/* --- MODALES (Ventanas de carga) --- */
-.modal {
-    display: none; 
-    position: fixed; 
-    z-index: 2000; 
-    left: 0; top: 0; 
-    width: 100%; height: 100%; 
-    background-color: rgba(0,0,0,0.6);
-    backdrop-filter: blur(5px); /* Efecto de desenfoque de fondo */
-}
-
-.modal-content {
-    background-color: #fff;
-    margin: 5% auto;
-    padding: 40px;
-    width: 90%;
+.product-image img {
+    width: 100%;
     max-width: 500px;
-    border-radius: 25px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-    position: relative;
-}
-
-.modal-content h3 {
-    margin-top: 0;
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 1.2rem;
-    margin-bottom: 25px;
-    color: #000;
-}
-
-.modal-content input, 
-.modal-content textarea {
-    width: 100%;
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    background: #f9f9f9;
-    font-family: inherit;
-}
-
-.modal-content input:focus {
-    outline: none;
-    border-color: var(--accent-red);
-    background: #fff;
-}
-
-.close {
-    position: absolute;
-    right: 25px;
-    top: 20px;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #ccc;
-}
-
-/* El botón dentro del modal */
-.btn-cargar {
-    width: 100%;
-    background: #000;
-    color: #fff;
-    border: none;
-    padding: 18px;
-    border-radius: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.btn-cargar:hover {
-    background: var(--accent-red);
-}
-
-/* Badge de stock */
-.stock-badge {
-    padding: 5px 12px;
     border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-.stock-in { background: #e6fcf5; color: #0ca678; }
-.stock-low { background: #fff9db; color: #f08c00; }
-
-.stock-container {
-    margin: 15px 0;
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
+    background-color: var(--bg-card);
+    padding: 20px;
 }
 
-.size-row {
+.product-info {
+    max-width: 450px;
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+}
+
+.product-info h1 {
+    font-size: 2.5rem;
+    text-transform: uppercase;
     margin-bottom: 10px;
 }
 
-.size-input { flex: 2; }
-.stock-input { flex: 1; }
+.product-price {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--accent-red);
+    margin: 10px 0 20px;
+}
 
-.btn-add-size {
-    background: #444;
-    color: white;
-    border: none;
-    padding: 0 15px;
-    border-radius: 4px;
+.size-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 20px 0 30px;
+}
+
+.size-btn {
+    width: 50px;
+    height: 50px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
     cursor: pointer;
+    border-radius: 8px;
+    font-weight: bold;
 }
 
-.btn-remove-size {
-    background: var(--accent-red);
-    color: white;
-    border: none;
-    padding: 0 15px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-@media (max-width: 992px) {
-    .sidebar {
-        width: 80px;
-        padding: 20px 10px;
-    }
-    .sidebar span, .sidebar .admin-logo {
-        display: none; /* Escondemos el logo grande y textos en móvil */
-    }
-    .admin-main {
-        margin-left: 80px; /* Reducimos el margen para que el contenido respire */
-        padding: 20px;
-    }
-    .admin-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-}
-
-/* ============================================================
-   DETALLE DE PRODUCTO (detalle.html)
-   Controla la foto grande, el precio y el botón de añadir al carrito
-   ============================================================ */
-.product-detail-container { 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 60px; 
-    padding: 60px 5%; 
-    max-width: 1200px; 
-    margin: 0 auto; 
-    min-height: 80vh; 
-}
-
-.product-image img { 
-    width: 100%; 
-    max-width: 500px; 
-    border-radius: 20px; 
-    background-color: var(--bg-card); 
-    padding: 20px; 
-}
-
-.product-info { 
-    max-width: 450px; 
-    display: flex; 
-    flex-direction: column; 
-}
-
-.product-info h1 { 
-    font-size: 2.5rem; 
-    text-transform: uppercase; 
-    margin-bottom: 10px; 
-}
-
-.product-price { 
-    font-size: 2.2rem; 
-    font-weight: 900; 
-    color: var(--accent-red); 
-    margin: 10px 0 20px; 
-}
-
-.size-options { 
-    display: flex; 
-    gap: 12px; 
-    margin: 20px 0 30px; 
-}
-
-.size-btn { 
-    width: 50px; 
-    height: 50px; 
-    border: 1px solid var(--border-color); 
-    background: var(--bg-card); 
-    color: var(--text-main); 
-    cursor: pointer; 
-    border-radius: 8px; 
-    font-weight: bold; 
-}
-
-.size-btn:hover, .size-btn.active { 
-    background: #000; 
-    color: #fff; 
-    border-color: #000; 
-}
-
-.btn-add-to-cart { 
-    padding: 20px; 
-    background-color: var(--accent-red); 
-    color: white; 
-    border: none; 
-    font-weight: 800; 
-    text-transform: uppercase; 
-    cursor: pointer; 
-    border-radius: 12px; 
-}
-
-.btn-add-to-cart:hover { 
-    background-color: #e64444; 
-    transform: translateY(-3px); 
-    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
+.size-btn:hover, .size-btn.active {
+    background: #000;
+    color: #fff;
+    border-color: #000;
 }
 
 .active-size {
@@ -1061,11 +473,28 @@ footer {
     color: white !important;
     border-color: var(--accent-red, #ff4d4d) !important;
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+.btn-add-to-cart {
+    padding: 20px;
+    background-color: var(--accent-red);
+    color: white;
+    border: none;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 12px;
+    width: 100%;
+}
+
+.btn-add-to-cart:hover {
+    background-color: #e64444;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
+}
+
 
 /* ============================================================
-   DISEÑO DEL CARRITO (carrito.html)
-   Controla la lista de productos seleccionados y el total
+   8. CARRITO
    ============================================================ */
 .cart-container {
     max-width: 900px;
@@ -1087,7 +516,6 @@ footer {
     margin-bottom: 40px;
 }
 
-/* Fila de cada producto en el carrito */
 .cart-item {
     display: flex;
     align-items: center;
@@ -1109,14 +537,12 @@ footer {
     width: 100px;
     height: 100px;
     object-fit: contain;
-    background: #f0f0f0; /* Fondo neutro para las zapas */
+    background: #f0f0f0;
     border-radius: 8px;
     padding: 5px;
 }
 
-.cart-item-info {
-    flex: 1;
-}
+.cart-item-info { flex: 1; }
 
 .cart-item-info h4 {
     font-size: 1.1rem;
@@ -1147,7 +573,6 @@ footer {
     color: white;
 }
 
-/* Resumen del total y botones de acción */
 .cart-summary {
     background: var(--bg-card);
     padding: 30px;
@@ -1211,60 +636,385 @@ footer {
     color: var(--bg-body);
 }
 
-/* Responsivo para el carrito */
-@media (max-width: 600px) {
-    .cart-item {
-        flex-direction: column;
-        text-align: center;
-    }
-    .cart-buttons {
-        flex-direction: column;
-    }
-    .btn-checkout, .btn-continue {
-        width: 100%;
-        text-align: center;
-    }
-}
 
-/*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /* ============================================================
-   ESTILO GLOBAL DASHBOARD - URBAN KICKS
+   9. FOOTER
    ============================================================ */
-:root {
-    --urban-red: #ff4d4d;
-    --bg-dark: #000000;
-    --card-dark: #111111;
-    --border-dark: #222222;
-    --text-muted: #888888;
+footer {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 60px 5% 20px;
+    margin-top: 50px;
+    border-top: 3px solid var(--accent-red);
 }
 
-body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de abajo */
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 40px;
+}
+
+.footer-column h3 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: var(--accent-red);
+}
+
+.footer-column p, .footer-column ul li a {
+    font-size: 0.9rem;
+    color: #bbbbbb;
+    line-height: 1.6;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-column ul { list-style: none; }
+.footer-column ul li { margin-bottom: 10px; }
+.footer-column ul li a:hover { color: #ffffff; }
+
+.footer-logo {
+    height: 50px;
+    margin-bottom: 20px;
+}
+
+.footer-socials {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.footer-socials a {
+    color: white;
+    font-size: 1.5rem;
+    transition: 0.3s;
+}
+
+.footer-socials a:hover {
+    transform: translateY(-3px);
+    color: var(--accent-red);
+}
+
+.payment-methods {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.payment-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #ccc;
+}
+
+.payment-item i {
+    font-size: 2rem;
+    margin-bottom: 5px;
+    color: #ff4500;
+}
+
+.payment-item span {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.copyright {
+    font-size: 0.75rem;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+    margin-top: 20px;
+    text-align: center;
+    color: #888;
+}
+
+
+/* ============================================================
+   10. PANEL ADMIN
+   ============================================================ */
+.admin-body {
+    background-color: var(--admin-bg) !important;
     margin: 0;
-    background-color: var(--bg-dark);
     font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+}
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    width: 280px;
+    background-color: var(--sidebar-black);
+    color: white;
+    padding: 30px 20px;
+    position: fixed;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 1100;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+}
+
+/* Usamos .admin-layout .sidebar para el sidebar del admin sin pisar el del perfil */
+.admin-layout .sidebar {
+    width: 280px;
+    background-color: var(--sidebar-black);
+    color: white;
+    padding: 30px 20px;
+    position: fixed;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 1100;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+}
+
+.admin-logo {
+    width: 160px;
+    margin: 0 auto 50px;
+    display: block;
+    object-fit: contain;
+}
+
+.sidebar-nav { flex-grow: 1; }
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #ababab;
+    text-decoration: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.sidebar-nav a i { font-size: 1.2rem; }
+
+.sidebar-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+    transform: translateX(5px);
+}
+
+.sidebar-nav a.active {
+    background-color: var(--accent-red);
+    color: white;
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.3);
+}
+
+.admin-main {
+    flex: 1;
+    margin-left: 280px;
+    padding: 50px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding: 25px 35px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    border-left: 6px solid var(--accent-red);
+}
+
+.admin-header h2 {
+    color: #000 !important;
+    font-weight: 800;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    font-size: 1.5rem;
+}
+
+.admin-section { margin-bottom: 40px; }
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.admin-table thead th {
+    text-align: left;
+    padding: 15px 20px;
+    color: #999;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table tbody tr {
+    transition: 0.2s;
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.admin-table tbody tr:hover { background-color: #fcfcfc; }
+
+.admin-table td {
+    padding: 20px;
+    vertical-align: middle;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.btn-nuevo {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-nuevo:hover {
+    background-color: var(--accent-red);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
+}
+
+.btn-del {
+    background-color: #fff0f0;
+    color: var(--accent-red);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-del:hover {
+    background-color: var(--accent-red);
     color: white;
 }
 
+.btn-cargar {
+    width: 100%;
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-cargar:hover { background: var(--accent-red); }
+
+.stock-container {
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+.size-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.size-input { flex: 2; padding: 8px; background: #f4f4f4; border: 1px solid #444; color: #333 !important; border-radius: 4px; }
+.stock-input { flex: 1; padding: 8px; background: #f4f4f4; border: 1px solid #444; color: #333 !important; border-radius: 4px; }
+
+.btn-size {
+    padding: 0 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+
+.btn-add { background: #444; }
+.btn-remove-size, .btn-remove { background: #ff4d4d; }
+
+.admin-stock-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 250px;
+}
+
+.btn-venta {
+    background: #222;
+    color: #eee;
+    border: 1px solid #444;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-venta:hover {
+    background: #ff4d4d;
+    border-color: #ff4d4d;
+    color: white;
+}
+
+.btn-venta span {
+    font-weight: bold;
+    margin-left: 3px;
+    color: #ff4d4d;
+}
+
+.btn-venta:hover span { color: white; }
+
+
 /* ============================================================
-   LAYOUT: REGLA DE ORO PARA QUE NO SE TAPEN
+   11. DASHBOARD / PERFIL
    ============================================================ */
 .dashboard-container {
-    display: flex; /* Alinea Sidebar y Main lado a lado */
+    display: flex;
     width: 100%;
     min-height: 100vh;
     background-color: var(--bg-dark);
 }
 
-/* --- SIDEBAR (Barra Lateral Izquierda) --- */
-.sidebar {
+/* Sidebar del perfil (diferente al del admin) */
+.dashboard-container .sidebar {
     width: 280px;
-    flex-shrink: 0; /* Evita que la barra se achique */
+    flex-shrink: 0;
     background-color: #0a0a0a;
     border-right: 1px solid var(--border-dark);
     display: flex;
     flex-direction: column;
     padding: 40px 20px;
-    /* QUITAMOS EL FIXED PARA QUE NO TAPE NADA */
+    position: relative;
+    height: auto;
 }
 
 .sidebar-header h3 {
@@ -1294,18 +1044,16 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     color: var(--urban-red);
 }
 
-/* --- CONTENIDO PRINCIPAL --- */
 .main-content {
-    flex: 1; /* Ocupa todo el resto de la pantalla */
+    flex: 1;
     padding: 50px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra las tarjetas */
-    gap: 30px; /* Espacio entre la tarjeta de datos y la de pedidos */
+    align-items: center;
+    gap: 30px;
     min-width: 0;
 }
 
-/* --- TARJETAS (Cards de Datos y Pedidos) --- */
 .section-card {
     width: 100%;
     max-width: 900px;
@@ -1327,20 +1075,15 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     gap: 10px;
 }
 
-.section-card h2 i {
-    color: var(--urban-red);
-}
+.section-card h2 i { color: var(--urban-red); }
 
-/* --- FORMULARIO GRID --- */
 .perfil-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 25px;
 }
 
-.full-width {
-    grid-column: span 2;
-}
+.full-width { grid-column: span 2; }
 
 .form-group-grande label {
     display: block;
@@ -1368,7 +1111,6 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     border-bottom-color: var(--urban-red);
 }
 
-/* --- BOTÓN GUARDAR --- */
 .btn-guardar-grande {
     background: #fff;
     color: #000;
@@ -1387,10 +1129,7 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     transform: translateY(-3px);
 }
 
-/* --- TABLA DE PEDIDOS --- */
-.table-container {
-    overflow-x: auto;
-}
+.table-container { overflow-x: auto; }
 
 .orders-table {
     width: 100%;
@@ -1422,53 +1161,98 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
 
 .shipped { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-@media (max-width: 992px) {
-    .sidebar { width: 80px; padding: 20px 10px; }
-    .sidebar span, .sidebar-header, .user-avatar-side p { display: none; }
-    .main-content { padding: 20px; }
-    .perfil-form-grid { grid-template-columns: 1fr; }
-    .full-width { grid-column: span 1; }
-    .admin-main { margin-left: 80px; padding: 20px; }
-    .admin-header { flex-direction: column; gap: 15px; text-align: center; }
+/* Avatar */
+.avatar-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    cursor: pointer;
 }
-/* ============================================================
-   ESTILO PANTALLA DIVIDIDA (Split Screen) - Inspirado en tu foto
-   ============================================================ */
 
-/* Contenedor principal que ocupa toda la pantalla */
+.avatar-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--urban-red);
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.edit-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #ff4d4d;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    border: 2px solid #000;
+}
+
+.seguridad-seccion {
+    grid-column: span 2;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed #ddd;
+}
+
+.seguridad-seccion h3 {
+    font-size: 0.9rem;
+    color: #ff4d4d;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+
+/* ============================================================
+   12. LOGIN / REGISTRO (Split Screen)
+   ============================================================ */
 .auth-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f4f7f6; /* Un gris muy suave de fondo para que resalten las tarjetas blancas */
+    background-color: #f4f7f6;
     margin: 0;
     padding: 20px;
 }
 
-/* El contenedor que se divide en dos */
 .split-container {
     display: flex;
     width: 100%;
-    max-width: 1100px; /* Ancho máximo para que no se estire demasiado en monitores grandes */
+    max-width: 1100px;
     background-color: #ffffff;
-    border-radius: 20px; /* Bordes redondeados como en la foto */
-    overflow: hidden; /* Para que el fondo oscuro de la izquierda no se salga del borde redondeado */
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1); /* Sombra suave para dar efecto de tarjeta flotante */
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
 }
 
-/* --- LADO IZQUIERDO: LOGO (Versión Full) --- */
 .auth-image-side {
-    flex: 1.2; /* Le damos un poquito más de ancho al logo */
-    background-color: #ffffff; /* Fondo blanco para que el logo no tenga bordes */
+    flex: 1.2;
+    background-color: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
-    border-right: 1px solid #eee; /* Una línea sutil para separar del formulario */
+    border-right: 1px solid #eee;
 }
 
 .auth-image-content {
@@ -1480,35 +1264,26 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
 }
 
 .auth-logo-large {
-    width: 85%; /* Que ocupe casi todo el ancho disponible */
-    max-width: 450px; /* Pero con un límite para que no sea gigante */
+    width: 85%;
+    max-width: 450px;
     height: auto;
     object-fit: contain;
-    /* Un toque de sombra suave para que flote */
     filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
 }
 
-/* Ajuste del formulario para que no quede pegado */
 .auth-form-side {
     flex: 1;
-    padding: 40px;
-}
-
-/* --- LADO DERECHO: FORMULARIO --- */
-.auth-form-side {
-    flex: 1; /* Ocupa el 50% */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 60px; /* Mucho aire para que se vea premium */
+    padding: 60px;
 }
 
 .auth-form-content {
     width: 100%;
-    max-width: 360px; /* Ancho compacto para el formulario */
+    max-width: 360px;
 }
 
-/* Títulos con el look de tu image_6.png */
 .form-header h2 {
     font-size: 2.2rem;
     font-weight: 800;
@@ -1523,36 +1298,149 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     font-size: 1rem;
 }
 
-/* ============================================================
-   MODAL DE RECUPERACIÓN (Reseteo de Contraseña)
-   ============================================================ */
+.input-group { margin-bottom: 25px; }
 
-.modal-recuperar {
-    display: none; 
-    position: fixed; 
-    z-index: 9999; /* Por encima de todo */
-    left: 0;
-    top: 0;
+.input-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: #000;
+}
+
+.input-group input {
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro transparente */
-    backdrop-filter: blur(8px); /* Efecto de desenfoque premium */
-    animation: fadeIn 0.3s ease;
+    padding: 15px 0;
+    border: none;
+    border-bottom: 2px solid #eee;
+    background-color: transparent;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-bottom-color: #ff4d4d;
+}
+
+.btn-entrar-split {
+    width: 100%;
+    padding: 18px;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+
+.btn-entrar-split:hover {
+    background-color: #ff4d4d;
+    transform: translateY(-3px);
+}
+
+.auth-footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.forgot-password {
+    color: #666;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.auth-footer p a {
+    color: #ff4d4d;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   13. MODALES
+   ============================================================ */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
 }
 
 .modal-content {
-    background-color: #ffffff;
-    margin: 10vh auto;
+    background-color: #fff;
+    margin: 5% auto;
     padding: 40px;
     width: 90%;
-    max-width: 420px;
-    border-radius: 15px;
-    text-align: center;
+    max-width: 500px;
+    border-radius: 25px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
     position: relative;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
-/* Títulos dentro del modal */
+.modal-content h3 {
+    margin-top: 0;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    color: #000;
+}
+
+.modal-content input,
+.modal-content textarea {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background: #f9f9f9;
+    font-family: inherit;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: var(--accent-red);
+    background: #fff;
+}
+
+.close {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #ccc;
+}
+
+/* Modal recuperación de contraseña */
+.modal-recuperar {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-recuperar .modal-content {
+    margin: 10vh auto;
+    max-width: 420px;
+    text-align: center;
+}
+
 .modal-content h2 {
     font-size: 1.8rem;
     font-weight: 800;
@@ -1562,14 +1450,6 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     color: #000;
 }
 
-.modal-content p {
-    font-size: 0.95rem;
-    color: #666;
-    margin-bottom: 30px;
-    line-height: 1.5;
-}
-
-/* Inputs del modal (Siguiendo el estilo de los otros) */
 .modal-input {
     width: 100%;
     padding: 15px;
@@ -1589,7 +1469,6 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     background-color: #fff;
 }
 
-/* Botones del modal */
 .btn-modal {
     width: 100%;
     padding: 16px;
@@ -1609,7 +1488,6 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     transform: translateY(-2px);
 }
 
-/* Botón cancelar / cerrar */
 .btn-cancelar {
     display: inline-block;
     margin-top: 20px;
@@ -1625,138 +1503,219 @@ body.dashboard-page { /* Asegúrate de que el body tenga esta clase o usa los de
     transition: 0.3s;
 }
 
-.btn-cancelar:hover {
-    color: #ff4d4d;
-}
+.btn-cancelar:hover { color: #ff4d4d; }
 
-/* Animación de entrada */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-/* Ajuste para dispositivos móviles */
-@media (max-width: 480px) {
-    .modal-content {
-        margin: 15vh auto;
-        padding: 30px 20px;
-    }
-}
 
-/* --- ESTILOS DE INPUTS (Como en tu image_6.png) --- */
-.input-group {
-    margin-bottom: 25px;
-}
-
-.input-group label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    color: #000;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 15px 0;
-    border: none;
-    border-bottom: 2px solid #eee; /* Solo línea inferior */
-    background-color: transparent;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: 0.3s;
-}
-
-.input-group input:focus {
-    outline: none;
-    border-bottom-color: #ff4d4d; /* La línea cambia a rojo Urban Kicks */
-}
-
-/* --- BOTÓN ENTRAR (Negro) --- */
-.btn-entrar-split {
-    width: 100%;
-    padding: 18px;
-    background-color: #000000;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px; /* Pequeño redondeo */
-    font-weight: 700;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 20px;
-}
-
-.btn-entrar-split:hover {
-    background-color: #ff4d4d; /* Cambia a rojo al pasar el mouse */
-    transform: translateY(-3px);
-}
-
-/* --- PIE DEL FORMULARIO --- */
-.auth-footer {
-    margin-top: 30px;
+/* ============================================================
+   14. WHATSAPP FLOTANTE
+   ============================================================ */
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 40px;
+    right: 40px;
+    background-color: #25d366;
+    color: #fff;
+    border-radius: 50px;
     text-align: center;
-    font-size: 0.85rem;
-}
-
-.forgot-password {
-    color: #666;
+    font-size: 35px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
-    display: block;
-    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
 }
 
-.auth-footer p a {
-    color: #ff4d4d; /* Rojo para "Crear cuenta" */
-    text-decoration: none;
-    font-weight: 700;
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 850px) {
-    .split-container {
-        flex-direction: column; /* Se apilan en vertical en celulares */
-    }
-    .auth-image-side {
-        padding: 40px;
-    }
-    .auth-form-side {
-        padding: 40px 20px;
-    }
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    background-color: #20ba5a;
+    box-shadow: 2px 2px 20px rgba(37, 211, 102, 0.5);
 }
 
-@media (max-width: 768px) {
-    .dashboard-container .sidebar {
-        position: relative !important;
-        width: 60px !important;
-        padding: 10px 5px !important;
-        min-height: auto !important;
-    }
-    .dashboard-container .main-content {
-        padding: 15px !important;
-    }
+
+/* ============================================================
+   15. MEDIA QUERIES (TODOS JUNTOS)
+   ============================================================ */
+
+/* Tablets grandes */
+@media (max-width: 1100px) {
+    .grid-productos { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 768px) {
-    .product-detail-container {
-        flex-direction: column;
+/* Tablets */
+@media (max-width: 992px) {
+    /* Admin sidebar compacto */
+    .admin-layout .sidebar {
+        width: 80px;
+        padding: 20px 10px;
+    }
+    .admin-layout .sidebar span,
+    .admin-layout .sidebar .admin-logo {
+        display: none;
+    }
+    .admin-main {
+        margin-left: 80px;
         padding: 20px;
-        gap: 20px;
-        min-height: auto;
     }
-    .product-image img {
-        max-width: 100%;
+    .admin-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
     }
-    .product-info {
-        max-width: 100%;
-    }
+    /* Grilla */
+    .grid-productos { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* Mobile grande */
+@media (max-width: 850px) {
+    .footer-container { grid-template-columns: 1fr 1fr; }
+    /* Login split screen apilado */
+    .split-container { flex-direction: column; }
+    .auth-image-side { padding: 40px; }
+    .auth-form-side { padding: 40px 20px; }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
+    /* WhatsApp */
+    .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
+        font-size: 30px;
+    }
+
+    /* Header nav en mobile */
+    header {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 4%;
+    }
+    .nav-links {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: center;
+    }
+    .nav-links a {
+        margin: 0;
+        font-size: 0.75rem;
+    }
+
+    /* Hero en mobile */
+    .hero {
+        height: auto !important;
+        min-height: 400px;
+    }
+    .hero-container {
+        flex-direction: column !important;
+    }
+    .hero-content {
+        flex: 0 0 auto !important;
+        padding: 20px !important;
+        text-align: center !important;
+        order: 2 !important;
+    }
     .hero-image-container {
         flex: 0 0 250px !important;
-        min-height: 250px;
-        width: 100%;
+        min-height: 250px !important;
+        width: 100% !important;
+        order: 1 !important;
     }
+    .hero-image-container::before {
+        width: 100%;
+        height: 50px;
+        top: auto;
+        bottom: 0;
+        background: linear-gradient(to top, #000, transparent);
+    }
+    .hero-content h1 { font-size: 2rem !important; }
+
+    /* Detalle en mobile */
+    .product-detail-container {
+        flex-direction: column !important;
+        padding: 20px !important;
+        gap: 20px !important;
+        min-height: auto !important;
+        align-items: center !important;
+    }
+    .product-image img {
+        max-width: 100% !important;
+    }
+    .product-info {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* Dashboard / Perfil en mobile */
+    .dashboard-container {
+        flex-direction: column !important;
+    }
+    .dashboard-container .sidebar {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        flex-direction: row !important;
+        padding: 8px 10px !important;
+        overflow-x: auto !important;
+        min-height: auto !important;
+    }
+    .dashboard-container .sidebar .sidebar-header,
+    .dashboard-container .sidebar .user-avatar-side {
+        display: none !important;
+    }
+    .main-content {
+        padding: 15px !important;
+    }
+    .perfil-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .full-width {
+        grid-column: span 1 !important;
+    }
+    .seguridad-seccion {
+        grid-column: span 1 !important;
+    }
+    .section-card {
+        padding: 20px !important;
+    }
+}
+
+/* Mobile chico */
+@media (max-width: 600px) {
+    .grid-productos { grid-template-columns: 1fr; }
+    /* Admin badge sin texto */
+    .admin-badge-link span { display: none; }
+    .admin-badge-link { padding: 5px 8px; margin-right: 5px; }
+    /* Carrito apilado */
+    .cart-item { flex-direction: column; text-align: center; }
+    .cart-buttons { flex-direction: column; }
+    .btn-checkout, .btn-continue { width: 100%; text-align: center; }
+}
+
+/* Mobile muy chico */
+@media (max-width: 500px) {
+    .footer-container { grid-template-columns: 1fr; text-align: center; }
+    .footer-socials, .payment-methods { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+    .modal-content { margin: 15vh auto; padding: 30px 20px; }
 }
