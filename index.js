@@ -496,13 +496,6 @@ app.post('/api/admin/talles', upload.single('imagen_talle'), async (req, res) =>
     }
 });
 
-app.get('*splat', (req, res) => {
-    if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ error: 'Ruta no encontrada' });
-    }
-    res.redirect('/');
-});
-
 app.use((req, res) => res.status(404).send("No encontrado"));
 
 const PORT = process.env.PORT || 3000;
