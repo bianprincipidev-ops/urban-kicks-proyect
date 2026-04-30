@@ -156,6 +156,19 @@
         function agregarAlCarrito() {
             if (!productoActual) return;
             
+            // Si no está logueado, mandarlo al login
+            const token = localStorage.getItem('urban_token');
+            if (!token) {
+                alert("Necesitás iniciar sesión para comprar.");
+                window.location.href = '/login';
+                return;
+            }
+
+            if (!talleSeleccionado) {
+                alert("Por favor, seleccioná un talle antes de añadir al carrito.");
+                return;
+            }
+
             if (!talleSeleccionado) {
                 alert("Por favor, seleccioná un talle antes de añadir al carrito.");
                 return;
