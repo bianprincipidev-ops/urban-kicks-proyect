@@ -496,7 +496,7 @@ app.post('/api/admin/talles', upload.single('imagen_talle'), async (req, res) =>
     }
 });
 
-app.get('*', (req, res) => {
+app.get('*splat', (req, res) => {
     res.redirect('/');
 });
 
