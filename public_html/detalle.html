@@ -11,12 +11,19 @@
 
     <header>
         <div class="logo">
-            <img src="logo-urban.png" alt="Urban Kicks Logo">
+            <a href="/tienda"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
         </div>
         <nav class="nav-links">
             <a href="/tienda">← Volver a la Tienda</a>
         </nav>
     </header>
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb" style="padding: 10px 40px; font-size: 0.85rem; color: #888;">
+        <a href="/tienda" style="color:#888; text-decoration:none;">Tienda</a>
+        <span style="margin: 0 6px;">/</span>
+        <span id="breadcrumb-nombre" style="color: var(--text-color, #333);">Cargando...</span>
+    </div>
 
     <main class="product-detail-container">
         <div class="product-image">
@@ -24,24 +31,55 @@
         </div>
         
         <div class="product-info">
+
+            <!-- COLOR -->
+            <p id="color-producto" style="font-size: 0.85rem; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;"></p>
+
             <h1 id="nombre-producto">Cargando...</h1>
             <span class="product-price" id="precio-producto">$0.00</span>
-            <p class="product-description" id="descripcion-producto"></p>
-            
+
+            <!-- DESCRIPCIÓN -->
+            <p class="product-description" id="descripcion-producto" style="margin: 16px 0; line-height: 1.6;"></p>
+
+            <!-- TALLES -->
             <div class="size-selector">
-                <span>Seleccionar Talle:</span>
-                <div class="size-options" id="contenedor-talles">
+                <span style="font-weight: bold; font-size: 0.9rem;">Seleccionar Talle:</span>
+                <div class="size-options" id="contenedor-talles" style="margin-top: 10px;">
                     <p style="color: #888;">Cargando talles...</p>
+                </div>
+                <!-- Stock del talle seleccionado -->
+                <p id="stock-info" style="font-size: 0.8rem; color: #888; margin-top: 8px; min-height: 18px;"></p>
+            </div>
+
+            <!-- CANTIDAD -->
+            <div style="margin: 16px 0;">
+                <span style="font-weight: bold; font-size: 0.9rem;">Cantidad:</span>
+                <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px;">
+                    <button onclick="cambiarCantidad(-1)" style="width:32px; height:32px; border-radius:50%; border:1px solid #444; background:none; cursor:pointer; font-size:1.2rem; color: var(--text-color, #333);">−</button>
+                    <span id="cantidad-display" style="font-size: 1.1rem; font-weight: bold;">1</span>
+                    <button onclick="cambiarCantidad(1)" style="width:32px; height:32px; border-radius:50%; border:1px solid #444; background:none; cursor:pointer; font-size:1.2rem; color: var(--text-color, #333);">+</button>
                 </div>
             </div>
 
-            <button class="btn-add-to-cart" onclick="agregarAlCarrito()">AÑADIR AL CARRITO</button>
+            <!-- BOTONES -->
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <button class="btn-add-to-cart" onclick="agregarAlCarrito()">
+                    <i class="ri-shopping-cart-line"></i> AÑADIR AL CARRITO
+                </button>
+                <a id="btn-whatsapp" href="#" target="_blank"
+                    style="display:flex; align-items:center; justify-content:center; gap:8px; padding:14px; background:#25D366; color:white; border-radius:8px; text-decoration:none; font-weight:bold; font-size:0.95rem;">
+                    <i class="ri-whatsapp-line" style="font-size:1.2rem;"></i> CONSULTAR POR WHATSAPP
+                </a>
+            </div>
+
         </div>
     </main>
 
     <script>
         let productoActual = null;
-        let talleSeleccionado = null; // Para guardar el talle que elija el usuario
+        let talleSeleccionado = null;
+        let stockSeleccionado = 0;
+        let cantidad = 1;
 
         window.onload = async () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -57,53 +95,88 @@
                 
                 if (res.ok) {
                     productoActual = prod;
+
+                    // Breadcrumb
+                    document.getElementById('breadcrumb-nombre').innerText = prod.name;
+
+                    // Color
+                    if (prod.color) {
+                        document.getElementById('color-producto').innerText = prod.color;
+                    }
+
                     document.getElementById('nombre-producto').innerText = prod.name;
                     document.getElementById('precio-producto').innerText = `$${Number(prod.price).toLocaleString('es-AR')}`;
                     document.getElementById('img-producto').src = prod.image_url;
                     document.getElementById('descripcion-producto').innerText = prod.description || 'Sin descripción.';
 
-                    // --- RENDERIZAR TALLES DESDE LA DB ---
+                    // Talles
                     const contenedorTalles = document.getElementById('contenedor-talles');
                     if (prod.sizes && prod.sizes.length > 0) {
                         contenedorTalles.innerHTML = prod.sizes.map(s => `
-                            <button class="size-btn" onclick="seleccionarTalle(this, '${s.size}')">
+                            <button class="size-btn" onclick="seleccionarTalle(this, '${s.size}', ${s.stock})">
                                 ${s.size}
                             </button>
                         `).join('');
                     } else {
                         contenedorTalles.innerHTML = '<p style="color: #ff4d4d;">Sin stock por el momento</p>';
                     }
+
+                    // WhatsApp
+                    const msgWsp = encodeURIComponent(`¡Hola! Quiero consultar sobre el producto: ${prod.name} - $${Number(prod.price).toLocaleString('es-AR')}`);
+                    document.getElementById('btn-whatsapp').href = `https://wa.me/5493585756996?text=${msgWsp}`;
                 }
             } catch (e) { console.error(e); }
         };
 
-        // Función para marcar visualmente el talle elegido
-        function seleccionarTalle(elemento, talle) {
-            // Quitar clase activa de todos
+        function seleccionarTalle(elemento, talle, stock) {
             document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active-size'));
-            // Agregar al seleccionado
             elemento.classList.add('active-size');
             talleSeleccionado = talle;
+            stockSeleccionado = stock;
+            cantidad = 1;
+            document.getElementById('cantidad-display').innerText = 1;
+            document.getElementById('stock-info').innerText = `${stock} unidad${stock !== 1 ? 'es' : ''} disponible${stock !== 1 ? 's' : ''}`;
+        }
+
+        function cambiarCantidad(delta) {
+            if (!talleSeleccionado) {
+                alert("Primero seleccioná un talle.");
+                return;
+            }
+            const nueva = cantidad + delta;
+            if (nueva < 1) return;
+            if (nueva > stockSeleccionado) {
+                alert(`Solo hay ${stockSeleccionado} unidades disponibles para este talle.`);
+                return;
+            }
+            cantidad = nueva;
+            document.getElementById('cantidad-display').innerText = cantidad;
         }
 
         function agregarAlCarrito() {
             if (!productoActual) return;
             
             if (!talleSeleccionado) {
-                alert("Por favor, selecciona un talle antes de añadir al carrito.");
+                alert("Por favor, seleccioná un talle antes de añadir al carrito.");
                 return;
             }
 
             let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
             
-            carrito.push({
-                id: productoActual.id,
-                name: productoActual.name,
-                price: productoActual.price,
-                image: productoActual.image_url,
-                size: talleSeleccionado, // Guardamos también el talle
-                cantidad: 1
-            });
+            // Si ya existe el mismo producto con el mismo talle, sumamos cantidad
+            const existente = carrito.find(item => item.id === productoActual.id && item.size === talleSeleccionado);
+            if (existente) {
+                existente.cantidad += cantidad;
+            } else {
+                carrito.push({
+                    id: productoActual.id,
+                    name: productoActual.name,
+                    price: productoActual.price,
+                    image: productoActual.image_url,
+                    size: talleSeleccionado,
+                    cantidad: cantidad
+                });
+            }
 
             localStorage.setItem('urban_cart', JSON.stringify(carrito));
             window.location.href = '/carrito';
