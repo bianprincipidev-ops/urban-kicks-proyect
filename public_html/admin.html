@@ -225,14 +225,14 @@
         // 1. SEGURIDAD
         (async function() {
             const token = localStorage.getItem('urban_token');
-            if (!token) window.location.href = 'index.html';
+            if (!token) window.location.href = '/';
             try {
                 const res = await fetch('/api/usuario/perfil', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
-                if (!res.ok || data.role !== 'admin') window.location.href = 'index.html';
-            } catch { window.location.href = 'index.html'; }
+                if (!res.ok || data.role !== 'admin') window.location.href = '/';
+            } catch { window.location.href = '/'; }
         })();
 
         // 2. NAVEGACIÓN
@@ -436,7 +436,7 @@
             if(res.ok) { alert("Promo cargada"); cerrarModal('modalPromo'); e.target.reset(); cargarTablas(); }
         };
 
-        function logoutAdmin() { localStorage.clear(); window.location.href = 'index.html'; }
+        function logoutAdmin() { localStorage.clear(); window.location.href = '/'; }
         window.onload = cargarTablas;
     </script>
 </body>

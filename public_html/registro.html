@@ -48,7 +48,7 @@
                         
                         <div class="auth-footer">
                             <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="forgot-password">¿Olvidaste tu contraseña?</a>
-                            <p>¿Ya tienes cuenta? <a href="login.html">Iniciar sesión</a></p>
+                            <p>¿Ya tienes cuenta? <a href="/login">Iniciar sesión</a></p>
                         </div>
                     </form>
                 </div>
@@ -85,7 +85,7 @@
                     
                     if (res.ok) {
                         alert("¡Cuenta creada! Ya podés iniciar sesión.");
-                        window.location.href = 'login.html';
+                        window.location.href = '/login';
                     } else {
                         alert("Error: " + data.error);
                     }

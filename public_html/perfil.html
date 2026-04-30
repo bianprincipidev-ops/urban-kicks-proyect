@@ -67,14 +67,14 @@
 
     <header>
         <div class="logo">
-            <a href="tienda.html">
+            <a href="/tienda">
                 <img src="logo-urban.png" alt="Urban Kicks Logo">
             </a>
         </div>
         <div class="header-icons">
-            <a href="tienda.html" title="Volver a la tienda"><i class="ri-store-2-line"></i></a>
+            <a href="/tienda" title="Volver a la tienda"><i class="ri-store-2-line"></i></a>
             <i class="ri-moon-line" title="Cambiar modo"></i>
-            <a href="carrito.html"><i class="ri-shopping-cart-line"></i></a>
+            <a href="/carrito"><i class="ri-shopping-cart-line"></i></a>
         </div>
     </header>
 
@@ -100,7 +100,7 @@
                 <a href="#pedidos" class="sidebar-link">
                     <i class="ri-shopping-bag-line"></i> <span>Mis Pedidos</span>
                 </a>
-                <a href="tienda.html" class="sidebar-link">
+                <a href="/tienda" class="sidebar-link">
                     <i class="ri-arrow-left-line"></i> <span>Volver a Tienda</span>
                 </a>
             </nav>
@@ -235,7 +235,7 @@
         // --- 2. CARGAR PERFIL COMPLETO ---
         async function inicializarDashboard() {
             if (!token) {
-                window.location.href = 'index.html';
+                window.location.href = '/index';
                 return;
             }
             try {
@@ -405,7 +405,7 @@
         function logout() {
             if(confirm("¿Cerrar sesión?")) {
                 localStorage.clear();
-                window.location.href = 'index.html';
+                window.location.href = '/index';
             }
         }
     

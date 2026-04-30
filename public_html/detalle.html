@@ -14,7 +14,7 @@
             <img src="logo-urban.png" alt="Urban Kicks Logo">
         </div>
         <nav class="nav-links">
-            <a href="tienda.html">← Volver a la Tienda</a>
+            <a href="/tienda">← Volver a la Tienda</a>
         </nav>
     </header>
 
@@ -49,7 +49,7 @@
 
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
-            if (!id) return window.location.href = 'tienda.html';
+            if (!id) return window.location.href = '/tienda';
 
             try {
                 const res = await fetch(`/api/productos/${id}`);
@@ -106,7 +106,7 @@
             });
 
             localStorage.setItem('urban_cart', JSON.stringify(carrito));
-            window.location.href = 'carrito.html';
+            window.location.href = '/carrito';
         }
     </script>
 </body>

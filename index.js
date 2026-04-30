@@ -56,6 +56,15 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Redirección automática de .html a ruta limpia
+app.use((req, res, next) => {
+    if (req.path.endsWith('.html')) {
+        const newPath = req.path.slice(0, -5); // Quita el '.html'
+        return res.redirect(301, newPath);
+    }
+    next();
+});
+
 // --- RUTAS DE NAVEGACIÓN ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'index.html')));
 app.get('/tienda', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'tienda.html')));
@@ -64,9 +73,8 @@ app.get('/carrito', (req, res) => res.sendFile(path.join(__dirname, 'public_html
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'admin.html')));
 app.get('/perfil', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'perfil.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'login.html')));
-app.get('*', (req, res) => {
-    res.redirect('/');
-});
+app.get('/registro', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'registro.html')));
+
 // --- RUTAS DE API ---
 
 // Obtener producto por ID (Actualizado para incluir talles)
@@ -486,6 +494,10 @@ app.post('/api/admin/talles', upload.single('imagen_talle'), async (req, res) =>
     } catch (err) {
         res.status(500).json({ success: false, err });
     }
+});
+
+app.get('*', (req, res) => {
+    res.redirect('/');
 });
 
 app.use((req, res) => res.status(404).send("No encontrado"));

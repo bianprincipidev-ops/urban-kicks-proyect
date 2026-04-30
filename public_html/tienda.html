@@ -11,7 +11,7 @@
 
     <header>
         <div class="logo">
-            <a href="tienda.html"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
+            <a href="/tienda"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
         </div>
         <nav class="nav-links">
             <a href="javascript:void(0)" onclick="cargarProductos('1')">Urbano</a>
@@ -25,9 +25,9 @@
                 <i id="theme-icon" class="ri-moon-line"></i>
             </button>
             
-            <a href="login.html" id="user-link" title="Mi Cuenta"><i class="ri-user-line"></i></a>
+            <a href="/login" id="user-link" title="Mi Cuenta"><i class="ri-user-line"></i></a>
             
-            <a href="carrito.html"><i class="ri-shopping-cart-line"></i></a>
+            <a href="/carrito"><i class="ri-shopping-cart-line"></i></a>
             
             <button id="btn-logout" onclick="logout()" title="Cerrar Sesión" style="display: none; background: none; border: none; cursor: pointer; padding: 0;">
                 <i class="ri-logout-box-r-line" style="font-size: 1.5rem; color: #ff4d4d;"></i>
@@ -86,7 +86,7 @@
 <script>
         (function() {
             const token = localStorage.getItem('urban_token');
-            if (!token) window.location.href = 'index.html';
+            if (!token) window.location.href = '/';
         })();
 
         let listaPromos = [];
@@ -128,7 +128,7 @@
             const headerIcons = document.querySelector('.header-icons');
 
             if (token) {
-                userLink.href = 'perfil.html';
+                userLink.href = '/perfil';
                 userLink.title = 'Mi Perfil';
                 if(btnLogout) btnLogout.style.display = 'inline-block';
 
@@ -136,13 +136,13 @@
                 if (role === 'admin' && !document.getElementById('admin-btn')) {
                     const adminBtn = document.createElement('a');
                     adminBtn.id = 'admin-btn';
-                    adminBtn.href = 'admin.html';
+                    adminBtn.href = '/admin';
                     adminBtn.className = 'admin-badge-link'; // Usamos la clase del CSS pro
                     adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
                     headerIcons.insertBefore(adminBtn, userLink);
                 }
             } else {
-                userLink.href = 'login.html';
+                userLink.href = '/login';
                 if(btnLogout) btnLogout.style.display = 'none';
             }
         }
@@ -150,7 +150,7 @@
         function logout() {
             if(confirm("¿Estás seguro de que quieres cerrar sesión?")) {
                 localStorage.clear(); // Limpiamos todo de una
-                window.location.href = 'index.html';
+                window.location.href = '/index';
             }
         }
 
@@ -272,7 +272,7 @@
                             <h3>${prod.name}</h3>
                             <p>${prod.description}</p>
                             <span class="precio">$${Number(prod.price).toLocaleString('es-AR')}</span>
-                            <a href="detalle.html?id=${prod.id}" class="btn-comprar" style="text-decoration:none; display:inline-block; text-align:center;">
+                            <a href="/detalle?id=${prod.id}" class="btn-comprar" style="text-decoration:none; display:inline-block; text-align:center;">
                                 Ver Detalle
                             </a>
                         </div>
@@ -358,7 +358,7 @@
         <div class="footer-column">
             <h3>Ayuda</h3>
             <ul>
-                <li><a href="#">Tabla de Talles (cm)</a></li>
+                <li><a href="javascript:void(0)" onclick="abrirModalTalles()">Tabla de Talles</a></li>
                 <li><a href="https://wa.me/5493585756996" target="_blank">Contacto</a></li>
             </ul>
         </div>
