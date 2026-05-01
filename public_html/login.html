@@ -86,7 +86,7 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    // USA ESTOS NOMBRES (urban_...)
+                    // Guardamos sesión
                     localStorage.setItem('urban_token', data.token);
                     localStorage.setItem('urban_role', data.role); 
 
@@ -94,8 +94,15 @@
                         alert("¡Bienvenida, Admin de Urban Kicks!");
                         window.location.href = '/admin';
                     } else {
-                        alert("¡Bienvenido!");
-                        window.location.href = '/tienda';
+                        // --- REDIRECCIÓN INTELIGENTE ---
+                        const redirectTo = localStorage.getItem('redirect_after_login');
+                        
+                        if (redirectTo) {
+                            localStorage.removeItem('redirect_after_login'); // Limpiamos para que no pase siempre
+                            window.location.href = redirectTo; 
+                        } else {
+                            window.location.href = '/tienda';
+                        }
                     }
                 } else {
                     alert(data.error);

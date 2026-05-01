@@ -156,29 +156,34 @@
         function agregarAlCarrito() {
             if (!productoActual) return;
             
-            // Si no está logueado, mandarlo al login
+            // 1. VERIFICACIÓN DE SESIÓN (Protección)
             const token = localStorage.getItem('urban_token');
             if (!token) {
-                alert("Necesitás iniciar sesión para comprar.");
+                // Guardamos la URL actual para que después del login el usuario pueda volver aquí
+                localStorage.setItem('redirect_after_login', window.location.href);
+                
+                alert("¡Hola! Para añadir productos al carrito y realizar tu compra, por favor inicia sesión o crea una cuenta.");
                 window.location.href = '/login';
                 return;
             }
 
+            // 2. VERIFICACIÓN DE TALLE
             if (!talleSeleccionado) {
                 alert("Por favor, seleccioná un talle antes de añadir al carrito.");
                 return;
             }
 
-            if (!talleSeleccionado) {
-                alert("Por favor, seleccioná un talle antes de añadir al carrito.");
-                return;
-            }
-
+            // 3. LÓGICA DEL CARRITO
             let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
             
-            // Si ya existe el mismo producto con el mismo talle, sumamos cantidad
             const existente = carrito.find(item => item.id === productoActual.id && item.size === talleSeleccionado);
+            
             if (existente) {
+                // Validar que no exceda el stock total al sumar
+                if (existente.cantidad + cantidad > stockSeleccionado) {
+                    alert(`No puedes agregar más unidades. El stock máximo para este talle es ${stockSeleccionado}.`);
+                    return;
+                }
                 existente.cantidad += cantidad;
             } else {
                 carrito.push({
@@ -192,7 +197,15 @@
             }
 
             localStorage.setItem('urban_cart', JSON.stringify(carrito));
-            window.location.href = '/carrito';
+            
+            // Feedback visual antes de redirigir
+            const btn = document.querySelector('.btn-add-to-cart');
+            btn.innerHTML = "¡AGREGADO! <i class='ri-check-line'></i>";
+            btn.style.background = "#28a745";
+            
+            setTimeout(() => {
+                window.location.href = '/carrito';
+            }, 800);
         }
     </script>
 </body>

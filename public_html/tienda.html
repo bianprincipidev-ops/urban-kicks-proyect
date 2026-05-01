@@ -84,10 +84,6 @@
     </a>
 
 <script>
-        (function() {
-            const token = localStorage.getItem('urban_token');
-            if (!token) window.location.href = '/';
-        })();
 
         let listaPromos = [];
         let indiceActual = 0;
@@ -150,7 +146,7 @@
         function logout() {
             if(confirm("¿Estás seguro de que quieres cerrar sesión?")) {
                 localStorage.clear(); // Limpiamos todo de una
-                window.location.href = '/';
+                window.location.replace('/');
             }
         }
 
