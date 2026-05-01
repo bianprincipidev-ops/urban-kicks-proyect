@@ -62,31 +62,21 @@
         }
 
         function eliminarDelCarrito(index) {
-            // 1. Leemos el carrito. Si no existe, usamos un array vacío [] para evitar errores.
-            let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-
-            // 2. Verificamos que el índice sea válido (por seguridad)
-            if (index >= 0 && index < carrito.length) {
+            try {
+                let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
                 
-                // 3. Eliminamos el producto del array
+                // Eliminamos
                 carrito.splice(index, 1);
-
-                // 4. Guardamos la lista actualizada en el localStorage
+                
+                // Guardamos
                 localStorage.setItem('urban_cart', JSON.stringify(carrito));
-
-                // 5. REFRESCAR PANTALLA: Esto es lo que hace que desaparezca sin F5
+                
+                // Refrescamos la pantalla (Llamamos a tu función que dibuja el HTML)
                 mostrarCarrito(); 
                 
-                // 6. Opcional: Si tenés un contador en el header (ej: el numerito arriba del icono)
-                if (typeof actualizarContadorCarrito === 'function') {
-                    actualizarContadorCarrito();
-                }
-
-                console.log("Producto eliminado. Carrito actualizado.");
-            } else {
-                console.warn("Índice no válido o el carrito ya está vacío.");
-                // Si por alguna razón el HTML quedó desfasado, refrescamos igual
-                mostrarCarrito();
+                console.log("Producto eliminado correctamente");
+            } catch (error) {
+                console.error("Error al eliminar del carrito:", error);
             }
         }
 
