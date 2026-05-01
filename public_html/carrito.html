@@ -62,23 +62,23 @@
         }
 
         function eliminarDelCarrito(index) {
-            try {
-                let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-                
-                // Eliminamos
-                carrito.splice(index, 1);
-                
-                // Guardamos
-                localStorage.setItem('urban_cart', JSON.stringify(carrito));
-                
-                // Refrescamos la pantalla (Llamamos a tu función que dibuja el HTML)
-                mostrarCarrito(); 
-                
-                console.log("Producto eliminado correctamente");
-            } catch (error) {
-                console.error("Error al eliminar del carrito:", error);
-            }
-        }
+                    try {
+                        let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+                        
+                        // 1. Eliminamos el producto del array
+                        carrito.splice(index, 1);
+                        
+                        // 2. Guardamos el array actualizado en el localStorage
+                        localStorage.setItem('urban_cart', JSON.stringify(carrito));
+                        
+                        // 3. ¡CORRECCIÓN AQUÍ!: Llamamos a renderizarCarrito() que es como se llama tu función
+                        renderizarCarrito(); 
+                        
+                        console.log("Producto eliminado correctamente");
+                    } catch (error) {
+                        console.error("Error al eliminar del carrito:", error);
+                    }
+                }
 
         function finalizarCompra() {
             // 1. EL NÚMERO DE TELÉFONO
