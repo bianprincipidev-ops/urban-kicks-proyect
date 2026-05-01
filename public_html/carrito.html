@@ -62,25 +62,31 @@
         }
 
         function eliminarDelCarrito(index) {
-            // 1. Volvemos a obtener el carrito del localStorage (con el nombre correcto urban_cart)
-            let carrito = JSON.parse(localStorage.getItem('urban_cart'));
+            // 1. Leemos el carrito. Si no existe, usamos un array vacío [] para evitar errores.
+            let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
 
-            // 2. Verificamos que el carrito exista y tenga algo
-            if (carrito && carrito.length > 0) {
+            // 2. Verificamos que el índice sea válido (por seguridad)
+            if (index >= 0 && index < carrito.length) {
                 
-                // 3. Eliminamos el producto según su posición (index)
+                // 3. Eliminamos el producto del array
                 carrito.splice(index, 1);
 
-                // 4. Guardamos la nueva lista en el localStorage
+                // 4. Guardamos la lista actualizada en el localStorage
                 localStorage.setItem('urban_cart', JSON.stringify(carrito));
 
-                // 5. Refrescamos la visualización (la función que dibuja el carrito)
+                // 5. REFRESCAR PANTALLA: Esto es lo que hace que desaparezca sin F5
                 mostrarCarrito(); 
                 
-                // Opcional: Si querés actualizar contadores en el header o algo así
-                actualizarContadorCarrito(); 
+                // 6. Opcional: Si tenés un contador en el header (ej: el numerito arriba del icono)
+                if (typeof actualizarContadorCarrito === 'function') {
+                    actualizarContadorCarrito();
+                }
+
+                console.log("Producto eliminado. Carrito actualizado.");
             } else {
-                console.error("No se pudo eliminar: El carrito está vacío o es null.");
+                console.warn("Índice no válido o el carrito ya está vacío.");
+                // Si por alguna razón el HTML quedó desfasado, refrescamos igual
+                mostrarCarrito();
             }
         }
 
