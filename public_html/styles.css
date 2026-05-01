@@ -570,9 +570,9 @@ header {
 }
 
 .btn-remove {
-    background: transparent;
+    background: #ff4d4d;
     border: 1px solid var(--accent-red);
-    color: var(--accent-red);
+    color: #ffffff !important;
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
