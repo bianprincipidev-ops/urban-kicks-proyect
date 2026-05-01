@@ -11,16 +11,16 @@
 
     <header>
         <div class="logo">
-            <a href="/tienda"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
+            <a href="/index"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
         </div>
         <nav class="nav-links">
-            <a href="/tienda">← Volver a la Tienda</a>
+            <a href="/index">← Volver a la Tienda</a>
         </nav>
     </header>
 
     <!-- BREADCRUMB -->
     <div class="breadcrumb" style="padding: 10px 40px; font-size: 0.85rem; color: #888;">
-        <a href="/tienda" style="color:#888; text-decoration:none;">Tienda</a>
+        <a href="/index" style="color:#888; text-decoration:none;">Tienda</a>
         <span style="margin: 0 6px;">/</span>
         <span id="breadcrumb-nombre" style="color: var(--text-color, #333);">Cargando...</span>
     </div>
@@ -87,7 +87,7 @@
 
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
-            if (!id) return window.location.href = '/tienda';
+            if (!id) return window.location.href = '/index';
 
             try {
                 const res = await fetch(`/api/productos/${id}`);
