@@ -66,8 +66,8 @@ app.use((req, res, next) => {
 });
 
 // --- RUTAS DE NAVEGACIÓN ---
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'index.html')));
-app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'index.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'tienda.html')));
+app.get('/tienda', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'tienda.html')));
 app.get('/detalle', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'detalle.html')));
 app.get('/carrito', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'carrito.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'admin.html')));
