@@ -8,8 +8,29 @@
 </head>
 <body>
     <header>
-        <div class="logo"><img src="logo-urban.png" alt="Logo"></div>
-        <nav><a href="/tienda">← Seguir Comprando</a></nav>
+        <div class="logo">
+            <a href="/tienda"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
+        </div>
+        <nav class="nav-links">
+            <a href="javascript:void(0)" onclick="cargarProductos('1')">Urbano</a>
+            <a href="javascript:void(0)" onclick="cargarProductos('2')">Hombre</a>
+            <a href="javascript:void(0)" onclick="cargarProductos('3')">Mujer</a>
+            <a href="javascript:void(0)" onclick="abrirModalTalles()">Tabla de Talles</a>
+            
+        </nav>
+        <div class="header-icons">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar modo">
+                <i id="theme-icon" class="ri-moon-line"></i>
+            </button>
+            
+            <a href="/login" id="user-link" title="Mi Cuenta"><i class="ri-user-line"></i></a>
+            
+            <a href="/carrito"><i class="ri-shopping-cart-line"></i></a>
+            
+            <button id="btn-logout" onclick="logout()" title="Cerrar Sesión" style="display: none; background: none; border: none; cursor: pointer; padding: 0;">
+                <i class="ri-logout-box-r-line" style="font-size: 1.5rem; color: #ff4d4d;"></i>
+            </button>
+        </div>
     </header>
 
     <main class="cart-container">
