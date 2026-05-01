@@ -454,32 +454,36 @@ header {
 
 .size-options {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Clave para que en celu no se salgan de la pantalla */
     gap: 12px;
     margin: 20px 0 30px;
 }
 
 .size-btn {
-    width: 50px;
+    width: 55px; /* Un poquito más ancho para que entren talles como "42.5" */
     height: 50px;
     border: 1px solid var(--border-color);
-    background: var(--bg-card);
+    background: none;
     color: var(--text-main);
     cursor: pointer;
     border-radius: 8px;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
 }
 
 .size-btn:hover, .size-btn.active {
-    background: #000;
-    color: #fff;
-    border-color: #000;
+    border-color: #ff4d4d;
+    color: #ff4d4d;
 }
 
 .active-size {
-    background-color: var(--accent-red, #ff4d4d) !important;
+    background-color: #ff4d4d !important;
     color: white !important;
-    border-color: var(--accent-red, #ff4d4d) !important;
+    border-color: #ff4d4d !important;
+    transform: scale(1.05); /* Le da un efecto de hundido/resaltado */
 }
 
 .btn-add-to-cart {
