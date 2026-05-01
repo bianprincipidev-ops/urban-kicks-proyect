@@ -62,10 +62,26 @@
         }
 
         function eliminarDelCarrito(index) {
+            // 1. Volvemos a obtener el carrito del localStorage (con el nombre correcto urban_cart)
             let carrito = JSON.parse(localStorage.getItem('urban_cart'));
-            carrito.splice(index, 1);
-            localStorage.setItem('urban_cart', JSON.stringify(carrito));
-            renderizarCarrito();
+
+            // 2. Verificamos que el carrito exista y tenga algo
+            if (carrito && carrito.length > 0) {
+                
+                // 3. Eliminamos el producto según su posición (index)
+                carrito.splice(index, 1);
+
+                // 4. Guardamos la nueva lista en el localStorage
+                localStorage.setItem('urban_cart', JSON.stringify(carrito));
+
+                // 5. Refrescamos la visualización (la función que dibuja el carrito)
+                mostrarCarrito(); 
+                
+                // Opcional: Si querés actualizar contadores en el header o algo así
+                actualizarContadorCarrito(); 
+            } else {
+                console.error("No se pudo eliminar: El carrito está vacío o es null.");
+            }
         }
 
         function finalizarCompra() {
