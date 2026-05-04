@@ -1710,6 +1710,53 @@ footer {
     }
 }
 
+/* Botones de cantidad - detalle */
+.qty-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.qty-btn:hover {
+    background: var(--accent-red);
+    color: white;
+    border-color: var(--accent-red);
+}
+
+/* Botón WhatsApp - detalle */
+.wsp-detail-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: #25D366;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.wsp-detail-btn:hover {
+    background: #20ba5a;
+    transform: translateY(-2px);
+}
+
+.wsp-detail-btn i {
+    font-size: 1.2rem;
+}
+
 /* Mobile chico */
 @media (max-width: 600px) {
     .grid-productos { grid-template-columns: 1fr; }
@@ -1731,3 +1778,4 @@ footer {
 @media (max-width: 480px) {
     .modal-content { margin: 15vh auto; padding: 30px 20px; }
 }
+
