@@ -91,9 +91,12 @@
     let productosCache = [];
 
     window.onload = () => {
-        // El main.js ya maneja tema y sesión automáticamente.
-        iniciarCarrusel(); 
-        cargarProductos('todos'); 
+        iniciarCarrusel();
+        
+        // Leer categoría de la URL si viene desde otro archivo
+        const params = new URLSearchParams(window.location.search);
+        const categoria = params.get('categoria') || 'todos';
+        cargarProductos(categoria);
     };
 
     async function iniciarCarrusel() {
