@@ -6,6 +6,7 @@
     <title>Detalle de Producto | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="main.js"></script>
 </head>
 <body>
 
@@ -18,24 +19,34 @@
             <a href="javascript:void(0)" onclick="cargarProductos('2')">Hombre</a>
             <a href="javascript:void(0)" onclick="cargarProductos('3')">Mujer</a>
             <a href="javascript:void(0)" onclick="abrirModalTalles()">Tabla de Talles</a>
-            
         </nav>
         <div class="header-icons">
             <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar modo">
                 <i id="theme-icon" class="ri-moon-line"></i>
             </button>
-            
             <a href="/login" id="user-link" title="Mi Cuenta"><i class="ri-user-line"></i></a>
-            
             <a href="/carrito"><i class="ri-shopping-cart-line"></i></a>
-            
             <button id="btn-logout" onclick="logout()" title="Cerrar Sesión" style="display: none; background: none; border: none; cursor: pointer; padding: 0;">
                 <i class="ri-logout-box-r-line" style="font-size: 1.5rem; color: #ff4d4d;"></i>
             </button>
         </div>
     </header>
 
-    <!-- BREADCRUMB -->
+    <div id="modalTalles" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="cerrarModalTalles()">&times;</span>
+            <h3>Tabla de Talles</h3>
+            <div style="margin-bottom: 12px;">
+                <select id="selectMarcaTalle" onchange="cargarTablaTalle()" style="width:100%; padding:10px; background:#222; color:white; border:1px solid #444; border-radius:5px;">
+                    <option value="">-- Seleccioná una marca --</option>
+                </select>
+            </div>
+            <div id="contenedor-tabla-talle" style="text-align:center; color:#888;">
+                Seleccioná una marca para ver su tabla.
+            </div>
+        </div>
+    </div>
+
     <div class="breadcrumb" style="padding: 10px 40px; font-size: 0.85rem; color: #888;">
         <a href="/tienda" style="color:#888; text-decoration:none;">Tienda</a>
         <span style="margin: 0 6px;">/</span>
@@ -48,182 +59,120 @@
         </div>
         
         <div class="product-info">
-
-            <!-- COLOR -->
             <p id="color-producto" style="font-size: 0.85rem; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;"></p>
-
             <h1 id="nombre-producto">Cargando...</h1>
             <span class="product-price" id="precio-producto">$0.00</span>
-
-            <!-- DESCRIPCIÓN -->
             <p class="product-description" id="descripcion-producto" style="margin: 16px 0; line-height: 1.6;"></p>
 
-            <!-- TALLES -->
             <div class="size-selector">
                 <span style="font-weight: bold; font-size: 0.9rem;">Seleccionar Talle:</span>
                 <div class="size-options" id="contenedor-talles" style="margin-top: 10px;">
                     <p style="color: #888;">Cargando talles...</p>
                 </div>
-                <!-- Stock del talle seleccionado -->
                 <p id="stock-info" style="font-size: 0.8rem; color: #888; margin-top: 8px; min-height: 18px;"></p>
             </div>
 
-            <!-- CANTIDAD -->
             <div style="margin: 16px 0;">
                 <span style="font-weight: bold; font-size: 0.9rem;">Cantidad:</span>
                 <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px;">
-                    <button onclick="cambiarCantidad(-1)" style="width:32px; height:32px; border-radius:50%; border:1px solid #444; background:none; cursor:pointer; font-size:1.2rem; color: var(--text-color, #333);">−</button>
+                    <button onclick="cambiarCantidad(-1)" class="qty-btn">−</button>
                     <span id="cantidad-display" style="font-size: 1.1rem; font-weight: bold;">1</span>
-                    <button onclick="cambiarCantidad(1)" style="width:32px; height:32px; border-radius:50%; border:1px solid #444; background:none; cursor:pointer; font-size:1.2rem; color: var(--text-color, #333);">+</button>
+                    <button onclick="cambiarCantidad(1)" class="qty-btn">+</button>
                 </div>
             </div>
 
-            <!-- BOTONES -->
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
                 <button class="btn-add-to-cart" onclick="agregarAlCarrito()">
                     <i class="ri-shopping-cart-line"></i> AÑADIR AL CARRITO
                 </button>
-                <a id="btn-whatsapp" href="#" target="_blank"
-                    style="display:flex; align-items:center; justify-content:center; gap:8px; padding:14px; background:#25D366; color:white; border-radius:8px; text-decoration:none; font-weight:bold; font-size:0.95rem;">
-                    <i class="ri-whatsapp-line" style="font-size:1.2rem;"></i> CONSULTAR POR WHATSAPP
+                <a id="btn-whatsapp" href="#" target="_blank" class="wsp-detail-btn">
+                    <i class="ri-whatsapp-line"></i> CONSULTAR POR WHATSAPP
                 </a>
             </div>
-
         </div>
     </main>
 
-    <script>
-        let productoActual = null;
-        let talleSeleccionado = null;
-        let stockSeleccionado = 0;
-        let cantidad = 1;
+<script>
+    let productoActual = null;
+    let talleSeleccionado = null;
+    let stockSeleccionado = 0;
+    let cantidad = 1;
 
-        window.onload = async () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+    document.addEventListener('DOMContentLoaded', async () => {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        if (!id) return window.location.href = '/tienda';
 
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
-            if (!id) return window.location.href = '/tienda';
-
-            try {
-                const res = await fetch(`/api/productos/${id}`);
-                const prod = await res.json();
+        try {
+            const res = await fetch(`/api/productos/${id}`);
+            productoActual = await res.json();
+            if (res.ok) {
+                document.getElementById('breadcrumb-nombre').innerText = productoActual.name;
+                document.getElementById('nombre-producto').innerText = productoActual.name;
+                document.getElementById('precio-producto').innerText = `$${Number(productoActual.price).toLocaleString('es-AR')}`;
+                document.getElementById('img-producto').src = productoActual.image_url;
+                document.getElementById('descripcion-producto').innerText = productoActual.description || '';
+                document.getElementById('color-producto').innerText = productoActual.color || '';
                 
-                if (res.ok) {
-                    productoActual = prod;
+                // Render talles
+                document.getElementById('contenedor-talles').innerHTML = productoActual.sizes.map(s => `
+                    <button class="size-btn" onclick="seleccionarTalle(this, '${s.size}', ${s.stock})">${s.size}</button>
+                `).join('');
 
-                    // Breadcrumb
-                    document.getElementById('breadcrumb-nombre').innerText = prod.name;
-
-                    // Color
-                    if (prod.color) {
-                        document.getElementById('color-producto').innerText = prod.color;
-                    }
-
-                    document.getElementById('nombre-producto').innerText = prod.name;
-                    document.getElementById('precio-producto').innerText = `$${Number(prod.price).toLocaleString('es-AR')}`;
-                    document.getElementById('img-producto').src = prod.image_url;
-                    document.getElementById('descripcion-producto').innerText = prod.description || 'Sin descripción.';
-
-                    // Talles
-                    const contenedorTalles = document.getElementById('contenedor-talles');
-                    if (prod.sizes && prod.sizes.length > 0) {
-                        contenedorTalles.innerHTML = prod.sizes.map(s => `
-                            <button class="size-btn" onclick="seleccionarTalle(this, '${s.size}', ${s.stock})">
-                                ${s.size}
-                            </button>
-                        `).join('');
-                    } else {
-                        contenedorTalles.innerHTML = '<p style="color: #ff4d4d;">Sin stock por el momento</p>';
-                    }
-
-                    // WhatsApp
-                    const msgWsp = encodeURIComponent(`¡Hola! Quiero consultar sobre el producto: ${prod.name} - $${Number(prod.price).toLocaleString('es-AR')}`);
-                    document.getElementById('btn-whatsapp').href = `https://wa.me/5493585756996?text=${msgWsp}`;
-                }
-            } catch (e) { console.error(e); }
-        };
-
-        function seleccionarTalle(elemento, talle, stock) {
-            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active-size'));
-            elemento.classList.add('active-size');
-            talleSeleccionado = talle;
-            stockSeleccionado = stock;
-            cantidad = 1;
-            document.getElementById('cantidad-display').innerText = 1;
-            document.getElementById('stock-info').innerText = `${stock} unidad${stock !== 1 ? 'es' : ''} disponible${stock !== 1 ? 's' : ''}`;
-        }
-
-        function cambiarCantidad(delta) {
-            if (!talleSeleccionado) {
-                alert("Primero seleccioná un talle.");
-                return;
+                // WhatsApp Link
+                const msg = encodeURIComponent(`¡Hola! Consulto por: ${productoActual.name}`);
+                document.getElementById('btn-whatsapp').href = `https://wa.me/5493585756996?text=${msg}`;
             }
-            const nueva = cantidad + delta;
-            if (nueva < 1) return;
-            if (nueva > stockSeleccionado) {
-                alert(`Solo hay ${stockSeleccionado} unidades disponibles para este talle.`);
-                return;
-            }
+        } catch (e) { console.error(e); }
+    });
+
+    function seleccionarTalle(elemento, talle, stock) {
+        document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active-size'));
+        elemento.classList.add('active-size');
+        talleSeleccionado = talle;
+        stockSeleccionado = stock;
+        cantidad = 1;
+        document.getElementById('cantidad-display').innerText = "1";
+        document.getElementById('stock-info').innerText = `${stock} disponibles`;
+    }
+
+    function cambiarCantidad(delta) {
+        if (!talleSeleccionado) return alert("Seleccioná un talle primero");
+        let nueva = cantidad + delta;
+        if (nueva >= 1 && nueva <= stockSeleccionado) {
             cantidad = nueva;
             document.getElementById('cantidad-display').innerText = cantidad;
         }
+    }
 
-        function agregarAlCarrito() {
-            if (!productoActual) return;
-            
-            // 1. VERIFICACIÓN DE SESIÓN (Protección)
-            const token = localStorage.getItem('urban_token');
-            if (!token) {
-                // Guardamos la URL actual para que después del login el usuario pueda volver aquí
-                localStorage.setItem('redirect_after_login', window.location.href);
-                
-                alert("¡Hola! Para añadir productos al carrito y realizar tu compra, por favor inicia sesión o crea una cuenta.");
-                window.location.href = '/login';
-                return;
-            }
-
-            // 2. VERIFICACIÓN DE TALLE
-            if (!talleSeleccionado) {
-                alert("Por favor, seleccioná un talle antes de añadir al carrito.");
-                return;
-            }
-
-            // 3. LÓGICA DEL CARRITO
-            let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-            
-            const existente = carrito.find(item => item.id === productoActual.id && item.size === talleSeleccionado);
-            
-            if (existente) {
-                // Validar que no exceda el stock total al sumar
-                if (existente.cantidad + cantidad > stockSeleccionado) {
-                    alert(`No puedes agregar más unidades. El stock máximo para este talle es ${stockSeleccionado}.`);
-                    return;
-                }
-                existente.cantidad += cantidad;
-            } else {
-                carrito.push({
-                    id: productoActual.id,
-                    name: productoActual.name,
-                    price: productoActual.price,
-                    image: productoActual.image_url,
-                    size: talleSeleccionado,
-                    cantidad: cantidad
-                });
-            }
-
-            localStorage.setItem('urban_cart', JSON.stringify(carrito));
-            
-            // Feedback visual antes de redirigir
-            const btn = document.querySelector('.btn-add-to-cart');
-            btn.innerHTML = "¡AGREGADO! <i class='ri-check-line'></i>";
-            btn.style.background = "#28a745";
-            
-            setTimeout(() => {
-                window.location.href = '/carrito';
-            }, 800);
+    function agregarAlCarrito() {
+        if (!localStorage.getItem('urban_token')) {
+            localStorage.setItem('redirect_after_login', window.location.href);
+            alert("Iniciá sesión para comprar.");
+            return window.location.href = '/login';
         }
-    </script>
+        if (!talleSeleccionado) return alert("Seleccioná un talle.");
+
+        let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+        // Verificamos si ya existe el mismo id con mismo talle
+        const existente = carrito.find(i => i.id === productoActual.id && i.size === talleSeleccionado);
+        
+        if(existente) {
+            existente.cantidad += cantidad;
+        } else {
+            carrito.push({ 
+                id: productoActual.id, 
+                name: productoActual.name, 
+                price: productoActual.price, 
+                image: productoActual.image_url, 
+                size: talleSeleccionado, 
+                cantidad: cantidad 
+            });
+        }
+        
+        localStorage.setItem('urban_cart', JSON.stringify(carrito));
+        window.location.href = '/carrito';
+    }
+</script>
 </body>
 </html>

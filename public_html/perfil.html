@@ -6,6 +6,7 @@
     <title>Mi Panel - Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="main.js"></script>
     <style>
         /* Estilos adicionales para la foto y seguridad */
         .avatar-wrapper {
@@ -219,211 +220,134 @@
         </main>
     </div>
 
-    <script>
-        const token = localStorage.getItem('urban_token');
-        let imagenOptimizada = null; // Almacena la imagen comprimida para evitar errores 403
-    
-        // --- 1. MODO OSCURO ---
-        function aplicarTema() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            const icon = document.querySelector('.header-icons i:nth-child(2)'); 
-            if (icon) icon.className = savedTheme === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
-        }
-    
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            aplicarTema();
-        }
-    
-        document.addEventListener('DOMContentLoaded', () => {
-            aplicarTema();
-            const themeIcon = document.querySelector('.header-icons i:nth-child(2)');
-            if (themeIcon) themeIcon.onclick = toggleTheme;
-        });
-    
-        // --- 2. CARGAR PERFIL COMPLETO ---
-        async function inicializarDashboard() {
-            if (!token) {
-                window.location.href = '/';
-                return;
-            }
-            try {
-                const resUser = await fetch(`/api/usuario/perfil?t=${Date.now()}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                if (resUser.ok) {
-                    const user = await resUser.json();
-                    
-                    // Mapeo de datos a los inputs del nuevo formulario
-                    document.getElementById('full_name').value = user.full_name || '';
-                    document.getElementById('dni').value = user.dni || '';
-                    document.getElementById('username').value = user.username || '';
-                    document.getElementById('email').value = user.email || '';
-                    document.getElementById('phone').value = user.phone || '';
-                    document.getElementById('address').value = user.address || '';
-                    document.getElementById('postal_code').value = user.postal_code || '';
-                    document.getElementById('city').value = user.city || '';
-                    document.getElementById('province').value = user.province || '';
-                    
-                    // Actualizar Sidebar
-                    const nombreAMostrar = user.full_name || user.username || "Usuario";
-                    document.getElementById('display-username').innerText = nombreAMostrar.toUpperCase();
-                    
-                    // Cargar Foto desde DB
-                    const avatarContenedor = document.getElementById('user-initial');
-                    if (user.avatar_url && user.avatar_url !== "null") {
-                        avatarContenedor.innerHTML = `<img src="${user.avatar_url}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
-                    } else {
-                        avatarContenedor.innerText = nombreAMostrar.charAt(0).toUpperCase();
-                    }
-                }
-            } catch (err) { 
-                console.error("Error al cargar perfil:", err); 
-            }
-            cargarPedidosSimulados();
-        }
-    
-        // --- 3. PREVISUALIZAR Y COMPRIMIR FOTO (Evita Error 403) ---
-        function previewFoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        // Tamaño estándar para avatares
-                        canvas.width = 150;
-                        canvas.height = 150;
-                        ctx.drawImage(img, 0, 0, 150, 150);
-                        
-                        // Comprimimos para que el string Base64 no sea gigante
-                        imagenOptimizada = canvas.toDataURL('image/jpeg', 0.7);
-                        document.getElementById('user-initial').innerHTML = `<img src="${imagenOptimizada}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
-                    };
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-    
-        // --- 4. ACTUALIZAR TODOS LOS DATOS ---
-        document.getElementById('formPerfil').addEventListener('submit', async (e) => {
-                e.preventDefault(); // Detiene el envío tradicional del formulario
-                
-                const msg = document.getElementById('mensaje');
-                const btn = e.target.querySelector('button'); // El botón de guardar
-                
-                // Bloqueamos el botón para evitar doble clic
-                btn.disabled = true;
-                btn.innerText = "Guardando...";
-                msg.innerHTML = ""; 
-            
-                const updatedData = {
-                    full_name: document.getElementById('full_name').value.trim(),
-                    dni: document.getElementById('dni').value.trim(),
-                    username: document.getElementById('username').value.trim(),
-                    email: document.getElementById('email').value.trim(),
-                    phone: document.getElementById('phone').value.trim(),
-                    address: document.getElementById('address').value.trim(),
-                    postal_code: document.getElementById('postal_code').value.trim(),
-                    city: document.getElementById('city').value.trim(),
-                    province: document.getElementById('province').value.trim(),
-                    password: document.getElementById('new_password').value // No usamos trim aquí por seguridad
-                };
-            
-                // Solo enviamos avatar_url si realmente se seleccionó una imagen nueva
-                if (imagenOptimizada) {
-                    updatedData.avatar_url = imagenOptimizada;
-                }
-            
-                try {
-                    const res = await fetch('/api/usuario/actualizar', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify(updatedData)
-                    });
-            
-                    const result = await res.json();
-            
-                    if (result.success) {
-                        msg.innerHTML = `<p style="color: #28a745; font-weight: bold; margin-top: 10px;">✅ ¡Cambios guardados con éxito!</p>`;
-                        
-                        try {
-                            const rawUser = localStorage.getItem('usuario');
-                            const userLocal = rawUser ? JSON.parse(rawUser) : {};
+<script>
+    const token = localStorage.getItem('urban_token');
+    let imagenOptimizada = null; // Almacena la imagen en base64 comprimida
 
-                            // Usamos lo que devuelve el backend si existe, sino usamos updatedData
-                            const datosNuevos = result.user || updatedData;
-
-                            // Excluimos la contraseña del localStorage por seguridad
-                            const { password, ...datosSeguros } = datosNuevos;
-
-                            const updatedUser = { ...userLocal, ...datosSeguros };
-                            localStorage.setItem('usuario', JSON.stringify(updatedUser));
-
-                            // Actualización visual rápida
-                            const nuevoNombre = datosSeguros.full_name || datosSeguros.username;
-                            if (document.getElementById('display-username')) {
-                                document.getElementById('display-username').innerText = nuevoNombre.toUpperCase();
-                            }
-                        } catch (e) {
-                            console.error("Error actualizando localStorage:", e);
-                        }
-
-                        // Limpiamos contraseña
-                        document.getElementById('new_password').value = "";
-
-                        // Recargamos para que todo el sitio tome los cambios
-                        setTimeout(() => { window.location.reload(); }, 1500);
-
-                    } else {
-                        msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error: ${result.message || 'Error al actualizar'}</p>`;
-                    }
-    
-                } catch (error) {
-                    console.error("Error en Fetch:", error);
-                    msg.innerHTML = `<p style="color: #dc3545; font-weight: bold; margin-top: 10px;">❌ Error de conexión: El servidor no respondió.</p>`;
-                } finally {
-                    // Re-habilitamos el botón pase lo que pase
-                    btn.disabled = false;
-                    btn.innerText = "Guardar Todos los Cambios";
-                }
-            });
-    
-        // --- 5. PEDIDOS Y LOGOUT ---
-        function cargarPedidosSimulados() {
-            const lista = document.getElementById('lista-pedidos');
-            const pedidos = [
-                { id: '#UK-7721', fecha: '14/04/2026', producto: 'Jordan 4 Retro Black', total: '$420.000', estado: 'Enviado' }
-            ];
-            lista.innerHTML = pedidos.map(p => `
-                <tr>
-                    <td><strong>${p.id}</strong></td>
-                    <td>${p.fecha}</td>
-                    <td>${p.producto}</td>
-                    <td>${p.total}</td>
-                    <td><span class="status-pill shipped">${p.estado}</span></td>
-                </tr>`).join('');
-        }
-    
-        function logout() {
-            if(confirm("¿Cerrar sesión?")) {
-                localStorage.clear();
-                window.location.href = '/';
-            }
-        }
-    
-        // Inicialización al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
         inicializarDashboard();
-    </script>
+    });
+
+    // --- 1. CARGAR DATOS DEL USUARIO ---
+    async function inicializarDashboard() {
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+        try {
+            const resUser = await fetch(`/api/usuario/perfil?t=${Date.now()}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (resUser.ok) {
+                const user = await resUser.json();
+                
+                // Llenar todos los campos del formulario
+                document.getElementById('full_name').value = user.full_name || '';
+                document.getElementById('dni').value = user.dni || '';
+                document.getElementById('username').value = user.username || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('address').value = user.address || '';
+                document.getElementById('postal_code').value = user.postal_code || '';
+                document.getElementById('city').value = user.city || '';
+                document.getElementById('province').value = user.province || '';
+                
+                // Actualizar Sidebar y Avatar
+                const nombreAMostrar = user.full_name || user.username || "Usuario";
+                document.getElementById('display-username').innerText = nombreAMostrar.toUpperCase();
+                
+                const avatarContenedor = document.getElementById('user-initial');
+                if (user.avatar_url && user.avatar_url !== "null") {
+                    avatarContenedor.innerHTML = `<img src="${user.avatar_url}" alt="Profile">`;
+                } else {
+                    avatarContenedor.innerText = nombreAMostrar.charAt(0).toUpperCase();
+                }
+            }
+        } catch (err) { 
+            console.error("Error al cargar perfil:", err); 
+        }
+        cargarPedidosSimulados(); // Función para la tabla inferior
+    }
+
+    // --- 2. PREVISUALIZAR Y COMPRIMIR FOTO ---
+    function previewFoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 150;
+                    canvas.height = 150;
+                    ctx.drawImage(img, 0, 0, 150, 150);
+                    
+                    // Comprimimos a JPEG (calidad 0.7) para que no ocupe mucho en la DB
+                    imagenOptimizada = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('user-initial').innerHTML = `<img src="${imagenOptimizada}">`;
+                };
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // --- 3. GUARDAR CAMBIOS ---
+    document.getElementById('formPerfil').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('mensaje');
+        const btn = e.target.querySelector('button');
+        
+        btn.disabled = true;
+        btn.innerText = "Guardando...";
+
+        const updatedData = {
+            full_name: document.getElementById('full_name').value.trim(),
+            dni: document.getElementById('dni').value.trim(),
+            username: document.getElementById('username').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            address: document.getElementById('address').value.trim(),
+            postal_code: document.getElementById('postal_code').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            province: document.getElementById('province').value.trim(),
+            password: document.getElementById('new_password').value
+        };
+
+        if (imagenOptimizada) updatedData.avatar_url = imagenOptimizada;
+
+        try {
+            const res = await fetch('/api/usuario/actualizar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedData)
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                msg.innerHTML = `<p style="color: #28a745; margin-top: 10px;">✅ ¡Cambios guardados con éxito!</p>`;
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                msg.innerHTML = `<p style="color: #dc3545; margin-top: 10px;">❌ Error: ${result.message}</p>`;
+            }
+        } catch (error) {
+            msg.innerHTML = `<p style="color: #dc3545; margin-top: 10px;">❌ Error de conexión.</p>`;
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Guardar Todos los Cambios";
+        }
+    });
+
+    function cargarPedidosSimulados() {
+        // Aquí podrías hacer un fetch a /api/pedidos/usuario si tienes esa ruta
+        const lista = document.getElementById('lista-pedidos');
+        lista.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888; padding:20px;">No tienes pedidos recientes.</td></tr>`;
+    }
+</script>
 </body>
 </html>

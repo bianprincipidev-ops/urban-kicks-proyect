@@ -6,6 +6,7 @@
     <title>Registro | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preload" as="image" href="logo-urban.png" fetchpriority="high">
+    <script src="main.js"></script>
 </head>
 <body class="auth-page">
 
@@ -56,45 +57,10 @@
         </div>
     </div>
 
-    <script>
-        // Usamos window.onload para estar seguros de que el HTML cargó
-        window.onload = () => {
-            const form = document.getElementById('registroForm');
-
-            form.onsubmit = async (e) => {
-                e.preventDefault();
-                
-                const name = document.getElementById('name').value;
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-
-                // Validación simple de contraseñas
-                if (password !== confirmPassword) {
-                    return alert("Las contraseñas no coinciden");
-                }
-
-                try {
-                    const res = await fetch('/api/registro', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, email, password })
-                    });
-
-                    const data = await res.json();
-                    
-                    if (res.ok) {
-                        alert("¡Cuenta creada! Ya podés iniciar sesión.");
-                        window.location.href = '/login';
-                    } else {
-                        alert("Error: " + data.error);
-                    }
-                } catch (error) {
-                    console.error("Error en la conexión:", error);
-                    alert("No se pudo conectar con el servidor.");
-                }
-            };
-        };
-    </script>
+<script>
+    window.onload = () => {
+        document.getElementById('registroForm').onsubmit = ejecutarRegistro;
+    };
+</script>
 </body>
 </html>

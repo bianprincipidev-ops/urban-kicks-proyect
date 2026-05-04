@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tu Carrito | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="main.js"></script>
 </head>
 <body>
     <header>
@@ -16,22 +18,33 @@
             <a href="javascript:void(0)" onclick="cargarProductos('2')">Hombre</a>
             <a href="javascript:void(0)" onclick="cargarProductos('3')">Mujer</a>
             <a href="javascript:void(0)" onclick="abrirModalTalles()">Tabla de Talles</a>
-            
         </nav>
         <div class="header-icons">
             <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar modo">
                 <i id="theme-icon" class="ri-moon-line"></i>
             </button>
-            
             <a href="/login" id="user-link" title="Mi Cuenta"><i class="ri-user-line"></i></a>
-            
             <a href="/carrito"><i class="ri-shopping-cart-line"></i></a>
-            
             <button id="btn-logout" onclick="logout()" title="Cerrar Sesión" style="display: none; background: none; border: none; cursor: pointer; padding: 0;">
                 <i class="ri-logout-box-r-line" style="font-size: 1.5rem; color: #ff4d4d;"></i>
             </button>
         </div>
     </header>
+
+    <div id="modalTalles" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="cerrarModalTalles()">&times;</span>
+            <h3>Tabla de Talles</h3>
+            <div style="margin-bottom: 12px;">
+                <select id="selectMarcaTalle" onchange="cargarTablaTalle()" style="width:100%; padding:10px; background:#222; color:white; border:1px solid #444; border-radius:5px;">
+                    <option value="">-- Seleccioná una marca --</option>
+                </select>
+            </div>
+            <div id="contenedor-tabla-talle" style="text-align:center; color:#888;">
+                Seleccioná una marca para ver su tabla.
+            </div>
+        </div>
+    </div>
 
     <main class="cart-container">
         <h1>Tu Carrito</h1>
@@ -39,97 +52,101 @@
             </div>
 
         <div class="cart-summary">
-            <h3>Total: <span id="cart-total">$0</span></h3>
-            <button class="btn-checkout" onclick="finalizarCompra()">FINALIZAR COMPRA</button>
-            <button class="btn-continue" onclick="window.location.href='/tienda'">SEGUIR COMPRANDO</button>
+            <div class="summary-details">
+                <p>Subtotal: <span id="cart-subtotal">$0</span></p>
+                <p>Envío: <span style="color: #25D366;">¡GRATIS! (Río Cuarto)</span></p>
+                <hr>
+                <h3>Total: <span id="cart-total">$0</span></h3>
+            </div>
+            <div class="cart-buttons">
+                <button class="btn-checkout" onclick="finalizarCompra()">
+                    <i class="ri-whatsapp-line"></i> FINALIZAR POR WHATSAPP
+                </button>
+                <button class="btn-continue" onclick="window.location.href='/tienda'">
+                    <i class="ri-arrow-left-line"></i> SEGUIR COMPRANDO
+                </button>
+            </div>
         </div>
     </main>
 
-    <script>
-        window.onload = () => {
-            // Aplicar tema oscuro si estaba activado
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            renderizarCarrito();
-        };
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        renderizarCarrito();
+    });
 
-        function renderizarCarrito() {
-            const lista = JSON.parse(localStorage.getItem('urban_cart')) || [];
-            const contenedor = document.getElementById('cart-items');
-            let total = 0;
+    function renderizarCarrito() {
+        const lista = JSON.parse(localStorage.getItem('urban_cart')) || [];
+        const contenedor = document.getElementById('cart-items');
+        let total = 0;
 
-            if (lista.length === 0) {
-                contenedor.innerHTML = "<p style='text-align:center;'>Tu carrito está vacío.</p>";
-                document.getElementById('cart-total').innerText = "$0";
-                return;
-            }
+        if (lista.length === 0) {
+            contenedor.innerHTML = `
+                <div style="text-align:center; padding: 50px;">
+                    <i class="ri-shopping-cart-2-line" style="font-size: 4rem; color: #ccc;"></i>
+                    <p style="margin-top: 15px; color: #888;">Tu carrito está vacío</p>
+                </div>`;
+            document.getElementById('cart-total').innerText = "$0";
+            document.getElementById('cart-subtotal').innerText = "$0";
+            return;
+        }
 
-            contenedor.innerHTML = "";
-            lista.forEach((item, index) => {
-                total += Number(item.price);
-                contenedor.innerHTML += `
-                    <div class="cart-item">
-                        <img src="${item.image}" alt="${item.name}">
-                        <div class="cart-item-info">
-                            <h4>${item.name}</h4>
-                            <p>$${Number(item.price).toLocaleString('es-AR')}</p>
-                        </div>
-                        <button class="btn-remove" onclick="eliminarDelCarrito(${index})">Eliminar</button>
+        contenedor.innerHTML = "";
+        lista.forEach((item, index) => {
+            const subtotalItem = item.price * (item.cantidad || 1);
+            total += subtotalItem;
+
+            contenedor.innerHTML += `
+                <div class="cart-item">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="cart-item-info">
+                        <h4>${item.name}</h4>
+                        <p>Talle: <strong>${item.size}</strong></p>
+                        <p>Cantidad: ${item.cantidad || 1}</p>
+                        <span class="cart-item-price">$${Number(item.price).toLocaleString('es-AR')}</span>
                     </div>
-                `;
-            });
-            document.getElementById('cart-total').innerText = `$${total.toLocaleString('es-AR')}`;
-        }
+                    <button class="btn-remove" onclick="eliminarDelCarrito(${index})" title="Eliminar">
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
+                </div>`;
+        });
 
-        function eliminarDelCarrito(index) {
-                    try {
-                        let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-                        
-                        // 1. Eliminamos el producto del array
-                        carrito.splice(index, 1);
-                        
-                        // 2. Guardamos el array actualizado en el localStorage
-                        localStorage.setItem('urban_cart', JSON.stringify(carrito));
-                        
-                        // 3. ¡CORRECCIÓN AQUÍ!: Llamamos a renderizarCarrito() que es como se llama tu función
-                        renderizarCarrito(); 
-                        
-                        console.log("Producto eliminado correctamente");
-                    } catch (error) {
-                        console.error("Error al eliminar del carrito:", error);
-                    }
-                }
+        const totalFormateado = `$${total.toLocaleString('es-AR')}`;
+        document.getElementById('cart-total').innerText = totalFormateado;
+        document.getElementById('cart-subtotal').innerText = totalFormateado;
+    }
 
-        function finalizarCompra() {
-            // 1. EL NÚMERO DE TELÉFONO
-            const numeroTelefono = "5493585756996"; 
+    function eliminarDelCarrito(index) {
+        let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+        carrito.splice(index, 1);
+        localStorage.setItem('urban_cart', JSON.stringify(carrito));
+        renderizarCarrito();
+    }
 
-            const carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-            if (carrito.length === 0) return alert("El carrito está vacío");
+    function finalizarCompra() {
+        const carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+        if (carrito.length === 0) return alert("El carrito está vacío");
 
-            // 2. Armar el mensaje de texto para WhatsApp
-            let mensaje = "¡Hola Urban Kicks! 👋 Quisiera realizar el siguiente pedido:\n\n";
-            let total = 0;
+        let mensaje = "¡Hola Urban Kicks! Quisiera realizar el siguiente pedido:\n\n";
+        let total = 0;
 
-            carrito.forEach((item, index) => {
-                mensaje += `👟 *${item.name}*\n   Talle: ${item.size || 'No especificado'}\n   Precio: $${Number(item.price).toLocaleString('es-AR')}\n\n`;
-                total += Number(item.price);
-            });
+        carrito.forEach(i => {
+            const cant = i.cantidad || 1;
+            const sub = i.price * cant;
+            mensaje += `▪️ *${i.name}*\n`;
+            mensaje += `   Talle: ${i.size} | Cant: ${cant}\n`;
+            mensaje += `   Precio: $${Number(i.price).toLocaleString('es-AR')}\n\n`;
+            total += sub;
+        });
 
-            mensaje += `*TOTAL: $${total.toLocaleString('es-AR')}*`;
+        mensaje += `*TOTAL: $${total.toLocaleString('es-AR')}*`;
+        mensaje += `\n\n_Envío a coordinar en Río Cuarto_`;
 
-            // 3. Codificar el mensaje para la URL
-            const mensajeCodificado = encodeURIComponent(mensaje);
-            
-            // 4. Crear el enlace de WhatsApp
-            const urlWhatsapp = `https://wa.me/${numeroTelefono}?text=${mensajeCodificado}`;
-
-            // 5. Redirigir al cliente
-            window.open(urlWhatsapp, '_blank');
-            // 6. Limpiar carrito (Opcional pero recomendado)
-            localStorage.removeItem('urban_cart');
-        }
-    </script>
+        const url = `https://wa.me/5493585756996?text=${encodeURIComponent(mensaje)}`;
+        window.open(url, '_blank');
+        
+        // Opcional: Vaciar carrito después de comprar
+        // localStorage.removeItem('urban_cart');
+    }
+</script>
 </body>
 </html>

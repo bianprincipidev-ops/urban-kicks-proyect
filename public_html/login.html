@@ -6,6 +6,7 @@
     <title>Login | Urban Kicks</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preload" as="image" href="logo-urban.png" fetchpriority="high">
+    <script src="main.js"></script>
 </head>
 <body class="auth-page">
 
@@ -69,107 +70,10 @@
         </div>
     </div>
 
-    <script>
-// --- LÓGICA DE LOGIN (CORREGIDA) ---
-        document.getElementById('login-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await res.json();
-
-                if (res.ok) {
-                    // Guardamos sesión
-                    localStorage.setItem('urban_token', data.token);
-                    localStorage.setItem('urban_role', data.role); 
-
-                    if (data.role === 'admin') {
-                        alert("¡Bienvenida, Admin de Urban Kicks!");
-                        window.location.href = '/admin';
-                    } else {
-                        // --- REDIRECCIÓN INTELIGENTE ---
-                        const redirectTo = localStorage.getItem('redirect_after_login');
-                        
-                        if (redirectTo) {
-                            localStorage.removeItem('redirect_after_login'); // Limpiamos para que no pase siempre
-                            window.location.href = redirectTo; 
-                        } else {
-                            window.location.href = '/tienda';
-                        }
-                    }
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert("Error de conexión con el servidor.");
-            }
-        };
-
-        // --- LÓGICA DEL MODAL DE RECUPERACIÓN ---
-        function mostrarModalRecuperacion() {
-            document.getElementById('modalRecuperar').style.display = 'block';
-        }
-
-        function cerrarModal() {
-            document.getElementById('modalRecuperar').style.display = 'none';
-        }
-
-        async function enviarCodigo() {
-            const email = document.getElementById('emailRecuperar').value;
-            if(!email) return alert("Ingresa tu email.");
-
-            try {
-                const res = await fetch('/api/usuario/recuperar-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-                
-                const data = await res.json();
-                if(data.success) {
-                    alert("¡Código enviado!");
-                    document.getElementById('paso1').style.display = 'none';
-                    document.getElementById('paso2').style.display = 'block';
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert("Error de conexión.");
-            }
-        }
-
-        async function cambiarPassword() {
-            const email = document.getElementById('emailRecuperar').value;
-            const codigo = document.getElementById('codigoVerificacion').value;
-            const nuevaPassword = document.getElementById('nuevaPassword').value;
-
-            if(!codigo || !nuevaPassword) return alert("Completa todos los campos.");
-
-            try {
-                const res = await fetch('/api/usuario/restablecer-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, codigo, nuevaPassword })
-                });
-
-                const data = await res.json();
-                if(data.success) {
-                    alert("¡Contraseña actualizada!");
-                    location.reload();
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert("Error de conexión.");
-            }
-        }
-    </script>
+<script>
+    document.getElementById('login-form').onsubmit = ejecutarLogin;
+    function enviarCodigo() { enviarCodigoRecuperacion(); }
+    function cambiarPassword() { cambiarPasswordRecuperacion(); }
+</script>
 </body>
 </html>

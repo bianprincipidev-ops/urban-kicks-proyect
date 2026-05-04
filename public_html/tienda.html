@@ -6,6 +6,7 @@
     <title>Urban Kicks | Shop</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="main.js"></script>
 </head>
 <body>
 
@@ -84,253 +85,85 @@
     </a>
 
 <script>
+    let listaPromos = [];
+    let indiceActual = 0;
+    let intervalPromo;
+    let productosCache = [];
 
-        let listaPromos = [];
-        let indiceActual = 0;
-        let intervalPromo; // Variable para controlar el tiempo automático
-        let productosCache = []; // Cache para productos, evitando múltiples fetchs
+    window.onload = () => {
+        // El main.js ya maneja tema y sesión automáticamente.
+        iniciarCarrusel(); 
+        cargarProductos('todos'); 
+    };
 
-        // --- 1. MODO OSCURO ---
-        function toggleTheme() {
-            const root = document.documentElement;
-            const icon = document.getElementById('theme-icon');
-            const currentTheme = root.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            root.setAttribute('data-theme', newTheme);
-            if(icon) icon.className = newTheme === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
-            
-            localStorage.setItem('theme', newTheme);
-        }
+    async function iniciarCarrusel() {
+        try {
+            const res = await fetch('/api/promociones');
+            listaPromos = await res.json();
+            if (listaPromos.length > 0) {
+                crearDots();
+                mostrarPromo(0);
+                resetAutoPlay();
+            }
+        } catch (error) { console.error("Error carrusel:", error); }
+    }
 
-        // --- 2. INICIO ---
-        window.onload = () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            const icon = document.getElementById('theme-icon');
-            if(icon) icon.className = savedTheme === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
-            
-            verificarSesion(); // Aquí manejamos los botones del header
-            iniciarCarrusel(); 
-            cargarProductos(); 
-        };
+    function mostrarPromo(index) {
+        if (listaPromos.length === 0) return;
+        indiceActual = index;
+        const p = listaPromos[indiceActual];
+        document.getElementById('hero-title').innerText = p.title;
+        document.getElementById('hero-subtitle').innerText = p.subtitle;
+        if (p.image_url) document.getElementById('hero-image').src = p.image_url;
         
-        // LOGICA DE SESION (UNIFICADA)
-        function verificarSesion() {
-            const token = localStorage.getItem('urban_token');
-            const role = localStorage.getItem('urban_role'); // Usamos urban_role para ser consistentes
-            const userLink = document.getElementById('user-link');
-            const btnLogout = document.getElementById('btn-logout');
-            const headerIcons = document.querySelector('.header-icons');
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((d, i) => d.style.background = (i === indiceActual) ? '#ff4d4d' : 'rgba(255,255,255,0.3)');
+    }
 
-            if (token) {
-                userLink.href = '/perfil';
-                userLink.title = 'Mi Perfil';
-                if(btnLogout) btnLogout.style.display = 'inline-block';
+    function cambiarPromo(direccion) {
+        indiceActual = (indiceActual + direccion + listaPromos.length) % listaPromos.length;
+        mostrarPromo(indiceActual);
+        resetAutoPlay();
+    }
 
-                // ✅ Botón Admin con el estilo de "píldora" que te pasé antes
-                if (role === 'admin' && !document.getElementById('admin-btn')) {
-                    const adminBtn = document.createElement('a');
-                    adminBtn.id = 'admin-btn';
-                    adminBtn.href = '/admin';
-                    adminBtn.className = 'admin-badge-link'; // Usamos la clase del CSS pro
-                    adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
-                    headerIcons.insertBefore(adminBtn, userLink);
-                }
-            } else {
-                userLink.href = '/login';
-                if(btnLogout) btnLogout.style.display = 'none';
+    function crearDots() {
+        const dotsContainer = document.getElementById('carousel-dots');
+        dotsContainer.innerHTML = '';
+        listaPromos.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.onclick = () => { mostrarPromo(i); resetAutoPlay(); };
+            dotsContainer.appendChild(dot);
+        });
+    }
+
+    function resetAutoPlay() {
+        clearInterval(intervalPromo);
+        intervalPromo = setInterval(() => cambiarPromo(1), 7000);
+    }
+
+    async function cargarProductos(categoriaId) {
+        const contenedor = document.getElementById('contenedor-productos');
+        if (!contenedor) return;
+        try {
+            if (productosCache.length === 0) {
+                const respuesta = await fetch('/api/productos');
+                productosCache = await respuesta.json();
             }
-        }
-
-        function logout() {
-            if(confirm("¿Estás seguro de que quieres cerrar sesión?")) {
-                localStorage.clear(); // Limpiamos todo de una
-                window.location.replace('/');
-            }
-        }
-
-        async function iniciarCarrusel() {
-            try {
-                const res = await fetch('/api/promociones');
-                listaPromos = await res.json();
-
-                if (listaPromos.length > 0) {
-                    crearDots();
-                    mostrarPromo(0);
-                    resetAutoPlay(); // Inicia el pase automático
-                }
-            } catch (error) {
-                console.error("Error al cargar el carrusel:", error);
-            }
-        }
-
-        function mostrarPromo(index) {
-            if (listaPromos.length === 0) return;
-            
-            indiceActual = index;
-            const p = listaPromos[indiceActual];
-            
-            const titulo = document.getElementById('hero-title');
-            const subtitulo = document.getElementById('hero-subtitle');
-            const imagen = document.getElementById('hero-image');
-
-            // Cambiamos el contenido directamente
-            titulo.innerText = p.title;
-            subtitulo.innerText = p.subtitle;
-            
-            if (p.image_url) {
-                imagen.src = p.image_url;
-            }
-
-            // Actualizar puntos
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach((d, i) => {
-                d.style.background = (i === indiceActual) ? '#ff4d4d' : 'rgba(255,255,255,0.3)';
+            const filtrados = categoriaId === 'todos' ? productosCache : productosCache.filter(p => p.category_id == categoriaId);
+            contenedor.innerHTML = filtrados.length === 0 ? '<p>No hay productos.</p>' : '';
+            filtrados.forEach(prod => {
+                contenedor.innerHTML += `
+                    <div class="card">
+                        <img src="${prod.image_url}" alt="${prod.name}">
+                        <h3>${prod.name}</h3>
+                        <span class="precio">$${Number(prod.price).toLocaleString('es-AR')}</span>
+                        <a href="/detalle?id=${prod.id}" class="btn-comprar">Ver Detalle</a>
+                    </div>`;
             });
-        }
-
-        // Función para botones Prev/Next
-        function cambiarPromo(direccion) {
-            indiceActual += direccion;
-            
-            if (indiceActual < 0) indiceActual = listaPromos.length - 1;
-            if (indiceActual >= listaPromos.length) indiceActual = 0;
-            
-            mostrarPromo(indiceActual);
-            resetAutoPlay(); // Si el usuario toca, reseteamos el tiempo para que no salte rápido
-        }
-
-        // Crear los puntos dinámicamente
-        function crearDots() {
-            const dotsContainer = document.getElementById('carousel-dots');
-            dotsContainer.innerHTML = '';
-            listaPromos.forEach((_, i) => {
-                const dot = document.createElement('div');
-                dot.className = 'dot';
-                dot.onclick = () => {
-                    mostrarPromo(i);
-                    resetAutoPlay();
-                };
-                dotsContainer.appendChild(dot);
-            });
-        }
-
-        function resetAutoPlay() {
-            clearInterval(intervalPromo);
-            intervalPromo = setInterval(() => {
-                cambiarPromo(1);
-            }, 7000); // Se pasa solo cada 7 segundos, dando tiempo al usuario
-        }
-
-        // --- 4. GRILLA ---
-        async function cargarProductos(categoriaId = 'todos') {
-            const contenedor = document.getElementById('contenedor-productos');
-            if (!contenedor) return;
-
-            // --- 1. Efecto Visual: Marcar link activo ---
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.classList.remove('active-link');
-                const onclickAttr = link.getAttribute('onclick') || "";
-                if (onclickAttr.includes(`'${categoriaId}'`)) {
-                    link.classList.add('active-link');
-                }
-            });
-
-            try {
-                // --- 2. Cargar datos si no están en caché ---
-                if (productosCache.length === 0) {
-                    const respuesta = await fetch('/api/productos');
-                    productosCache = await respuesta.json();
-                }
-
-                // --- 3. Filtrar productos ---
-                const productosFiltrados = categoriaId === 'todos' 
-                    ? productosCache 
-                    : productosCache.filter(p => p.category_id == categoriaId);
-
-                // --- 4. Renderizar en el HTML ---
-                contenedor.innerHTML = ''; 
-
-                if (productosFiltrados.length === 0) {
-                    contenedor.innerHTML = `
-                        <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #888;">
-                            <i class="ri-information-line" style="font-size: 2rem;"></i>
-                            <p>No hay productos en esta categoría por el momento.</p>
-                        </div>`;
-                    return;
-                }
-
-                productosFiltrados.forEach(prod => {
-                    contenedor.innerHTML += `
-                        <div class="card">
-                            <img src="${prod.image_url}" alt="${prod.name}">
-                            <h3>${prod.name}</h3>
-                            <p>${prod.description}</p>
-                            <span class="precio">$${Number(prod.price).toLocaleString('es-AR')}</span>
-                            <a href="/detalle?id=${prod.id}" class="btn-comprar" style="text-decoration:none; display:inline-block; text-align:center;">
-                                Ver Detalle
-                            </a>
-                        </div>
-                    `;
-                });
-            } catch (error) {
-                console.error("Error al cargar productos:", error);
-                contenedor.innerHTML = '<p>Error al conectar con la base de datos.</p>';
-            }
-        }
-
-        async function abrirModalTalles() {
-            document.getElementById('modalTalles').style.display = 'block';
-            
-            try {
-                const res = await fetch('/api/talles');
-                const data = await res.json();
-                const select = document.getElementById('selectMarcaTalle');
-                
-                // Limpiamos y recargamos las opciones
-                select.innerHTML = '<option value="">-- Seleccioná una marca --</option>';
-                
-                data.marcas.forEach(marca => {
-                    select.innerHTML += `<option value="${marca}">${marca.charAt(0).toUpperCase() + marca.slice(1)}</option>`;
-                });
-            } catch {
-                // Si falla, el select queda solo con la opción por defecto
-            }
-        }
-
-        function cerrarModalTalles() {
-            document.getElementById('modalTalles').style.display = 'none';
-            document.getElementById('selectMarcaTalle').value = '';
-            document.getElementById('contenedor-tabla-talle').innerHTML = 'Seleccioná una marca para ver su tabla.';
-        }
-
-        async function cargarTablaTalle() {
-            const marca = document.getElementById('selectMarcaTalle').value;
-            const contenedor = document.getElementById('contenedor-tabla-talle');
-            
-            if (!marca) {
-                contenedor.innerHTML = 'Seleccioná una marca para ver su tabla.';
-                return;
-            }
-
-            contenedor.innerHTML = 'Cargando...';
-
-            try {
-                const res = await fetch(`/api/talles/${marca}`);
-                const data = await res.json();
-
-                if (data.success) {
-                    contenedor.innerHTML = `<img src="${data.imagen_url}" style="max-width:100%; border-radius:8px;">`;
-                } else {
-                    contenedor.innerHTML = '<p style="color:#888;">No hay tabla disponible para esta marca todavía.</p>';
-                }
-            } catch {
-                contenedor.innerHTML = '<p style="color:#dc3545;">Error al cargar la tabla.</p>';
-            }
-        }
+        } catch (e) { console.error(e); }
+    }
 </script>
-</body>
 <footer>
     <div class="footer-container">
         <div class="footer-column">
@@ -376,4 +209,5 @@
         </div>
     </div>
 </footer>
+</body>
 </html>
