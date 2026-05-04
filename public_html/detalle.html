@@ -137,12 +137,22 @@
     }
 
     function cambiarCantidad(delta) {
-        if (!talleSeleccionado) return alert("Seleccioná un talle primero");
+        if (!talleSeleccionado) return alert("Seleccioná un talle primero.");
+        
         let nueva = cantidad + delta;
-        if (nueva >= 1 && nueva <= stockSeleccionado) {
-            cantidad = nueva;
-            document.getElementById('cantidad-display').innerText = cantidad;
+        
+        if (nueva < 1) return;
+        
+        if (nueva > stockSeleccionado) {
+            document.getElementById('stock-info').innerText = `⚠️ Solo hay ${stockSeleccionado} unidades disponibles para este talle.`;
+            document.getElementById('stock-info').style.color = '#ff4d4d';
+            return;
         }
+        
+        cantidad = nueva;
+        document.getElementById('cantidad-display').innerText = cantidad;
+        document.getElementById('stock-info').innerText = `${stockSeleccionado} disponibles`;
+        document.getElementById('stock-info').style.color = '#888';
     }
 
     function agregarAlCarrito() {
