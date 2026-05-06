@@ -202,8 +202,9 @@
                     </div>
                 </div>
 
-                <label style="color: #888; font-size: 0.8rem;">Imagen:</label>
-                <input type="file" id="imagen" accept="image/*" required>
+                <label style="color: #888; font-size: 0.8rem;">Imágenes del Producto (Seleccioná hasta 5):</label>
+                <input type="file" id="imagen" accept="image/*" multiple> 
+                <div id="preview-imagenes" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; min-height: 60px; border: 1px dashed #444; padding: 10px; border-radius: 8px;"></div>
                 <button type="submit" class="btn-cargar">PUBLICAR PRODUCTO</button>
             </form>
         </div>
@@ -383,7 +384,7 @@
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
 
-            // RECOLECTAR TALLES
+            // 1. Recolectar Talles (esto ya lo tenés bien)
             const rows = document.querySelectorAll('.size-row');
             let sizesData = [];
             rows.forEach(row => {
@@ -398,27 +399,37 @@
             formData.append('price', document.getElementById('price').value);
             formData.append('category_id', document.getElementById('category_id').value);
             formData.append('color', document.getElementById('color').value);
-            formData.append('image', document.getElementById('imagen').files[0]);
-            formData.append('sizes', JSON.stringify(sizesData)); // Enviamos talles como JSON
+            formData.append('sizes', JSON.stringify(sizesData));
 
-            const res = await fetch('/api/productos', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
-                body: formData
-            });
+            // 2. RECOLECTAR MÚLTIPLES IMÁGENES
+            const inputImagenes = document.getElementById('imagen');
+            const archivos = inputImagenes.files;
 
-            if(res.ok) { 
-                alert("Producto cargado con éxito"); 
-                cerrarModal('modalProducto'); 
-                e.target.reset();
-                // Resetear wrapper de talles
-                document.getElementById('sizes-wrapper').innerHTML = `
-                    <div class="size-row">
-                        <input type="text" class="size-input" placeholder="Talle (Ej: 40)" required>
-                        <input type="number" class="stock-input" placeholder="Cant." required>
-                        <button type="button" class="btn-size btn-add" onclick="agregarFilaTalle()">+</button>
-                    </div>`;
-                cargarTablas(); 
+            for (let i = 0; i < archivos.length; i++) {
+                // Importante: Usamos el mismo nombre 'image' o 'images' 
+                // El backend debe estar preparado para recibir un array
+                formData.append('images', archivos[i]); 
+            }
+
+            try {
+                const res = await fetch('/api/productos', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                    body: formData
+                });
+
+                if(res.ok) { 
+                    alert("Producto cargado con éxito"); 
+                    cerrarModal('modalProducto'); 
+                    e.target.reset();
+                    document.getElementById('preview-imagenes').innerHTML = ''; // Limpiar preview
+                    cargarTablas(); 
+                } else {
+                    const err = await res.json();
+                    alert("Error: " + err.error);
+                }
+            } catch (e) {
+                alert("Error de conexión");
             }
         };
 
@@ -436,6 +447,28 @@
             });
             if(res.ok) { alert("Promo cargada"); cerrarModal('modalPromo'); e.target.reset(); cargarTablas(); }
         };
+
+        document.getElementById('imagen').addEventListener('change', function() {
+            const preview = document.getElementById('preview-imagenes');
+            preview.innerHTML = ''; // Limpiar previas anteriores
+            
+            // Convertimos a array y limitamos a 5 por seguridad
+            const files = Array.from(this.files).slice(0, 5);
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.style.position = 'relative';
+                    imgContainer.innerHTML = `
+                        <img src="${e.target.result}" style="width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid #ff4d4d;">
+                        <span style="position:absolute; top:-5px; right:-5px; background:black; color:white; border-radius:50%; width:18px; height:18px; font-size:12px; display:flex; align-items:center; justify-content:center; cursor:pointer;">×</span>
+                    `;
+                    preview.appendChild(imgContainer);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
 
         function logoutAdmin() { localStorage.clear(); window.location.href = '/'; }
         window.onload = cargarTablas;

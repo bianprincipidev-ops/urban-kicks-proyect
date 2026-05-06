@@ -174,7 +174,7 @@
                 id: productoActual.id, 
                 name: productoActual.name, 
                 price: productoActual.price, 
-                image: productoActual.image_url, 
+                image: productoActual.image_url.split(',')[0],
                 size: talleSeleccionado, 
                 cantidad: cantidad 
             });

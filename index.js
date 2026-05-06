@@ -131,22 +131,6 @@ app.get('/api/productos', async (req, res) => {
     }
 });
 
-// Subir producto nuevo
-app.post('/api/productos/nuevo', upload.single('imagen'), async (req, res) => {
-    const { name, description, price, category_id } = req.body;
-    if (!req.file) return res.status(400).json({ error: "Debes subir una imagen" });
-    const image_url = `/uploads/${req.file.filename}`;
-    try {
-        await pool.query(
-            'INSERT INTO products (name, description, price, image_url, category_id) VALUES (?, ?, ?, ?, ?)',
-            [name, description, price, image_url, category_id]
-        );
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: "Error al guardar" });
-    }
-});
-
 // --- SUBIR NUEVA PROMOCIÓN ---
 app.post('/api/promociones/nuevo', upload.single('imagen'), async (req, res) => {
     const { title, subtitle } = req.body;
@@ -212,27 +196,30 @@ app.delete('/api/promociones/:id', async (req, res) => {
     }
 });
 
-app.post('/api/productos', upload.single('image'), async (req, res) => {
-    // 1. Agregamos 'sizes' a la desestructuración
+// RUTA ACTUALIZADA: SOPORTA MÚLTIPLES IMÁGENES Y NUEVAS CATEGORÍAS
+app.post('/api/productos', upload.array('images', 5), async (req, res) => {
     const { name, description, price, category_id, color, sizes } = req.body;
-    const image_url = `/uploads/${req.file.filename}`;
+    
+    // Verificamos si subieron archivos
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: "Debes subir al menos una imagen." });
+    }
+
+    // Unimos las rutas de las imágenes en un solo string separado por comas
+    const image_url = req.files.map(f => `/uploads/${f.filename}`).join(',');
     
     try {
-        // 2. Realizamos la inserción del producto
+        // 1. Insertamos el producto (zapatilla o ropa)
         const [result] = await pool.query(
             'INSERT INTO products (name, description, price, image_url, category_id, color) VALUES (?, ?, ?, ?, ?, ?)',
             [name, description, price, image_url, category_id, color]
         );
 
-        // 3. Obtenemos el ID del producto que se acaba de crear
         const newProductId = result.insertId;
 
-        // 4. Si el admin envió talles, los procesamos e insertamos
-        if (sizes) {
-            // El frontend los envía como un string JSON, hay que convertirlos a Array
+        // 2. Insertamos los talles si existen
+        if (sizes && sizes !== "[]") {
             const parsedSizes = JSON.parse(sizes); 
-            
-            // Usamos un bucle para insertar cada talle uno por uno
             for (let item of parsedSizes) {
                 await pool.query(
                     'INSERT INTO product_sizes (product_id, size, stock) VALUES (?, ?, ?)',
@@ -244,7 +231,7 @@ app.post('/api/productos', upload.single('image'), async (req, res) => {
         res.json({ success: true, id: newProductId });
     } catch (err) {
         console.error("Error al cargar producto:", err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Error al guardar el producto en la base de datos." });
     }
 });
 

@@ -93,7 +93,8 @@
 
         contenedor.innerHTML = "";
         lista.forEach((item, index) => {
-            const subtotalItem = item.price * (item.cantidad || 1);
+            const cantidad = item.cantidad || 1;
+            const subtotalItem = item.price * cantidad;
             total += subtotalItem;
 
             contenedor.innerHTML += `
@@ -102,8 +103,14 @@
                     <div class="cart-item-info">
                         <h4>${item.name}</h4>
                         <p>Talle: <strong>${item.size}</strong></p>
-                        <p>Cantidad: ${item.cantidad || 1}</p>
-                        <span class="cart-item-price">$${Number(item.price).toLocaleString('es-AR')}</span>
+                        
+                        <div style="display: flex; align-items: center; gap: 10px; margin: 8px 0;">
+                            <button onclick="actualizarCantidad(${index}, -1)" class="qty-btn-small">−</button>
+                            <span style="font-weight: bold;">${cantidad}</span>
+                            <button onclick="actualizarCantidad(${index}, 1)" class="qty-btn-small">+</button>
+                        </div>
+
+                        <span class="cart-item-price">$${Number(item.price).toLocaleString('es-AR')} c/u</span>
                     </div>
                     <button class="btn-remove" onclick="eliminarDelCarrito(${index})" title="Eliminar">
                         <i class="ri-delete-bin-line"></i>
@@ -116,18 +123,34 @@
         document.getElementById('cart-subtotal').innerText = totalFormateado;
     }
 
-    function eliminarDelCarrito(index) {
+    // NUEVA FUNCIÓN: Para sumar o restar desde el carrito
+    function actualizarCantidad(index, delta) {
         let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-        carrito.splice(index, 1);
-        localStorage.setItem('urban_cart', JSON.stringify(carrito));
-        renderizarCarrito();
+        let nuevaCant = (carrito[index].cantidad || 1) + delta;
+
+        if (nuevaCant < 1) {
+            eliminarDelCarrito(index);
+        } else {
+            carrito[index].cantidad = nuevaCant;
+            localStorage.setItem('urban_cart', JSON.stringify(carrito));
+            renderizarCarrito();
+        }
+    }
+
+    function eliminarDelCarrito(index) {
+        if(confirm("¿Quitar este producto del carrito?")) {
+            let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+            carrito.splice(index, 1);
+            localStorage.setItem('urban_cart', JSON.stringify(carrito));
+            renderizarCarrito();
+        }
     }
 
     function finalizarCompra() {
         const carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
         if (carrito.length === 0) return alert("El carrito está vacío");
 
-        let mensaje = "¡Hola Urban Kicks! Quisiera realizar el siguiente pedido:\n\n";
+        let mensaje = "¡Hola Urban Kicks! 🔥 Quisiera realizar el siguiente pedido:\n\n";
         let total = 0;
 
         carrito.forEach(i => {
@@ -135,18 +158,15 @@
             const sub = i.price * cant;
             mensaje += `▪️ *${i.name}*\n`;
             mensaje += `   Talle: ${i.size} | Cant: ${cant}\n`;
-            mensaje += `   Precio: $${Number(i.price).toLocaleString('es-AR')}\n\n`;
+            mensaje += `   Subtotal: $${sub.toLocaleString('es-AR')}\n\n`;
             total += sub;
         });
 
-        mensaje += `*TOTAL: $${total.toLocaleString('es-AR')}*`;
-        mensaje += `\n\n_Envío a coordinar en Río Cuarto_`;
+        mensaje += `*TOTAL A PAGAR: $${total.toLocaleString('es-AR')}*`;
+        mensaje += `\n\n_Envío a coordinar en Río Cuarto_ 👟`;
 
         const url = `https://wa.me/5493585756996?text=${encodeURIComponent(mensaje)}`;
         window.open(url, '_blank');
-        
-        // Opcional: Vaciar carrito después de comprar
-        // localStorage.removeItem('urban_cart');
     }
 </script>
 </body>
