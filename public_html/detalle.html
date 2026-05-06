@@ -68,6 +68,14 @@
             <span class="product-price" id="precio-producto">$0.00</span>
             <p class="product-description" id="descripcion-producto" style="margin: 16px 0; line-height: 1.6;"></p>
 
+            <div class="color-selector" style="margin-bottom: 20px;">
+                <span style="font-weight: bold; font-size: 0.9rem;">Color disponible:</span>
+                <div id="contenedor-colores" style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="color-btn active-color" onclick="seleccionarColor(this, 'Negro/Plata')">Negro</button>
+                    <button class="color-btn" onclick="seleccionarColor(this, 'Azul/Celeste')">Azul</button>
+                </div>
+            </div>
+            
             <div class="size-selector">
                 <span style="font-weight: bold; font-size: 0.9rem;">Seleccionar Talle:</span>
                 <div class="size-options" id="contenedor-talles" style="margin-top: 10px;">

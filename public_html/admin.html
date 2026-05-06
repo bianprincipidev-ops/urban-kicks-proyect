@@ -189,7 +189,15 @@
                     </select>
                 </div>
 
-                <input type="text" id="color" placeholder="Color">
+                <div class="stock-container">
+                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Colores Disponibles:</label>
+                    <div id="colors-wrapper">
+                        <div class="color-row" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" class="color-input" placeholder="Ej: Azul/Celeste" style="flex: 1; padding: 8px; background: #f4f4f4; border: 1px solid #444; color: #333 !important; border-radius: 4px;" required>
+                            <button type="button" class="btn-size btn-add" onclick="agregarFilaColor()">+</button>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="stock-container">
                     <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Talles y Stock:</label>
@@ -257,6 +265,21 @@
             div.innerHTML = `
                 <input type="text" class="size-input" placeholder="Talle" required>
                 <input type="number" class="stock-input" placeholder="Cant." required>
+                <button type="button" class="btn-size btn-remove" onclick="this.parentElement.remove()">-</button>
+            `;
+            wrapper.appendChild(div);
+        }
+
+        // --- FUNCIÓN AGREGAR COLORES ---
+        function agregarFilaColor() {
+            const wrapper = document.getElementById('colors-wrapper');
+            const div = document.createElement('div');
+            div.className = 'color-row';
+            div.style.display = 'flex';
+            div.style.gap = '10px';
+            div.style.marginBottom = '10px';
+            div.innerHTML = `
+                <input type="text" class="color-input" placeholder="Color" style="flex: 1; padding: 8px; background: #f4f4f4; border: 1px solid #444; color: #333 !important; border-radius: 4px;" required>
                 <button type="button" class="btn-size btn-remove" onclick="this.parentElement.remove()">-</button>
             `;
             wrapper.appendChild(div);
@@ -393,13 +416,22 @@
                 if(s && q) sizesData.push({ size: s, stock: q });
             });
 
+            // 2. NUEVO: Recolectar Colores
+            const rowsColors = document.querySelectorAll('.color-row');
+            let colorsData = [];
+            rowsColors.forEach(row => {
+                const c = row.querySelector('.color-input').value;
+                if(c) colorsData.push(c); // Guardamos solo el string del nombre
+            });
+
             const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
             formData.append('description', document.getElementById('description').value);
             formData.append('price', document.getElementById('price').value);
             formData.append('category_id', document.getElementById('category_id').value);
-            formData.append('color', document.getElementById('color').value);
+            // formData.append('color', document.getElementById('color').value);
             formData.append('sizes', JSON.stringify(sizesData));
+            formData.append('colors', JSON.stringify(colorsData));
 
             // 2. RECOLECTAR MÚLTIPLES IMÁGENES
             const inputImagenes = document.getElementById('imagen');
@@ -423,6 +455,8 @@
                     cerrarModal('modalProducto'); 
                     e.target.reset();
                     document.getElementById('preview-imagenes').innerHTML = ''; // Limpiar preview
+                    document.getElementById('sizes-wrapper').innerHTML = `<div class="size-row"><input type="text" class="size-input" placeholder="Talle (Ej: 40)" required><input type="number" class="stock-input" placeholder="Cant." required><button type="button" class="btn-size btn-add" onclick="agregarFilaTalle()">+</button></div>`;
+                    document.getElementById('colors-wrapper').innerHTML = `<div class="color-row" style="display: flex; gap: 10px; margin-bottom: 10px;"><input type="text" class="color-input" placeholder="Ej: Azul/Celeste" style="flex: 1; padding: 8px; background: #f4f4f4; border: 1px solid #444; color: #333 !important; border-radius: 4px;" required><button type="button" class="btn-size btn-add" onclick="agregarFilaColor()">+</button></div>`;
                     cargarTablas(); 
                 } else {
                     const err = await res.json();

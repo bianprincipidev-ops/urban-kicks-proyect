@@ -81,53 +81,42 @@ app.get('/registro', (req, res) => res.sendFile(path.join(__dirname, 'public_htm
 app.get('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
-
-        // 1. Buscamos los datos básicos del producto
         const [rows] = await pool.query('SELECT * FROM products WHERE id = ?', [id]);
-        
-        if (rows.length === 0) {
-            return res.status(404).json({ error: "Producto no encontrado" });
-        }
+        if (rows.length === 0) return res.status(404).json({ error: "No encontrado" });
 
         const producto = rows[0];
 
-        // 2. Buscamos los talles asociados a este producto en la tabla product_sizes
-        // Solo traemos los que tengan stock mayor a 0
-        const [talles] = await pool.query(
-            'SELECT size, stock FROM product_sizes WHERE product_id = ? AND stock > 0', 
-            [id]
-        );
-
-        // 3. Metemos los talles dentro del objeto producto
+        // Traer Talles
+        const [talles] = await pool.query('SELECT size, stock FROM product_sizes WHERE product_id = ? AND stock > 0', [id]);
         producto.sizes = talles;
 
-        // 4. Enviamos todo junto al detalle.html
-        res.json(producto);
+        // NUEVO: Traer Colores de la tabla product_colors
+        const [colores] = await pool.query('SELECT color_name FROM product_colors WHERE product_id = ?', [id]);
+        producto.colors = colores; // Ahora es una lista
 
+        res.json(producto);
     } catch (error) {
-        console.error("Error al obtener producto:", error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(500).json({ error: 'Error' });
     }
 });
 
 app.get('/api/productos', async (req, res) => {
-    try{
-        //1. Traemos los productos básicos
+    try {
         const [productos] = await pool.query('SELECT * FROM products ORDER BY id DESC');
 
-        //2. Vincular los talles a cada producto antes de enviarlos
         for (let i = 0; i < productos.length; i++) {
-            const [talles] = await pool.query('SELECT size, stock FROM product_sizes WHERE product_id = ?',
-                [productos[i].id]
-            );
-            // Agg la propiedad 'sizes' para que el front la reconozca
+            // Vincular Talles
+            const [talles] = await pool.query('SELECT size, stock FROM product_sizes WHERE product_id = ?', [productos[i].id]);
             productos[i].sizes = talles;
+
+            // NUEVO: Vincular Colores
+            const [colores] = await pool.query('SELECT color_name FROM product_colors WHERE product_id = ?', [productos[i].id]);
+            productos[i].colors = colores;
         }
 
         res.json(productos);
     } catch (error) {
-        console.error("Error al obtener productos:", error);
-        res.status(500).json({ error: 'Error interno del servidor.' });
+        res.status(500).json({ error: 'Error interno.' });
     }
 });
 
@@ -165,17 +154,15 @@ app.get('/api/promociones', async (req, res) => {
 app.delete('/api/productos/:id', async (req, res) => {
     const { id } = req.params;
     try {
+        // Opcional: Borrar colores manualmente si no usaste CASCADE
+        await pool.query('DELETE FROM product_colors WHERE product_id = ?', [id]);
         
+        await pool.query('DELETE FROM product_sizes WHERE product_id = ?', [id]);
         const [result] = await pool.query('DELETE FROM products WHERE id = ?', [id]);
         
-        if (result.affectedRows > 0) {
-            res.json({ success: true, message: "Producto eliminado" });
-        } else {
-            res.status(404).json({ error: "Producto no encontrado" });
-        }
+        res.json({ success: true });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "No se puede eliminar el producto porque tiene registros asociados (ej: en carritos o pedidos)." });
+        res.status(500).json({ error: "Error al eliminar" });
     }
 });
 
@@ -198,26 +185,25 @@ app.delete('/api/promociones/:id', async (req, res) => {
 
 // RUTA ACTUALIZADA: SOPORTA MÚLTIPLES IMÁGENES Y NUEVAS CATEGORÍAS
 app.post('/api/productos', upload.array('images', 5), async (req, res) => {
-    const { name, description, price, category_id, color, sizes } = req.body;
+    // Agregamos 'colors' a la desestructuración
+    const { name, description, price, category_id, sizes, colors } = req.body;
     
-    // Verificamos si subieron archivos
     if (!req.files || req.files.length === 0) {
         return res.status(400).json({ error: "Debes subir al menos una imagen." });
     }
 
-    // Unimos las rutas de las imágenes en un solo string separado por comas
     const image_url = req.files.map(f => `/uploads/${f.filename}`).join(',');
     
     try {
-        // 1. Insertamos el producto (zapatilla o ropa)
+        // 1. Insertamos el producto (eliminamos la columna 'color' fija si ya creaste la tabla nueva)
         const [result] = await pool.query(
-            'INSERT INTO products (name, description, price, image_url, category_id, color) VALUES (?, ?, ?, ?, ?, ?)',
-            [name, description, price, image_url, category_id, color]
+            'INSERT INTO products (name, description, price, image_url, category_id) VALUES (?, ?, ?, ?, ?)',
+            [name, description, price, image_url, category_id]
         );
 
         const newProductId = result.insertId;
 
-        // 2. Insertamos los talles si existen
+        // 2. Insertamos los talles (Tu lógica actual)
         if (sizes && sizes !== "[]") {
             const parsedSizes = JSON.parse(sizes); 
             for (let item of parsedSizes) {
@@ -228,10 +214,21 @@ app.post('/api/productos', upload.array('images', 5), async (req, res) => {
             }
         }
 
+        // 3. NUEVO: Insertamos los colores en la tabla product_colors
+        if (colors && colors !== "[]") {
+            const parsedColors = JSON.parse(colors);
+            for (let colorName of parsedColors) {
+                await pool.query(
+                    'INSERT INTO product_colors (product_id, color_name) VALUES (?, ?)',
+                    [newProductId, colorName]
+                );
+            }
+        }
+
         res.json({ success: true, id: newProductId });
     } catch (err) {
         console.error("Error al cargar producto:", err);
-        res.status(500).json({ error: "Error al guardar el producto en la base de datos." });
+        res.status(500).json({ error: "Error al guardar el producto." });
     }
 });
 
