@@ -122,21 +122,17 @@ app.get('/api/productos', async (req, res) => {
 
 // --- SUBIR NUEVA PROMOCIÓN ---
 app.post('/api/promociones/nuevo', upload.single('imagen'), async (req, res) => {
-    const { title, subtitle } = req.body;
-    
-    if (!req.file) return res.status(400).json({ error: "Debes subir una imagen para la promo" });
-    
+    const { title, subtitle, tipo } = req.body;
+    if (!req.file) return res.status(400).json({ error: "Debes subir una imagen" });
     const image_url = `/uploads/${req.file.filename}`;
-    
     try {
         await pool.query(
-            'INSERT INTO promotions (title, subtitle, image_url) VALUES (?, ?, ?)',
-            [title, subtitle, image_url]
+            'INSERT INTO promotions (title, subtitle, image_url, tipo) VALUES (?, ?, ?, ?)',
+            [title, subtitle, image_url, tipo || 'texto_imagen']
         );
         res.json({ success: true, message: "Promoción guardada correctamente" });
     } catch (error) {
-        console.error("Error al guardar promo:", error);
-        res.status(500).json({ error: "Error al guardar la promoción en la base de datos" });
+        res.status(500).json({ error: "Error al guardar" });
     }
 });
 

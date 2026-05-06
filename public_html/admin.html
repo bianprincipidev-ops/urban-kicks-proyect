@@ -223,8 +223,25 @@
             <span class="close" onclick="cerrarModal('modalPromo')">&times;</span>
             <h3>Nueva Promoción</h3>
             <form id="form-promo">
-                <input type="text" id="promo-title" placeholder="Título" required>
-                <textarea id="promo-subtitle" placeholder="Subtítulo"></textarea>
+                <!-- SELECTOR DE TIPO -->
+                <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 6px;">Tipo de promoción:</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: white; padding: 10px; border: 2px solid #ff4d4d; border-radius: 8px; flex: 1; justify-content: center;">
+                        <input type="radio" name="promo-tipo" value="texto_imagen" checked onchange="toggleCamposPromo(this.value)">
+                        Texto + Imagen
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: white; padding: 10px; border: 2px solid #444; border-radius: 8px; flex: 1; justify-content: center;">
+                        <input type="radio" name="promo-tipo" value="solo_imagen" onchange="toggleCamposPromo(this.value)">
+                        Solo Imagen
+                    </label>
+                </div>
+
+                <!-- CAMPOS DE TEXTO (solo para tipo texto_imagen) -->
+                <div id="campos-texto-promo">
+                    <input type="text" id="promo-title" placeholder="Título (Ej: NUEVA COLECCIÓN)">
+                    <textarea id="promo-subtitle" placeholder="Subtítulo (Ej: Hasta 30% OFF)"></textarea>
+                </div>
+
                 <input type="file" id="promo-image" accept="image/*" required>
                 <button type="submit" class="btn-cargar">SUBIR PROMOCIÓN</button>
             </form>
@@ -469,9 +486,11 @@
 
         document.getElementById('form-promo').onsubmit = async (e) => {
             e.preventDefault();
+            const tipo = document.querySelector('[name="promo-tipo"]:checked').value;
             const data = new FormData();
-            data.append('title', document.getElementById('promo-title').value);
-            data.append('subtitle', document.getElementById('promo-subtitle').value);
+            data.append('title', document.getElementById('promo-title').value || '');
+            data.append('subtitle', document.getElementById('promo-subtitle').value || '');
+            data.append('tipo', tipo);
             data.append('imagen', document.getElementById('promo-image').files[0]);
 
             const res = await fetch('/api/promociones/nuevo', { 
@@ -479,7 +498,7 @@
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                 body: data 
             });
-            if(res.ok) { alert("Promo cargada"); cerrarModal('modalPromo'); e.target.reset(); cargarTablas(); }
+            if(res.ok) { alert("Promo cargada"); cerrarModal('modalPromo'); e.target.reset(); toggleCamposPromo('texto_imagen'); cargarTablas(); }
         };
 
         document.getElementById('imagen').addEventListener('change', function() {
@@ -503,6 +522,17 @@
                 reader.readAsDataURL(file);
             });
         });
+
+        function toggleCamposPromo(tipo) {
+            const campos = document.getElementById('campos-texto-promo');
+            const labels = document.querySelectorAll('[name="promo-tipo"]');
+            campos.style.display = tipo === 'texto_imagen' ? 'block' : 'none';
+            // Actualizar borde de los radio buttons
+            document.querySelectorAll('label:has([name="promo-tipo"])').forEach(label => {
+                const input = label.querySelector('input');
+                label.style.borderColor = input.checked ? '#ff4d4d' : '#444';
+            });
+        }
 
         function logoutAdmin() { localStorage.clear(); window.location.href = '/'; }
         window.onload = cargarTablas;

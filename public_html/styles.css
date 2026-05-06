@@ -504,6 +504,51 @@ header {
     box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
 }
 
+/* Contenedor de opciones de color */
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px 0 20px;
+}
+
+/* Botón de color individual */
+.color-btn {
+    padding: 10px 20px;
+    border: 1px solid var(--border-color);
+    background: none;
+    color: var(--text-main);
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-transform: capitalize;
+}
+
+.color-btn:hover {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+}
+
+/* Estado activo para el color seleccionado */
+.active-color {
+    background-color: var(--accent-red) !important;
+    color: white !important;
+    border-color: var(--accent-red) !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(255, 77, 77, 0.2);
+}
+
+/* Etiqueta pequeña sobre los selectores */
+.detail-label {
+    font-size: 0.85rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: block;
+}
 
 /* ============================================================
    8. CARRITO
@@ -1005,6 +1050,22 @@ footer {
 
 .btn-venta:hover span { color: white; }
 
+/* Estilos para filas de colores en el Admin */
+.color-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.color-input {
+    flex: 1;
+    padding: 8px;
+    background: #f4f4f4;
+    border: 1px solid #444;
+    color: #333 !important;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+}
 
 /* ============================================================
    11. DASHBOARD / PERFIL
@@ -1770,7 +1831,7 @@ footer {
     color: var(--text-color);
     cursor: pointer;
     display: flex;
-    align-items: center;
+    align-items: center;    
     justify-content: center;
     font-weight: bold;
     transition: 0.3s;
