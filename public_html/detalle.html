@@ -110,10 +110,26 @@
                 document.getElementById('breadcrumb-nombre').innerText = productoActual.name;
                 document.getElementById('nombre-producto').innerText = productoActual.name;
                 document.getElementById('precio-producto').innerText = `$${Number(productoActual.price).toLocaleString('es-AR')}`;
-                document.getElementById('img-producto').src = productoActual.image_url;
+                const imagenes = productoActual.image_url.split(','); // Divide el texto por las comas
                 document.getElementById('descripcion-producto').innerText = productoActual.description || '';
                 document.getElementById('color-producto').innerText = productoActual.color || '';
                 
+                // Si hay varias imágenes, podrías implementar un pequeño carrusel aquí. Por ahora, solo mostramos la primera.
+                document.getElementById('img-producto').src = imagenes[0]; // Toma solo la primera ruta
+                // Mostramos las miniaturas si hay más de una foto
+                const contenedorTallas = document.getElementById('contenedor-talles'); // Solo como referencia de ubicación
+                // Podrías crear un div nuevo para las miniaturas en tu HTML y llenarlo así:
+                if (imagenes.length > 1) {
+                    let htmlMiniaturas = '<div style="display:flex; gap:10px; margin-top:15px;">';
+                    imagenes.forEach(img => {
+                        htmlMiniaturas += `<img src="${img}" onclick="document.getElementById('img-producto').src='${img}'" style="width:60px; height:60px; object-fit:cover; border-radius:5px; cursor:pointer; border:1px solid #ddd;">`;
+                    });
+                    htmlMiniaturas += '</div>';
+                    // Insertamos las miniaturas antes de la descripción o donde prefieras
+                    // Para que aparezcan justo arriba de los botones de talles
+                    document.getElementById('contenedor-talles').insertAdjacentHTML('beforebegin', htmlMiniaturas);
+                }
+
                 // Render talles
                 document.getElementById('contenedor-talles').innerHTML = productoActual.sizes.map(s => `
                     <button class="size-btn" onclick="seleccionarTalle(this, '${s.size}', ${s.stock})">${s.size}</button>
