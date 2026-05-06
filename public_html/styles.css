@@ -1782,6 +1782,24 @@ footer {
     border-color: var(--urban-red);
 }
 
+/* Estilo para las miniaturas laterales */
+.thumb-lateral:hover {
+    border-color: #ff4d4d !important; /* Rojo Urban Kicks */
+    box-shadow: 0 0 5px rgba(255, 77, 77, 0.3);
+}
+
+/* Ajuste para móviles */
+@media (max-width: 768px) {
+    .product-gallery-container {
+        flex-direction: column-reverse !important; /* Miniaturas pasan arriba de la imagen en celu */
+    }
+    #contenedor-miniaturas-lateral {
+        flex-direction: row !important; /* Se ponen horizontales en celu */
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+}
+
 /* Mobile chico */
 @media (max-width: 600px) {
     .grid-productos { grid-template-columns: 1fr; }

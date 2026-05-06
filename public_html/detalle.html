@@ -53,12 +53,16 @@
         <span id="breadcrumb-nombre" style="color: var(--text-color, #333);">Cargando...</span>
     </div>
 
-    <main class="product-detail-container">
-        <div class="product-image">
-            <img id="img-producto" src="" alt="Cargando...">
-        </div>
-        
-        <div class="product-info">
+            <main class="product-detail-container">
+                <div class="product-gallery-container" style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div id="contenedor-miniaturas-lateral" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    
+                    <div class="product-image" style="flex: 1;">
+                        <img id="img-producto" src="" alt="Cargando..." style="width: 100%; max-width: 500px; border-radius: 8px;">
+                    </div>
+                </div>
+                
+                <div class="product-info">
             <p id="color-producto" style="font-size: 0.85rem; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;"></p>
             <h1 id="nombre-producto">Cargando...</h1>
             <span class="product-price" id="precio-producto">$0.00</span>
@@ -120,14 +124,13 @@
                 const contenedorTallas = document.getElementById('contenedor-talles'); // Solo como referencia de ubicación
                 // Podrías crear un div nuevo para las miniaturas en tu HTML y llenarlo así:
                 if (imagenes.length > 1) {
-                    let htmlMiniaturas = '<div style="display:flex; gap:10px; margin-top:15px;">';
-                    imagenes.forEach(img => {
-                        htmlMiniaturas += `<img src="${img}" onclick="document.getElementById('img-producto').src='${img}'" style="width:60px; height:60px; object-fit:cover; border-radius:5px; cursor:pointer; border:1px solid #ddd;">`;
-                    });
-                    htmlMiniaturas += '</div>';
-                    // Insertamos las miniaturas antes de la descripción o donde prefieras
-                    // Para que aparezcan justo arriba de los botones de talles
-                    document.getElementById('contenedor-talles').insertAdjacentHTML('beforebegin', htmlMiniaturas);
+                    const lateral = document.getElementById('contenedor-miniaturas-lateral');
+                    lateral.innerHTML = imagenes.map(img => `
+                        <img src="${img}" 
+                            onmouseover="document.getElementById('img-producto').src='${img}'" 
+                            style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; transition: 0.2s;"
+                            class="thumb-lateral">
+                    `).join('');
                 }
 
                 // Render talles
