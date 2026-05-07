@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle | Urban Kicks</title>
+    <meta name="description" content="Detalle de producto - Urban Kicks Ropa">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="main.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <a href="/tienda"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
+        </div>
+        <nav class="nav-links">
+            <a href="/tienda">Zapatillas</a>
+            <a href="/ropa">← Volver a Ropa</a>
+        </nav>
+        <div class="header-icons">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar modo">
+                <i id="theme-icon" class="ri-moon-line"></i>
+            </button>
+            <a href="/login" id="user-link" title="Mi Cuenta"><i class="ri-user-line"></i></a>
+            <a href="/carrito"><i class="ri-shopping-cart-line"></i></a>
+            <button id="btn-logout" onclick="logout()" title="Cerrar Sesión" style="display: none; background: none; border: none; cursor: pointer; padding: 0;">
+                <i class="ri-logout-box-r-line" style="font-size: 1.5rem; color: #ff4d4d;"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="breadcrumb" style="padding: 10px 40px; font-size: 0.85rem; color: #888;">
+        <a href="/ropa" style="color:#888; text-decoration:none;">Ropa</a>
+        <span style="margin: 0 6px;">/</span>
+        <span id="breadcrumb-nombre">Cargando...</span>
+    </div>
+
+    <main class="product-detail-container">
+        <div class="product-image">
+            <img id="img-producto" src="" alt="Cargando...">
+        </div>
+        <div class="product-info">
+            <p id="color-producto" style="font-size:0.85rem; color:#888; margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;"></p>
+            <h1 id="nombre-producto">Cargando...</h1>
+            <span class="product-price" id="precio-producto">$0.00</span>
+            <p id="descripcion-producto" style="margin:16px 0; line-height:1.6;"></p>
+
+            <div class="size-selector">
+                <span style="font-weight:bold; font-size:0.9rem;">Seleccionar Talle:</span>
+                <div class="size-options" id="contenedor-talles" style="margin-top:10px;">
+                    <p style="color:#888;">Cargando talles...</p>
+                </div>
+                <p id="stock-info" style="font-size:0.8rem; color:#888; margin-top:8px; min-height:18px;"></p>
+            </div>
+
+            <div style="margin:16px 0;">
+                <span style="font-weight:bold; font-size:0.9rem;">Cantidad:</span>
+                <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
+                    <button onclick="cambiarCantidad(-1)" class="qty-btn">−</button>
+                    <span id="cantidad-display" style="font-size:1.1rem; font-weight:bold;">1</span>
+                    <button onclick="cambiarCantidad(1)" class="qty-btn">+</button>
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
+                <button class="btn-add-to-cart" onclick="agregarAlCarrito()">
+                    <i class="ri-shopping-cart-line"></i> AÑADIR AL CARRITO
+                </button>
+                <a id="btn-whatsapp" href="#" target="_blank" class="wsp-detail-btn">
+                    <i class="ri-whatsapp-line"></i> CONSULTAR POR WHATSAPP
+                </a>
+            </div>
+        </div>
+    </main>
+
+<script>
+    let productoActual = null;
+    let talleSeleccionado = null;
+    let stockSeleccionado = 0;
+    let cantidad = 1;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        if (!id) return window.location.href = '/ropa';
+
+        try {
+            const res = await fetch(`/api/ropa/${id}`);
+            productoActual = await res.json();
+            if (res.ok) {
+                document.getElementById('breadcrumb-nombre').innerText = productoActual.name;
+                document.getElementById('nombre-producto').innerText = productoActual.name;
+                document.getElementById('precio-producto').innerText = `$${Number(productoActual.price).toLocaleString('es-AR')}`;
+                document.getElementById('img-producto').src = productoActual.image_url ? productoActual.image_url.split(',')[0] : '';
+                document.getElementById('descripcion-producto').innerText = productoActual.description || '';
+
+                if (productoActual.colors && productoActual.colors.length > 0) {
+                    document.getElementById('color-producto').innerText = productoActual.colors.map(c => c.color_name).join(' / ');
+                }
+
+                const contenedorTalles = document.getElementById('contenedor-talles');
+                if (productoActual.sizes && productoActual.sizes.length > 0) {
+                    contenedorTalles.innerHTML = productoActual.sizes.map(s => `
+                        <button class="size-btn" onclick="seleccionarTalle(this, '${s.size}', ${s.stock})">${s.size}</button>
+                    `).join('');
+                } else {
+                    contenedorTalles.innerHTML = '<p style="color:#ff4d4d;">Sin stock por el momento</p>';
+                }
+
+                const msg = encodeURIComponent(`¡Hola! Consulto por: ${productoActual.name}`);
+                document.getElementById('btn-whatsapp').href = `https://wa.me/5493585756996?text=${msg}`;
+            }
+        } catch (e) { console.error(e); }
+    });
+
+    function seleccionarTalle(elemento, talle, stock) {
+        document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active-size'));
+        elemento.classList.add('active-size');
+        talleSeleccionado = talle;
+        stockSeleccionado = stock;
+        cantidad = 1;
+        document.getElementById('cantidad-display').innerText = "1";
+        document.getElementById('stock-info').innerText = `${stock} disponibles`;
+        document.getElementById('stock-info').style.color = '#888';
+    }
+
+    function cambiarCantidad(delta) {
+        if (!talleSeleccionado) return alert("Seleccioná un talle primero.");
+        let nueva = cantidad + delta;
+        if (nueva < 1) return;
+        if (nueva > stockSeleccionado) {
+            document.getElementById('stock-info').innerText = `⚠️ Solo hay ${stockSeleccionado} unidades disponibles.`;
+            document.getElementById('stock-info').style.color = '#ff4d4d';
+            return;
+        }
+        cantidad = nueva;
+        document.getElementById('cantidad-display').innerText = cantidad;
+        document.getElementById('stock-info').innerText = `${stockSeleccionado} disponibles`;
+        document.getElementById('stock-info').style.color = '#888';
+    }
+
+    function agregarAlCarrito() {
+        if (!localStorage.getItem('urban_token')) {
+            localStorage.setItem('redirect_after_login', window.location.href);
+            alert("Iniciá sesión para comprar.");
+            return window.location.href = '/login';
+        }
+        if (!talleSeleccionado) return alert("Seleccioná un talle.");
+
+        let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+        const existente = carrito.find(i => i.id === `ropa-${productoActual.id}` && i.size === talleSeleccionado);
+
+        if (existente) {
+            existente.cantidad += cantidad;
+        } else {
+            carrito.push({
+                id: `ropa-${productoActual.id}`,
+                name: productoActual.name,
+                price: productoActual.price,
+                image: productoActual.image_url ? productoActual.image_url.split(',')[0] : '',
+                size: talleSeleccionado,
+                cantidad: cantidad,
+                tipo: 'ropa'
+            });
+        }
+
+        localStorage.setItem('urban_cart', JSON.stringify(carrito));
+        window.location.href = '/carrito';
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Kicks | Ropa</title>
+    <meta name="description" content="Urban Kicks - Ropa urbana en Río Cuarto. Camisetas, medias y más.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="main.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <a href="/tienda"><img src="logo-urban.png" alt="Urban Kicks Logo"></a>
+        </div>
+        <nav class="nav-links">
+            <a href="/tienda">Zapatillas</a>
+            <a href="/ropa" class="active-link">Ropa</a>
+            <a href="javascript:void(0)" onclick="abrirModalTalles()">Tabla de Talles</a>
+        </nav>
+        <div class="header-icons">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar modo">
+                <i id="theme-icon" class="ri-moon-line"></i>
+            </button>
+            <a href="/login" id="user-link" title="Mi Cuenta"><i class="ri-user-line"></i></a>
+            <a href="/carrito"><i class="ri-shopping-cart-line"></i></a>
+            <button id="btn-logout" onclick="logout()" title="Cerrar Sesión" style="display: none; background: none; border: none; cursor: pointer; padding: 0;">
+                <i class="ri-logout-box-r-line" style="font-size: 1.5rem; color: #ff4d4d;"></i>
+            </button>
+        </div>
+    </header>
+
+    <div id="modalTalles" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <span class="close" onclick="cerrarModalTalles()">&times;</span>
+            <h3>Tabla de Talles</h3>
+            <img src="tabla-talles.png" style="width:100%; border-radius:8px; margin-top:10px;">
+        </div>
+    </div>
+
+    <div class="promo-bar">
+        <p>🚀 ¡ENVÍO GRATIS DENTRO DE RÍO CUARTO! 🚀</p>
+    </div>
+
+    <!-- FILTRO DE CATEGORÍAS -->
+    <div style="padding: 20px 5%; max-width: 1400px; margin: 0 auto;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <span style="font-weight: 700; font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted);">Categorías:</span>
+            <div id="filtro-categorias" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="filtro-btn active-filtro" onclick="filtrarCategoria('todos', this)">Todos</button>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Ropa Urban Kicks</h2>
+
+    <div class="grid-productos" id="contenedor-ropa"></div>
+
+    <a href="https://wa.me/5493585756996?text=¡Hola!%20Tengo%20una%20consulta%20sobre%20ropa..."
+        class="whatsapp-float" target="_blank">
+        <i class="ri-whatsapp-line"></i>
+    </a>
+
+    <style>
+        .filtro-btn {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .filtro-btn:hover, .filtro-btn.active-filtro {
+            background: #ff4d4d;
+            border-color: #ff4d4d;
+            color: white;
+        }
+    </style>
+
+<script>
+    let ropaCache = [];
+    let categoriaActual = 'todos';
+
+    window.onload = async () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const icon = document.getElementById('theme-icon');
+        if(icon) icon.className = savedTheme === 'dark' ? 'ri-sun-line' : 'ri-moon-line';
+
+        await cargarCategorias();
+
+        const params = new URLSearchParams(window.location.search);
+        const categoria = params.get('categoria') || 'todos';
+        await cargarRopa(categoria);
+    };
+
+    async function cargarCategorias() {
+        try {
+            const res = await fetch('/api/ropa/categorias');
+            const categorias = await res.json();
+            const filtro = document.getElementById('filtro-categorias');
+            categorias.forEach(cat => {
+                filtro.innerHTML += `<button class="filtro-btn" onclick="filtrarCategoria(${cat.id}, this)">${cat.nombre}</button>`;
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    async function cargarRopa(categoriaId = 'todos') {
+        const contenedor = document.getElementById('contenedor-ropa');
+        contenedor.innerHTML = '<p style="text-align:center; color:#888; grid-column:1/-1;">Cargando...</p>';
+        try {
+            const url = categoriaId === 'todos' ? '/api/ropa' : `/api/ropa?categoria=${categoriaId}`;
+            const res = await fetch(url);
+            ropaCache = await res.json();
+
+            if (ropaCache.length === 0) {
+                contenedor.innerHTML = '<p style="color:#888; text-align:center; grid-column:1/-1;">No hay productos en esta categoría.</p>';
+                return;
+            }
+
+            contenedor.innerHTML = ropaCache.map(prod => {
+                const imagenPrincipal = prod.image_url ? prod.image_url.split(',')[0] : '';
+                return `
+                    <div class="card">
+                        <img src="${imagenPrincipal}" alt="${prod.name}">
+                        <h3>${prod.name}</h3>
+                        <span class="precio">$${Number(prod.price).toLocaleString('es-AR')}</span>
+                        <a href="/detalle-ropa?id=${prod.id}" class="btn-comprar">Ver Detalle</a>
+                    </div>`;
+            }).join('');
+        } catch (e) {
+            contenedor.innerHTML = '<p style="color:#888; text-align:center; grid-column:1/-1;">Error al cargar productos.</p>';
+        }
+    }
+
+    function filtrarCategoria(categoriaId, btn) {
+        document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active-filtro'));
+        btn.classList.add('active-filtro');
+        categoriaActual = categoriaId;
+        cargarRopa(categoriaId);
+    }
+</script>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-column">
+            <img src="logo-urban.png" alt="Urban Kicks Logo" class="footer-logo">
+            <p>Las mejores zapatillas y ropa urbana en un solo lugar.</p>
+            <div class="footer-socials">
+                <a href="https://www.instagram.com/urban_kicks_100" target="_blank"><i class="ri-instagram-line"></i></a>
+                <a href="https://wa.me/5493585756996" target="_blank"><i class="ri-whatsapp-line"></i></a>
+            </div>
+        </div>
+        <div class="footer-column">
+            <h3>Explorar</h3>
+            <ul>
+                <li><a href="/tienda">Zapatillas</a></li>
+                <li><a href="/ropa">Ropa</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Ayuda</h3>
+            <ul>
+                <li><a href="javascript:void(0)" onclick="abrirModalTalles()">Tabla de Talles</a></li>
+                <li><a href="https://wa.me/5493585756996" target="_blank">Contacto</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Métodos de Pago</h3>
+            <div class="payment-methods">
+                <div class="payment-item"><i class="ri-bank-card-2-line"></i><span>Tarjetas</span></div>
+                <div class="payment-item"><i class="ri-bank-line"></i><span>Transferencias</span></div>
+            </div>
+            <p class="copyright">© 2026 Urban Kicks. <br>Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

@@ -74,6 +74,8 @@ app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public_html',
 app.get('/perfil', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'perfil.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'login.html')));
 app.get('/registro', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'registro.html')));
+app.get('/ropa', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'ropa.html')));
+app.get('/detalle-ropa', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'detalle-ropa.html')));
 
 // --- RUTAS DE API ---
 
@@ -473,6 +475,119 @@ app.post('/api/admin/talles', upload.single('imagen_talle'), async (req, res) =>
         res.json({ success: true, message: "Tabla de talles actualizada" });
     } catch (err) {
         res.status(500).json({ success: false, err });
+    }
+});
+
+// --- API PARA ROPA ---
+
+// OBTENER CATEGORÍAS DE ROPA
+app.get('/api/ropa/categorias', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM clothing_categories ORDER BY nombre ASC');
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: 'Error al obtener categorías' });
+    }
+});
+
+// OBTENER TODOS LOS PRODUCTOS DE ROPA (con filtro opcional)
+app.get('/api/ropa', async (req, res) => {
+    try {
+        const { categoria } = req.query;
+        let query = 'SELECT * FROM clothing_products ORDER BY id DESC';
+        let params = [];
+        if (categoria) {
+            query = 'SELECT * FROM clothing_products WHERE category_id = ? ORDER BY id DESC';
+            params = [categoria];
+        }
+        const [productos] = await pool.query(query, params);
+        for (let p of productos) {
+            const [sizes] = await pool.query('SELECT size, stock FROM clothing_sizes WHERE product_id = ? AND stock > 0', [p.id]);
+            const [colors] = await pool.query('SELECT color_name FROM clothing_colors WHERE product_id = ?', [p.id]);
+            p.sizes = sizes;
+            p.colors = colors;
+        }
+        res.json(productos);
+    } catch (err) {
+        res.status(500).json({ error: 'Error al obtener productos de ropa' });
+    }
+});
+
+// OBTENER PRODUCTO DE ROPA POR ID
+app.get('/api/ropa/:id', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM clothing_products WHERE id = ?', [req.params.id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'No encontrado' });
+        const producto = rows[0];
+        const [sizes] = await pool.query('SELECT size, stock FROM clothing_sizes WHERE product_id = ? AND stock > 0', [producto.id]);
+        const [colors] = await pool.query('SELECT color_name FROM clothing_colors WHERE product_id = ?', [producto.id]);
+        producto.sizes = sizes;
+        producto.colors = colors;
+        res.json(producto);
+    } catch (err) {
+        res.status(500).json({ error: 'Error al obtener producto' });
+    }
+});
+
+// SUBIR PRODUCTO DE ROPA
+app.post('/api/ropa', upload.array('images', 5), async (req, res) => {
+    const { name, description, price, category_id, sizes, colors } = req.body;
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'Subí al menos una imagen' });
+    const image_url = req.files.map(f => `/uploads/${f.filename}`).join(',');
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO clothing_products (name, description, price, image_url, category_id) VALUES (?, ?, ?, ?, ?)',
+            [name, description, price, image_url, category_id]
+        );
+        const newId = result.insertId;
+        if (sizes && sizes !== '[]') {
+            for (let item of JSON.parse(sizes)) {
+                await pool.query('INSERT INTO clothing_sizes (product_id, size, stock) VALUES (?, ?, ?)', [newId, item.size, item.stock]);
+            }
+        }
+        if (colors && colors !== '[]') {
+            for (let color of JSON.parse(colors)) {
+                await pool.query('INSERT INTO clothing_colors (product_id, color_name) VALUES (?, ?)', [newId, color]);
+            }
+        }
+        res.json({ success: true, id: newId });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ELIMINAR PRODUCTO DE ROPA
+app.delete('/api/ropa/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM clothing_products WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al eliminar' });
+    }
+});
+
+// CREAR CATEGORÍA DE ROPA
+app.post('/api/ropa/categorias', async (req, res) => {
+    const { nombre } = req.body;
+    if (!nombre) return res.status(400).json({ error: 'Nombre requerido' });
+    try {
+        const [result] = await pool.query('INSERT INTO clothing_categories (nombre) VALUES (?)', [nombre]);
+        res.json({ success: true, id: result.insertId, nombre });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al crear categoría' });
+    }
+});
+
+// DESCONTAR STOCK DE ROPA
+app.put('/api/ropa/confirmar-venta', async (req, res) => {
+    const { product_id, size } = req.body;
+    try {
+        const [rows] = await pool.query('SELECT stock FROM clothing_sizes WHERE product_id = ? AND size = ?', [product_id, size]);
+        if (rows.length === 0 || rows[0].stock <= 0) return res.status(400).json({ error: 'Sin stock' });
+        await pool.query('UPDATE clothing_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ?', [product_id, size]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al actualizar stock' });
     }
 });
 
