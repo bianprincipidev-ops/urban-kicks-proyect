@@ -87,6 +87,9 @@
                 <a href="#" class="sidebar-link" onclick="mostrarSeccion('talles')">
                     <i class="ri-ruler-line"></i> <span>Tablas de Talles</span>
                 </a>
+                <a href="#" class="sidebar-link" onclick="mostrarSeccion('ropa')">
+                <i class="ri-shirt-line"></i> <span>Ropa</span>
+            </a>
                 <a href="/tienda" class="sidebar-link">
                     <i class="ri-store-line"></i> <span>Ver Tienda</span>
                 </a>
@@ -268,6 +271,7 @@
             document.getElementById('sec-promos').style.display = seccion === 'promos' ? 'block' : 'none';
             document.getElementById('sec-talles').style.display = seccion === 'talles' ? 'block' : 'none';
             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+            document.getElementById('sec-ropa').style.display = seccion === 'ropa' ? 'block' : 'none';
             if(event && event.currentTarget) event.currentTarget.classList.add('active');
         }
 
