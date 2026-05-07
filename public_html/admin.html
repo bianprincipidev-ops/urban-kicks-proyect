@@ -88,8 +88,8 @@
                     <i class="ri-ruler-line"></i> <span>Tablas de Talles</span>
                 </a>
                 <a href="#" class="sidebar-link" onclick="mostrarSeccion('ropa')">
-                <i class="ri-shirt-line"></i> <span>Ropa</span>
-            </a>
+                    <i class="ri-shirt-line"></i> <span>Ropa</span>
+                </a>
                 <a href="/tienda" class="sidebar-link">
                     <i class="ri-store-line"></i> <span>Ver Tienda</span>
                 </a>
@@ -152,25 +152,35 @@
                 <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid #333; max-width: 500px;">
                     <form id="formTalles">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 6px;">Marca:</label>
-                        <input 
-                            type="text" 
-                            id="marcaTalle" 
-                            placeholder="Ej: Nike, Adidas, Jordan..." 
-                            required
-                            style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px; margin-bottom: 12px;">
+                        <input type="text" id="marcaTalle" placeholder="Ej: Nike, Adidas, Jordan..." required style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px; margin-bottom: 12px;">
                         
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 6px;">Imagen de la tabla:</label>
-                        <input 
-                            type="file" 
-                            id="fileTalle" 
-                            accept="image/*" 
-                            required
-                            style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px; margin-bottom: 16px;">
+                        <input type="file" id="fileTalle" accept="image/*" required style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px; margin-bottom: 16px;">
                         
                         <button type="submit" class="btn-cargar">SUBIR / ACTUALIZAR TABLA</button>
                     </form>
                     <p id="msg-talles" style="margin-top: 10px;"></p>
                 </div>
+            </section> <section id="sec-ropa" class="admin-section" style="display:none;">
+                <div class="section-header">
+                    <h3>Gestión de Ropa</h3>
+                    <button class="btn-nuevo" onclick="abrirModal('modalRopa')">+ Nueva Prenda</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Modelo</th>
+                                <th>Precio</th>
+                                <th>Stock (Talles)</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-ropa-admin"></tbody>
+                    </table>
+                </div>
+            </section>
 
                 <section id="sec-ropa" class="admin-section" style="display:none;">
                     <div class="section-header">
@@ -308,7 +318,7 @@
         </div>
     </div>
 
-    <script>
+<script>
         // 1. SEGURIDAD
         (async function() {
             const token = localStorage.getItem('urban_token');
@@ -323,34 +333,35 @@
         })();
 
         // 2. NAVEGACIÓN
-                function mostrarSeccion(seccion) {
-                    // Lista de todos los IDs de tus secciones
-                    const secciones = ['sec-productos', 'sec-promos', 'sec-talles', 'sec-ropa'];
-                    
-                    // Ocultamos todas
-                    secciones.forEach(id => {
-                        const elemento = document.getElementById(id);
-                        if(elemento) elemento.style.display = 'none';
-                    });
+        function mostrarSeccion(seccion) {
+            const secciones = ['sec-productos', 'sec-promos', 'sec-talles', 'sec-ropa'];
+            
+            secciones.forEach(id => {
+                const elemento = document.getElementById(id);
+                if(elemento) elemento.style.display = 'none';
+            });
 
-                    // Mostramos la que corresponde
-                    const idMostrar = 'sec-' + seccion;
-                    const seccionActiva = document.getElementById(idMostrar);
-                    if(seccionActiva) seccionActiva.style.display = 'block';
+            const idMostrar = 'sec-' + seccion;
+            const seccionActiva = document.getElementById(idMostrar);
+            if(seccionActiva) seccionActiva.style.display = 'block';
 
-                    // Gestionamos la clase 'active' en el menú lateral
-                    document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-                    
-                    // Agregamos 'active' al botón que clickeamos
-                    if(event && event.currentTarget) {
-                        event.currentTarget.classList.add('active');
-                    }
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+                if(link.getAttribute('onclick') && link.getAttribute('onclick').includes(seccion)) {
+                    link.classList.add('active');
                 }
+            });
+
+            // Recargar datos al cambiar de sección
+            if(seccion === 'productos' || seccion === 'ropa' || seccion === 'promos') {
+                cargarTablas();
+            }
+        }
 
         function abrirModal(id) { document.getElementById(id).style.display = "block"; }
         function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
 
-        // --- FUNCIÓN AGREGAR TALLES ---
+        // --- FUNCIONES DINÁMICAS (TALLES Y COLORES) ---
         function agregarFilaTalle() {
             const wrapper = document.getElementById('sizes-wrapper');
             const div = document.createElement('div');
@@ -363,7 +374,6 @@
             wrapper.appendChild(div);
         }
 
-        // --- FUNCIÓN AGREGAR COLORES ---
         function agregarFilaColor() {
             const wrapper = document.getElementById('colors-wrapper');
             const div = document.createElement('div');
@@ -378,8 +388,11 @@
             wrapper.appendChild(div);
         }
 
-        // 3. CARGAR TABLAS
+        // 3. CARGAR TABLAS (PRODUCTOS, PROMOS Y ROPA)
         async function cargarTablas() {
+            const token = localStorage.getItem('urban_token');
+
+            // --- Zapatillas ---
             try {
                 const res = await fetch('/api/productos');
                 const productos = await res.json();
@@ -388,33 +401,49 @@
                     tbody.innerHTML = productos.map(p => `
                         <tr>
                             <td><img src="${p.image_url}" width="50" style="border-radius:5px;"></td>
-                            <td>
-                                <strong>${p.name}</strong><br>
-                                <small style="color: #888;">${p.color || ''}</small>
-                            </td>
+                            <td><strong>${p.name}</strong><br><small style="color: #888;">${p.color || ''}</small></td>
                             <td>$${p.price}</td>
                             <td>
                                 <div class="admin-stock-controls">
-                                    ${p.sizes && p.sizes.length > 0 
-                                        ? p.sizes.map(s => `
-                                            <button class="btn-venta" title="Click para descontar 1 unidad" onclick="confirmarVenta(${p.id}, '${s.size}', ${s.stock})">
-                                                T${s.size} <span>(${s.stock})</span>
-                                            </button>
-                                        `).join('')
-                                        : '<span style="color: #666; font-size: 0.8rem;">Sin talles</span>'
-                                    }
+                                    ${p.sizes && p.sizes.length > 0 ? p.sizes.map(s => `
+                                        <button class="btn-venta" onclick="confirmarVenta(${p.id}, '${s.size}', ${s.stock})">
+                                            T${s.size} <span>(${s.stock})</span>
+                                        </button>`).join('') : '<span style="color: #666;">Sin talles</span>'}
                                 </div>
                             </td>
-                            <td>
-                                <button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})">
-                                    <i class="ri-delete-bin-line"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                            <td><button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
+                        </tr>`).join('');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Error productos:", e); }
 
+            // --- Ropa ---
+            try {
+                const resRopa = await fetch('/api/ropa');
+                const ropa = await resRopa.json();
+                const tbodyRopa = document.getElementById('lista-ropa-admin');
+                if(tbodyRopa) {
+                    tbodyRopa.innerHTML = ropa.map(r => {
+                        const talles = typeof r.sizes === 'string' ? JSON.parse(r.sizes) : r.sizes;
+                        return `
+                        <tr>
+                            <td><img src="${r.image_url}" width="50" style="border-radius:5px;"></td>
+                            <td><strong>${r.name}</strong><br><small style="color: #ff4d4d;">${r.category.toUpperCase()}</small></td>
+                            <td>$${r.price}</td>
+                            <td>
+                                <div class="admin-stock-controls">
+                                    ${talles && talles.length > 0 ? talles.map(s => `
+                                        <button class="btn-venta" onclick="confirmarVentaRopa(${r.id}, '${s.size}', ${s.stock})">
+                                            ${s.size} <span>(${s.stock})</span>
+                                        </button>`).join('') : '<span style="color: #666;">Sin stock</span>'}
+                                </div>
+                            </td>
+                            <td><button class="btn-del" onclick="eliminarItem('/api/ropa', ${r.id})"><i class="ri-delete-bin-line"></i></button></td>
+                        </tr>`;
+                    }).join('');
+                }
+            } catch (e) { console.log("Aún no hay ropa o error en API"); }
+
+            // --- Promociones ---
             try {
                 const resPromo = await fetch('/api/promociones');
                 const promos = await resPromo.json();
@@ -425,141 +454,14 @@
                             <td><strong>${p.title}</strong></td>
                             <td>${p.subtitle}</td>
                             <td><button class="btn-del" onclick="eliminarItem('/api/promociones', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
-                        </tr>
-                    `).join('');
+                        </tr>`).join('');
                 }
-            } catch (e) { console.error(e); }
-
-            try {
-                const resRopa = await fetch('/api/ropa'); // Asegurate que esta ruta exista en tu backend
-                const ropa = await resRopa.json();
-                const tbodyRopa = document.getElementById('lista-ropa-admin');
-                if(tbodyRopa) {
-                    tbodyRopa.innerHTML = ropa.map(r => {
-                        // Parseamos los talles si vienen como string desde la DB
-                        const talles = typeof r.sizes === 'string' ? JSON.parse(r.sizes) : r.sizes;
-                        
-                        return `
-                        <tr>
-                            <td><img src="${r.image_url}" width="50" style="border-radius:5px;"></td>
-                            <td>
-                                <strong>${r.name}</strong><br>
-                                <small style="color: var(--accent-red); font-weight:bold;">${r.category.toUpperCase()}</small>
-                            </td>
-                            <td>$${r.price}</td>
-                            <td>
-                                <div class="admin-stock-controls">
-                                    ${talles && talles.length > 0 
-                                        ? talles.map(s => `
-                                            <button class="btn-venta" title="Descontar stock" onclick="confirmarVentaRopa(${r.id}, '${s.size}', ${s.stock})">
-                                                ${s.size} <span>(${s.stock})</span>
-                                            </button>
-                                        `).join('')
-                                        : '<span style="color: #666; font-size: 0.8rem;">Sin stock</span>'
-                                    }
-                                </div>
-                            </td>
-                            <td>
-                                <button class="btn-del" onclick="eliminarItem('/api/ropa', ${r.id})">
-                                    <i class="ri-delete-bin-line"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `}).join('');
-                }
-            } catch (e) { 
-                console.log("Aún no hay ropa cargada o error en /api/ropa"); 
-            }
+            } catch (e) { console.error("Error promos:", e); }
         }
 
-        // SUBIR TABLA DE TALLES
-        document.getElementById('formTalles').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const msg = document.getElementById('msg-talles');
-            const formData = new FormData();
-            formData.append('marca', document.getElementById('marcaTalle').value);
-            formData.append('imagen_talle', document.getElementById('fileTalle').files[0]);
-
-            const res = await fetch('/api/admin/talles', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
-                body: formData
-            });
-            const data = await res.json();
-            msg.innerHTML = data.success 
-                ? `<span style="color:#28a745;">✅ ${data.message}</span>` 
-                : `<span style="color:#dc3545;">❌ Error al subir</span>`;
-        });
-
-        // FUNCIÓN PARA CONFIRMAR VENTA Y ACTUALIZAR STOCK
-        async function confirmarVenta(productId, talle, stockActual) {
-            if (stockActual <= 0) {
-                alert("Este talle ya no tiene stock disponible.");
-                return;
-            }
-
-            if (confirm(`¿Confirmar venta del talle ${talle}? Se restará 1 unidad del stock.`)) {
-                try {
-                    const res = await fetch('/api/productos/confirmar-venta', {
-                        method: 'PUT',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('urban_token')}`
-                        },
-                        body: JSON.stringify({ product_id: productId, size: talle })
-                    });
-
-                    const data = await res.json();
-
-                    if (res.ok) {
-                        alert("¡Venta confirmada! Stock actualizado.");
-                        cargarTablas(); // Esto refresca la tabla para ver el nuevo stock
-                    } else {
-                        alert("Error: " + (data.error || "No se pudo actualizar el stock"));
-                    }
-                } catch (error) {
-                    console.error("Error en la venta:", error);
-                    alert("Error de conexión con el servidor.");
-                }
-            }
-        }
-
-        // FUNCIÓN PARA CONFIRMAR VENTA DE ROPA Y ACTUALIZAR STOCK
-        async function confirmarVentaRopa(ropaId, talle, stockActual) {
-            if (stockActual <= 0) {
-                alert("Este talle de ropa ya no tiene stock disponible.");
-                return;
-            }
-
-            if (confirm(`¿Confirmar venta de talle ${talle}? Se restará 1 unidad.`)) {
-                try {
-                    const res = await fetch('/api/ropa/confirmar-venta', { // Ajustá la ruta según tu backend
-                        method: 'PUT',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('urban_token')}`
-                        },
-                        body: JSON.stringify({ ropa_id: ropaId, size: talle })
-                    });
-
-                    const data = await res.json();
-
-                    if (res.ok) {
-                        alert("¡Venta de ropa confirmada!");
-                        cargarTablas(); // Refresca para ver el stock actualizado
-                    } else {
-                        alert("Error: " + (data.error || "No se pudo actualizar el stock"));
-                    }
-                } catch (error) {
-                    console.error("Error en la venta de ropa:", error);
-                    alert("Error de conexión con el servidor.");
-                }
-            }
-        }
-
-        // 4. ELIMINAR
+        // 4. ELIMINAR ITEMS
         async function eliminarItem(ruta, id) {
-            if(confirm("¿Eliminar ítem?")) {
+            if(confirm("¿Eliminar ítem definitivamente?")) {
                 try {
                     await fetch(`${ruta}/${id}`, { 
                         method: 'DELETE',
@@ -570,45 +472,58 @@
             }
         }
 
-        // 5. ENVÍOS
+        // 5. VENTAS (ACTUALIZAR STOCK)
+        async function confirmarVenta(productId, talle, stockActual) {
+            if (stockActual <= 0) return alert("Sin stock disponible.");
+            if (confirm(`¿Confirmar venta talle ${talle}? (-1 unidad)`)) {
+                try {
+                    const res = await fetch('/api/productos/confirmar-venta', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                        body: JSON.stringify({ product_id: productId, size: talle })
+                    });
+                    if (res.ok) { alert("Venta confirmada"); cargarTablas(); }
+                } catch (error) { alert("Error al conectar"); }
+            }
+        }
+
+        async function confirmarVentaRopa(ropaId, talle, stockActual) {
+            if (stockActual <= 0) return alert("Sin stock disponible.");
+            if (confirm(`¿Confirmar venta talle ${talle}? (-1 unidad)`)) {
+                try {
+                    const res = await fetch('/api/ropa/confirmar-venta', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                        body: JSON.stringify({ ropa_id: ropaId, size: talle })
+                    });
+                    if (res.ok) { alert("Venta confirmada"); cargarTablas(); }
+                } catch (error) { alert("Error al conectar"); }
+            }
+        }
+
+        // 6. ENVÍOS DE FORMULARIOS
+        // --- Productos (Zapatillas) ---
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
-
-            // 1. Recolectar Talles (esto ya lo tenés bien)
-            const rows = document.querySelectorAll('.size-row');
+            const formData = new FormData();
             let sizesData = [];
-            rows.forEach(row => {
+            document.querySelectorAll('.size-row').forEach(row => {
                 const s = row.querySelector('.size-input').value;
                 const q = row.querySelector('.stock-input').value;
                 if(s && q) sizesData.push({ size: s, stock: q });
             });
-
-            // 2. NUEVO: Recolectar Colores
-            const rowsColors = document.querySelectorAll('.color-row');
             let colorsData = [];
-            rowsColors.forEach(row => {
-                const c = row.querySelector('.color-input').value;
-                if(c) colorsData.push(c); // Guardamos solo el string del nombre
-            });
+            document.querySelectorAll('.color-input').forEach(input => { if(input.value) colorsData.push(input.value); });
 
-            const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
             formData.append('description', document.getElementById('description').value);
             formData.append('price', document.getElementById('price').value);
             formData.append('category_id', document.getElementById('category_id').value);
-            // formData.append('color', document.getElementById('color').value);
             formData.append('sizes', JSON.stringify(sizesData));
             formData.append('colors', JSON.stringify(colorsData));
 
-            // 2. RECOLECTAR MÚLTIPLES IMÁGENES
             const inputImagenes = document.getElementById('imagen');
-            const archivos = inputImagenes.files;
-
-            for (let i = 0; i < archivos.length; i++) {
-                // Importante: Usamos el mismo nombre 'image' o 'images' 
-                // El backend debe estar preparado para recibir un array
-                formData.append('images', archivos[i]); 
-            }
+            for (let i = 0; i < inputImagenes.files.length; i++) { formData.append('images', inputImagenes.files[i]); }
 
             try {
                 const res = await fetch('/api/productos', {
@@ -616,84 +531,23 @@
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                     body: formData
                 });
-
                 if(res.ok) { 
-                    alert("Producto cargado con éxito"); 
+                    alert("Producto publicado"); 
                     cerrarModal('modalProducto'); 
                     e.target.reset();
-                    document.getElementById('preview-imagenes').innerHTML = ''; // Limpiar preview
-                    document.getElementById('sizes-wrapper').innerHTML = `<div class="size-row"><input type="text" class="size-input" placeholder="Talle (Ej: 40)" required><input type="number" class="stock-input" placeholder="Cant." required><button type="button" class="btn-size btn-add" onclick="agregarFilaTalle()">+</button></div>`;
-                    document.getElementById('colors-wrapper').innerHTML = `<div class="color-row" style="display: flex; gap: 10px; margin-bottom: 10px;"><input type="text" class="color-input" placeholder="Ej: Azul/Celeste" style="flex: 1; padding: 8px; background: #f4f4f4; border: 1px solid #444; color: #333 !important; border-radius: 4px;" required><button type="button" class="btn-size btn-add" onclick="agregarFilaColor()">+</button></div>`;
+                    document.getElementById('preview-imagenes').innerHTML = '';
                     cargarTablas(); 
-                } else {
-                    const err = await res.json();
-                    alert("Error: " + err.error);
                 }
-            } catch (e) {
-                alert("Error de conexión");
-            }
+            } catch (e) { alert("Error de conexión"); }
         };
 
-        document.getElementById('form-promo').onsubmit = async (e) => {
-            e.preventDefault();
-            const tipo = document.querySelector('[name="promo-tipo"]:checked').value;
-            const data = new FormData();
-            data.append('title', document.getElementById('promo-title').value || '');
-            data.append('subtitle', document.getElementById('promo-subtitle').value || '');
-            data.append('tipo', tipo);
-            data.append('imagen', document.getElementById('promo-image').files[0]);
-
-            const res = await fetch('/api/promociones/nuevo', { 
-                method: 'POST', 
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
-                body: data 
-            });
-            if(res.ok) { alert("Promo cargada"); cerrarModal('modalPromo'); e.target.reset(); toggleCamposPromo('texto_imagen'); cargarTablas(); }
-        };
-
-        document.getElementById('imagen').addEventListener('change', function() {
-            const preview = document.getElementById('preview-imagenes');
-            preview.innerHTML = ''; // Limpiar previas anteriores
-            
-            // Convertimos a array y limitamos a 5 por seguridad
-            const files = Array.from(this.files).slice(0, 5);
-            
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const imgContainer = document.createElement('div');
-                    imgContainer.style.position = 'relative';
-                    imgContainer.innerHTML = `
-                        <img src="${e.target.result}" style="width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid #ff4d4d;">
-                        <span style="position:absolute; top:-5px; right:-5px; background:black; color:white; border-radius:50%; width:18px; height:18px; font-size:12px; display:flex; align-items:center; justify-content:center; cursor:pointer;">×</span>
-                    `;
-                    preview.appendChild(imgContainer);
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-
-        function toggleCamposPromo(tipo) {
-            const campos = document.getElementById('campos-texto-promo');
-            const labels = document.querySelectorAll('[name="promo-tipo"]');
-            campos.style.display = tipo === 'texto_imagen' ? 'block' : 'none';
-            // Actualizar borde de los radio buttons
-            document.querySelectorAll('label:has([name="promo-tipo"])').forEach(label => {
-                const input = label.querySelector('input');
-                label.style.borderColor = input.checked ? '#ff4d4d' : '#444';
-            });
-        }
-
+        // --- Ropa ---
         document.getElementById('ropaForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData();
-            
-            // Recolectar talles con stock > 0
             let sizesData = [];
             document.querySelectorAll('.ropa-stock-input').forEach(input => {
-                if(input.value > 0) {
-                    sizesData.push({ size: input.getAttribute('data-size'), stock: input.value });
-                }
+                if(input.value > 0) sizesData.push({ size: input.getAttribute('data-size'), stock: input.value });
             });
 
             formData.append('name', document.getElementById('ropa-name').value);
@@ -709,13 +563,67 @@
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                     body: formData
                 });
-                if(res.ok) {
-                    alert("Ropa cargada!");
-                    cerrarModal('modalRopa');
-                    cargarTablas();
-                }
+                if(res.ok) { alert("Ropa publicada!"); cerrarModal('modalRopa'); e.target.reset(); cargarTablas(); }
             } catch (e) { alert("Error al conectar"); }
         };
+
+        // --- Promos ---
+        document.getElementById('form-promo').onsubmit = async (e) => {
+            e.preventDefault();
+            const tipo = document.querySelector('[name="promo-tipo"]:checked').value;
+            const data = new FormData();
+            data.append('title', document.getElementById('promo-title').value || '');
+            data.append('subtitle', document.getElementById('promo-subtitle').value || '');
+            data.append('tipo', tipo);
+            data.append('imagen', document.getElementById('promo-image').files[0]);
+
+            const res = await fetch('/api/promociones/nuevo', { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                body: data 
+            });
+            if(res.ok) { alert("Promo cargada"); cerrarModal('modalPromo'); e.target.reset(); cargarTablas(); }
+        };
+
+        // --- Talles (Tablas de talles) ---
+        document.getElementById('formTalles').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('msg-talles');
+            const formData = new FormData();
+            formData.append('marca', document.getElementById('marcaTalle').value);
+            formData.append('imagen_talle', document.getElementById('fileTalle').files[0]);
+
+            const res = await fetch('/api/admin/talles', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                body: formData
+            });
+            const data = await res.json();
+            msg.innerHTML = data.success ? `<span style="color:#28a745;">✅ Éxito</span>` : `<span style="color:#dc3545;">❌ Error</span>`;
+        });
+
+        // --- PREVIEW DE IMÁGENES ---
+        document.getElementById('imagen').addEventListener('change', function() {
+            const preview = document.getElementById('preview-imagenes');
+            preview.innerHTML = '';
+            Array.from(this.files).slice(0, 5).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.style.position = 'relative';
+                    imgContainer.innerHTML = `
+                        <img src="${e.target.result}" style="width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid #ff4d4d;">
+                    `;
+                    preview.appendChild(imgContainer);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function toggleCamposPromo(tipo) {
+            const campos = document.getElementById('campos-texto-promo');
+            campos.style.display = tipo === 'texto_imagen' ? 'block' : 'none';
+        }
 
         function logoutAdmin() { localStorage.clear(); window.location.href = '/'; }
         window.onload = cargarTablas;
