@@ -487,17 +487,28 @@
             }
         }
 
-        async function confirmarVentaRopa(ropaId, talle, stockActual) {
-            if (stockActual <= 0) return alert("Sin stock disponible.");
-            if (confirm(`¿Confirmar venta talle ${talle}? (-1 unidad)`)) {
+        async function confirmarVentaRopa(id, talle, stockActual) {
+            if (stockActual <= 0) return alert("Sin stock");
+
+            if (confirm(`¿Confirmar venta talle ${talle}?`)) {
                 try {
                     const res = await fetch('/api/ropa/confirmar-venta', {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
-                        body: JSON.stringify({ ropa_id: ropaId, size: talle })
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('urban_token')}`
+                        },
+                        // Cambiamos 'ropa_id' por 'product_id' como pide tu API
+                        body: JSON.stringify({ product_id: id, size: talle })
                     });
-                    if (res.ok) { alert("Venta confirmada"); cargarTablas(); }
-                } catch (error) { alert("Error al conectar"); }
+
+                    if (res.ok) {
+                        alert("Venta confirmada");
+                        cargarTablas();
+                    }
+                } catch (error) {
+                    alert("Error de conexión");
+                }
             }
         }
 
@@ -545,17 +556,24 @@
         document.getElementById('ropaForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData();
+            
             let sizesData = [];
             document.querySelectorAll('.ropa-stock-input').forEach(input => {
-                if(input.value > 0) sizesData.push({ size: input.getAttribute('data-size'), stock: input.value });
+                if(input.value > 0) {
+                    sizesData.push({ size: input.getAttribute('data-size'), stock: parseInt(input.value) });
+                }
             });
 
             formData.append('name', document.getElementById('ropa-name').value);
             formData.append('description', document.getElementById('ropa-description').value);
             formData.append('price', document.getElementById('ropa-price').value);
-            formData.append('category', document.getElementById('ropa-category').value);
+            // Cambiamos 'category' por 'category_id' para tu API
+            formData.append('category_id', document.getElementById('ropa-category').value);
             formData.append('sizes', JSON.stringify(sizesData));
-            formData.append('image', document.getElementById('ropa-imagen').files[0]);
+            formData.append('colors', JSON.stringify([])); // Tu API pide colors obligatoriamente
+            
+            // Cambiamos 'image' por 'images' para que coincida con tu upload.array('images')
+            formData.append('images', document.getElementById('ropa-imagen').files[0]);
 
             try {
                 const res = await fetch('/api/ropa', {
@@ -563,7 +581,15 @@
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                     body: formData
                 });
-                if(res.ok) { alert("Ropa publicada!"); cerrarModal('modalRopa'); e.target.reset(); cargarTablas(); }
+                if(res.ok) {
+                    alert("Ropa cargada con éxito!");
+                    cerrarModal('modalRopa');
+                    e.target.reset();
+                    cargarTablas();
+                } else {
+                    const err = await res.json();
+                    alert("Error: " + err.error);
+                }
             } catch (e) { alert("Error al conectar"); }
         };
 
