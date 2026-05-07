@@ -79,7 +79,7 @@
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="sidebar-link active" onclick="mostrarSeccion('productos')">
-                    <i class="ri-dashboard-line"></i> <span>Productos</span>
+                    <i class="ri-dashboard-line"></i> <span>Zapatillas</span>
                 </a>
                 <a href="#" class="sidebar-link" onclick="mostrarSeccion('promos')">
                     <i class="ri-advertisement-line"></i> <span>Promociones</span>
@@ -171,7 +171,28 @@
                     </form>
                     <p id="msg-talles" style="margin-top: 10px;"></p>
                 </div>
-            </section>
+
+                <section id="sec-ropa" class="admin-section" style="display:none;">
+                    <div class="section-header">
+                        <h3>Gestión de Ropa</h3>
+                        <button class="btn-nuevo" onclick="abrirModal('modalRopa')">+ Nueva Prenda</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Imagen</th>
+                                    <th>Modelo</th>
+                                    <th>Precio</th>
+                                    <th>Stock (Talles)</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-ropa-admin">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
         </main>
     </div>
 
@@ -251,6 +272,42 @@
         </div>
     </div>
 
+    <div id="modalRopa" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('modalRopa')">&times;</span>
+            <h3>Cargar Prenda de Ropa</h3>
+            <form id="ropaForm">
+                <input type="text" id="ropa-name" placeholder="Nombre (Ej: Remera Oversize)" required>
+                <textarea id="ropa-description" placeholder="Descripción" rows="2"></textarea>
+                <input type="number" id="ropa-price" placeholder="Precio ($)" required>
+                
+                <div style="margin-bottom: 10px;">
+                    <select id="ropa-category" required style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px;">
+                        <option value="remeras">Remeras</option>
+                        <option value="pantalones">Pantalones / Shorts</option>
+                        <option value="buzos">Buzos / Camperas</option>
+                        <option value="medias">Medias / Accesorios</option>
+                    </select>
+                </div>
+
+                <div class="stock-container">
+                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Stock por Talles (Letras):</label>
+                    <div id="ropa-sizes-wrapper" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div><label>S</label><input type="number" class="ropa-stock-input" data-size="S" placeholder="0" style="width:100%;"></div>
+                        <div><label>M</label><input type="number" class="ropa-stock-input" data-size="M" placeholder="0" style="width:100%;"></div>
+                        <div><label>L</label><input type="number" class="ropa-stock-input" data-size="L" placeholder="0" style="width:100%;"></div>
+                        <div><label>XL</label><input type="number" class="ropa-stock-input" data-size="XL" placeholder="0" style="width:100%;"></div>
+                        <div><label>XXL</label><input type="number" class="ropa-stock-input" data-size="XXL" placeholder="0" style="width:100%;"></div>
+                        <div><label>U (Único)</label><input type="number" class="ropa-stock-input" data-size="U" placeholder="0" style="width:100%;"></div>
+                    </div>
+                </div>
+
+                <input type="file" id="ropa-imagen" accept="image/*" required>
+                <button type="submit" class="btn-cargar">PUBLICAR PRENDA</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // 1. SEGURIDAD
         (async function() {
@@ -266,14 +323,29 @@
         })();
 
         // 2. NAVEGACIÓN
-        function mostrarSeccion(seccion) {
-            document.getElementById('sec-productos').style.display = seccion === 'productos' ? 'block' : 'none';
-            document.getElementById('sec-promos').style.display = seccion === 'promos' ? 'block' : 'none';
-            document.getElementById('sec-talles').style.display = seccion === 'talles' ? 'block' : 'none';
-            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-            document.getElementById('sec-ropa').style.display = seccion === 'ropa' ? 'block' : 'none';
-            if(event && event.currentTarget) event.currentTarget.classList.add('active');
-        }
+                function mostrarSeccion(seccion) {
+                    // Lista de todos los IDs de tus secciones
+                    const secciones = ['sec-productos', 'sec-promos', 'sec-talles', 'sec-ropa'];
+                    
+                    // Ocultamos todas
+                    secciones.forEach(id => {
+                        const elemento = document.getElementById(id);
+                        if(elemento) elemento.style.display = 'none';
+                    });
+
+                    // Mostramos la que corresponde
+                    const idMostrar = 'sec-' + seccion;
+                    const seccionActiva = document.getElementById(idMostrar);
+                    if(seccionActiva) seccionActiva.style.display = 'block';
+
+                    // Gestionamos la clase 'active' en el menú lateral
+                    document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+                    
+                    // Agregamos 'active' al botón que clickeamos
+                    if(event && event.currentTarget) {
+                        event.currentTarget.classList.add('active');
+                    }
+                }
 
         function abrirModal(id) { document.getElementById(id).style.display = "block"; }
         function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
@@ -357,6 +429,47 @@
                     `).join('');
                 }
             } catch (e) { console.error(e); }
+
+            try {
+                const resRopa = await fetch('/api/ropa'); // Asegurate que esta ruta exista en tu backend
+                const ropa = await resRopa.json();
+                const tbodyRopa = document.getElementById('lista-ropa-admin');
+                if(tbodyRopa) {
+                    tbodyRopa.innerHTML = ropa.map(r => {
+                        // Parseamos los talles si vienen como string desde la DB
+                        const talles = typeof r.sizes === 'string' ? JSON.parse(r.sizes) : r.sizes;
+                        
+                        return `
+                        <tr>
+                            <td><img src="${r.image_url}" width="50" style="border-radius:5px;"></td>
+                            <td>
+                                <strong>${r.name}</strong><br>
+                                <small style="color: var(--accent-red); font-weight:bold;">${r.category.toUpperCase()}</small>
+                            </td>
+                            <td>$${r.price}</td>
+                            <td>
+                                <div class="admin-stock-controls">
+                                    ${talles && talles.length > 0 
+                                        ? talles.map(s => `
+                                            <button class="btn-venta" title="Descontar stock" onclick="confirmarVentaRopa(${r.id}, '${s.size}', ${s.stock})">
+                                                ${s.size} <span>(${s.stock})</span>
+                                            </button>
+                                        `).join('')
+                                        : '<span style="color: #666; font-size: 0.8rem;">Sin stock</span>'
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn-del" onclick="eliminarItem('/api/ropa', ${r.id})">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `}).join('');
+                }
+            } catch (e) { 
+                console.log("Aún no hay ropa cargada o error en /api/ropa"); 
+            }
         }
 
         // SUBIR TABLA DE TALLES
@@ -406,6 +519,39 @@
                     }
                 } catch (error) {
                     console.error("Error en la venta:", error);
+                    alert("Error de conexión con el servidor.");
+                }
+            }
+        }
+
+        // FUNCIÓN PARA CONFIRMAR VENTA DE ROPA Y ACTUALIZAR STOCK
+        async function confirmarVentaRopa(ropaId, talle, stockActual) {
+            if (stockActual <= 0) {
+                alert("Este talle de ropa ya no tiene stock disponible.");
+                return;
+            }
+
+            if (confirm(`¿Confirmar venta de talle ${talle}? Se restará 1 unidad.`)) {
+                try {
+                    const res = await fetch('/api/ropa/confirmar-venta', { // Ajustá la ruta según tu backend
+                        method: 'PUT',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('urban_token')}`
+                        },
+                        body: JSON.stringify({ ropa_id: ropaId, size: talle })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        alert("¡Venta de ropa confirmada!");
+                        cargarTablas(); // Refresca para ver el stock actualizado
+                    } else {
+                        alert("Error: " + (data.error || "No se pudo actualizar el stock"));
+                    }
+                } catch (error) {
+                    console.error("Error en la venta de ropa:", error);
                     alert("Error de conexión con el servidor.");
                 }
             }
@@ -537,6 +683,39 @@
                 label.style.borderColor = input.checked ? '#ff4d4d' : '#444';
             });
         }
+
+        document.getElementById('ropaForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            
+            // Recolectar talles con stock > 0
+            let sizesData = [];
+            document.querySelectorAll('.ropa-stock-input').forEach(input => {
+                if(input.value > 0) {
+                    sizesData.push({ size: input.getAttribute('data-size'), stock: input.value });
+                }
+            });
+
+            formData.append('name', document.getElementById('ropa-name').value);
+            formData.append('description', document.getElementById('ropa-description').value);
+            formData.append('price', document.getElementById('ropa-price').value);
+            formData.append('category', document.getElementById('ropa-category').value);
+            formData.append('sizes', JSON.stringify(sizesData));
+            formData.append('image', document.getElementById('ropa-imagen').files[0]);
+
+            try {
+                const res = await fetch('/api/ropa', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
+                    body: formData
+                });
+                if(res.ok) {
+                    alert("Ropa cargada!");
+                    cerrarModal('modalRopa');
+                    cargarTablas();
+                }
+            } catch (e) { alert("Error al conectar"); }
+        };
 
         function logoutAdmin() { localStorage.clear(); window.location.href = '/'; }
         window.onload = cargarTablas;
