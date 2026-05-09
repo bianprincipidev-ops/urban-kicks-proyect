@@ -165,44 +165,61 @@ app.delete('/api/productos/:id', async (req, res) => {
 });
 
 // --- EDITAR PRODUCTO (ZAPATILLAS) ---
-app.put('/api/productos/:id', authenticateToken, (req, res) => {
-    const { id } = req.params;
-    const { name, description, price, category_id, color, sizes } = req.body;
-
-    const sql = "UPDATE products SET name = ?, description = ?, price = ?, category_id = ?, color = ? WHERE id = ?";
-    db.query(sql, [name, description, price, category_id, color, id], (err) => {
-        if (err) return res.status(500).send(err);
-
-        // Actualizar stock (talles)
-        db.query("DELETE FROM product_sizes WHERE product_id = ?", [id], () => {
-            const sizeSql = "INSERT INTO product_sizes (product_id, size, stock) VALUES ?";
-            const sizeValues = sizes.map(s => [id, s.size, s.stock]);
-            db.query(sizeSql, [sizeValues], (err) => {
-                if (err) return res.status(500).send(err);
-                res.send({ message: "Producto actualizado con éxito" });
-            });
-        });
-    });
-});
-
-// --- EDITAR PRENDA (ROPA) ---
-app.put('/api/ropa/:id', authenticateToken, (req, res) => {
+app.put('/api/productos/:id', async (req, res) => {
     const { id } = req.params;
     const { name, description, price, category_id, sizes } = req.body;
 
-    const sql = "UPDATE clothing_products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?";
-    db.query(sql, [name, description, price, category_id, id], (err) => {
-        if (err) return res.status(500).send(err);
+    try {
+        // 1. Actualizar datos básicos
+        await pool.query(
+            "UPDATE products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?",
+            [name, description, price, category_id, id]
+        );
 
-        db.query("DELETE FROM clothing_sizes WHERE product_id = ?", [id], () => {
-            const sizeSql = "INSERT INTO clothing_sizes (product_id, size, stock) VALUES ?";
-            const sizeValues = sizes.map(s => [id, s.size, s.stock]);
-            db.query(sizeSql, [sizeValues], (err) => {
-                if (err) return res.status(500).send(err);
-                res.send({ message: "Prenda actualizada" });
-            });
-        });
-    });
+        // 2. Actualizar stock (Borrar y volver a insertar)
+        if (sizes) {
+            await pool.query("DELETE FROM product_sizes WHERE product_id = ?", [id]);
+            const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
+            for (let item of parsedSizes) {
+                await pool.query(
+                    'INSERT INTO product_sizes (product_id, size, stock) VALUES (?, ?, ?)',
+                    [id, item.size, item.stock]
+                );
+            }
+        }
+        res.json({ success: true, message: "Producto actualizado con éxito" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error al actualizar producto" });
+    }
+});
+
+// --- EDITAR PRENDA (ROPA) ---
+app.put('/api/ropa/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, description, price, category_id, sizes } = req.body;
+
+    try {
+        await pool.query(
+            "UPDATE clothing_products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?",
+            [name, description, price, category_id, id]
+        );
+
+        if (sizes) {
+            await pool.query("DELETE FROM clothing_sizes WHERE product_id = ?", [id]);
+            const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
+            for (let item of parsedSizes) {
+                await pool.query(
+                    'INSERT INTO clothing_sizes (product_id, size, stock) VALUES (?, ?, ?)',
+                    [id, item.size, item.stock]
+                );
+            }
+        }
+        res.json({ success: true, message: "Prenda actualizada" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error al actualizar ropa" });
+    }
 });
 
 // Borrar Promociones 
