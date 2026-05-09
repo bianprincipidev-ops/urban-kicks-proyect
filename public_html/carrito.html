@@ -156,7 +156,8 @@
         carrito.forEach(i => {
             const cant = i.cantidad || 1;
             const sub = i.price * cant;
-            mensaje += `▪️ *${i.name}*\n`;
+            const etiquetaTipo = i.tipo === 'ropa' ? '[ROPA]' : '[ZAPA]';
+            mensaje += `▪️ *${i.name}* ${etiquetaTipo}\n`;
             mensaje += `   Talle: ${i.size} | Cant: ${cant}\n`;
             mensaje += `   Subtotal: $${sub.toLocaleString('es-AR')}\n\n`;
             total += sub;

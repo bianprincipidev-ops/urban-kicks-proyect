@@ -20,7 +20,7 @@
             <a href="javascript:void(0)" onclick="cargarProductos('1')">Urbano</a>
             <a href="javascript:void(0)" onclick="cargarProductos('2')">Hombre</a>
             <a href="javascript:void(0)" onclick="cargarProductos('3')">Mujer</a>
-            <a href="/ropa">Ropa</a>
+            <a href="javascript:void(0)" onclick="cargarProductos('ropa')">Ropa</a>
             <a href="javascript:void(0)" onclick="abrirModalTalles()">Tabla de Talles</a>
             
         </nav>
@@ -157,30 +157,53 @@
         intervalPromo = setInterval(() => cambiarPromo(1), 7000);
     }
 
-    async function cargarProductos(categoriaId) {
+    async function cargarProductos(categoriaId = 'todos') {
         const contenedor = document.getElementById('contenedor-productos');
         if (!contenedor) return;
+
         try {
-            if (productosCache.length === 0) {
-                const respuesta = await fetch('/api/productos');
-                productosCache = await respuesta.json();
+            // 1. Cargamos ambas APIs al mismo tiempo
+            const [resZapas, resRopa] = await Promise.all([
+                fetch('/api/productos'),
+                fetch('/api/ropa')
+            ]);
+
+            const zapas = await resZapas.json();
+            const ropa = await resRopa.json();
+
+            // 2. Etiquetamos para no mezclarlos
+            const zapasMapeadas = zapas.map(p => ({ ...p, tipo: 'zapatilla' }));
+            const ropaMapeada = ropa.map(p => ({ ...p, tipo: 'ropa' }));
+
+            // 3. Unimos todo
+            let todos = [...zapasMapeadas, ...ropaMapeada];
+
+            // 4. Filtramos
+            // Si categoriaId es 'ropa', mostramos solo ropa. Si es un número, solo zapas de esa categoría.
+            let filtrados;
+            if (categoriaId === 'todos') {
+                filtrados = todos;
+            } else if (categoriaId === 'ropa') {
+                filtrados = ropaMapeada;
+            } else {
+                filtrados = zapasMapeadas.filter(p => p.category_id == categoriaId);
             }
-            const filtrados = categoriaId === 'todos' ? productosCache : productosCache.filter(p => p.category_id == categoriaId);
-            contenedor.innerHTML = filtrados.length === 0 ? '<p style="color: #888; text-align: center; width: 100%;">No hay productos en esta categoría.</p>' : '';
+
+            // 5. Renderizamos
+            contenedor.innerHTML = filtrados.length === 0 ? '<p style="color: #888; text-align: center; width: 100%;">No hay productos disponibles.</p>' : '';
             
             filtrados.forEach(prod => {
-                // ARREGLO AQUÍ: Tomamos solo la primera imagen del string
-                const imagenPrincipal = prod.image_url.split(',')[0];
-                
+                const imagen = prod.image_url.split(',')[0];
                 contenedor.innerHTML += `
                     <div class="card">
-                        <img src="${imagenPrincipal}" alt="${prod.name}">
+                        ${prod.tipo === 'ropa' ? '<span style="position:absolute; background:#ff4d4d; color:white; padding:2px 8px; font-size:10px; border-radius:3px; margin:10px; z-index:1;">ROPA</span>' : ''}
+                        <img src="${imagen}" alt="${prod.name}">
                         <h3>${prod.name}</h3>
                         <span class="precio">$${Number(prod.price).toLocaleString('es-AR')}</span>
-                        <a href="/detalle?id=${prod.id}" class="btn-comprar">Ver Detalle</a>
+                        <a href="/detalle?id=${prod.id}&tipo=${prod.tipo}" class="btn-comprar">Ver Detalle</a>
                     </div>`;
             });
-        } catch (e) { console.error("Error cargando productos:", e); }
+        } catch (e) { console.error("Error cargando tienda mixta:", e); }
     }
 </script>
 <footer>

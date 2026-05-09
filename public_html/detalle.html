@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Producto | Urban Kicks</title>
-    <meta name="description" content="Urban Kicks - Las mejores zapatillas urbanas en Río Cuarto. Nike, Adidas, Jordan, Vans y más.">
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <script src="main.js"></script>
@@ -32,49 +31,25 @@
         </div>
     </header>
 
-    <div id="modalTalles" class="modal" style="display:none;">
-        <div class="modal-content" style="max-width: 600px;">
-            <span class="close" onclick="cerrarModalTalles()">&times;</span>
-            <h3>Tabla de Talles</h3>
-            <div style="margin-bottom: 12px;">
-                <select id="selectMarcaTalle" onchange="cargarTablaTalle()" style="width:100%; padding:10px; background:#222; color:white; border:1px solid #444; border-radius:5px;">
-                    <option value="">-- Seleccioná una marca --</option>
-                </select>
-            </div>
-            <div id="contenedor-tabla-talle" style="text-align:center; color:#888;">
-                Seleccioná una marca para ver su tabla.
-            </div>
-        </div>
-    </div>
-
     <div class="breadcrumb" style="padding: 10px 40px; font-size: 0.85rem; color: #888;">
         <a href="/tienda" style="color:#888; text-decoration:none;">Tienda</a>
         <span style="margin: 0 6px;">/</span>
         <span id="breadcrumb-nombre" style="color: var(--text-color, #333);">Cargando...</span>
     </div>
 
-            <main class="product-detail-container">
-                <div class="product-gallery-container" style="display: flex; gap: 20px; align-items: flex-start;">
-                    <div id="contenedor-miniaturas-lateral" style="display: flex; flex-direction: column; gap: 10px;"></div>
-                    
-                    <div class="product-image" style="flex: 1;">
-                        <img id="img-producto" src="" alt="Cargando..." style="width: 100%; max-width: 500px; border-radius: 8px;">
-                    </div>
-                </div>
-                
-                <div class="product-info">
+    <main class="product-detail-container">
+        <div class="product-gallery-container" style="display: flex; gap: 20px; align-items: flex-start;">
+            <div id="contenedor-miniaturas-lateral" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            <div class="product-image" style="flex: 1;">
+                <img id="img-producto" src="" alt="Cargando..." style="width: 100%; max-width: 500px; border-radius: 8px;">
+            </div>
+        </div>
+        
+        <div class="product-info">
             <p id="color-producto" style="font-size: 0.85rem; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;"></p>
             <h1 id="nombre-producto">Cargando...</h1>
             <span class="product-price" id="precio-producto">$0.00</span>
             <p class="product-description" id="descripcion-producto" style="margin: 16px 0; line-height: 1.6;"></p>
-
-            <div class="color-selector" style="margin-bottom: 20px;">
-                <span style="font-weight: bold; font-size: 0.9rem;">Color disponible:</span>
-                <div id="contenedor-colores" style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="color-btn active-color" onclick="seleccionarColor(this, 'Negro/Plata')">Negro</button>
-                    <button class="color-btn" onclick="seleccionarColor(this, 'Azul/Celeste')">Azul</button>
-                </div>
-            </div>
             
             <div class="size-selector">
                 <span style="font-weight: bold; font-size: 0.9rem;">Seleccionar Talle:</span>
@@ -82,15 +57,6 @@
                     <p style="color: #888;">Cargando talles...</p>
                 </div>
                 <p id="stock-info" style="font-size: 0.8rem; color: #888; margin-top: 8px; min-height: 18px;"></p>
-            </div>
-
-            <div style="margin: 16px 0;">
-                <span style="font-weight: bold; font-size: 0.9rem;">Cantidad:</span>
-                <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px;">
-                    <button onclick="cambiarCantidad(-1)" class="qty-btn">−</button>
-                    <span id="cantidad-display" style="font-size: 1.1rem; font-weight: bold;">1</span>
-                    <button onclick="cambiarCantidad(1)" class="qty-btn">+</button>
-                </div>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
@@ -104,50 +70,55 @@
         </div>
     </main>
 
+    <section class="related-products" style="padding: 40px; border-top: 1px solid #eee; margin-top: 50px;">
+        <h2 style="text-align: center; margin-bottom: 30px; font-size: 1.5rem; text-transform: uppercase;">Productos Similares</h2>
+        <div class="grid-productos" id="contenedor-relacionados"></div>
+    </section>
+
 <script>
     let productoActual = null;
     let talleSeleccionado = null;
     let stockSeleccionado = 0;
     let cantidad = 1;
+    let tipoProducto = '';
 
     document.addEventListener('DOMContentLoaded', async () => {
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
+        tipoProducto = params.get('tipo') || 'zapatilla';
+
         if (!id) return window.location.href = '/tienda';
 
         try {
-            const res = await fetch(`/api/productos/${id}`);
+            const rutaApi = tipoProducto === 'ropa' ? `/api/ropa/${id}` : `/api/productos/${id}`;
+            const res = await fetch(rutaApi);
             productoActual = await res.json();
+
             if (res.ok) {
                 document.getElementById('breadcrumb-nombre').innerText = productoActual.name;
                 document.getElementById('nombre-producto').innerText = productoActual.name;
                 document.getElementById('precio-producto').innerText = `$${Number(productoActual.price).toLocaleString('es-AR')}`;
-                const imagenes = productoActual.image_url.split(','); // Divide el texto por las comas
                 document.getElementById('descripcion-producto').innerText = productoActual.description || '';
-                document.getElementById('color-producto').innerText = productoActual.color || '';
                 
-                // Si hay varias imágenes, podrías implementar un pequeño carrusel aquí. Por ahora, solo mostramos la primera.
-                document.getElementById('img-producto').src = imagenes[0]; // Toma solo la primera ruta
-                // Mostramos las miniaturas si hay más de una foto
-                const contenedorTallas = document.getElementById('contenedor-talles'); // Solo como referencia de ubicación
-                // Podrías crear un div nuevo para las miniaturas en tu HTML y llenarlo así:
+                const imagenes = productoActual.image_url.split(',');
+                document.getElementById('img-producto').src = imagenes[0];
+
+                // LLAMAMOS A LOS RELACIONADOS AQUÍ
+                cargarRelacionados(tipoProducto, id, productoActual.category_id);
+
                 if (imagenes.length > 1) {
                     const lateral = document.getElementById('contenedor-miniaturas-lateral');
                     lateral.innerHTML = imagenes.map(img => `
-                        <img src="${img}" 
-                            onmouseover="document.getElementById('img-producto').src='${img}'" 
-                            style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; transition: 0.2s;"
-                            class="thumb-lateral">
+                        <img src="${img}" onmouseover="document.getElementById('img-producto').src='${img}'" class="thumb-lateral" style="width:60px; height:60px; object-fit:cover; border-radius:4px; cursor:pointer; border:1px solid #ddd;">
                     `).join('');
                 }
 
-                // Render talles
-                document.getElementById('contenedor-talles').innerHTML = productoActual.sizes.map(s => `
+                const contenedorTallas = document.getElementById('contenedor-talles');
+                contenedorTallas.innerHTML = productoActual.sizes.map(s => `
                     <button class="size-btn" onclick="seleccionarTalle(this, '${s.size}', ${s.stock})">${s.size}</button>
                 `).join('');
 
-                // WhatsApp Link
-                const msg = encodeURIComponent(`¡Hola! Consulto por: ${productoActual.name}`);
+                const msg = encodeURIComponent(`¡Hola! Consulto por: ${productoActual.name} (${tipoProducto})`);
                 document.getElementById('btn-whatsapp').href = `https://wa.me/5493585756996?text=${msg}`;
             }
         } catch (e) { console.error(e); }
@@ -158,47 +129,55 @@
         elemento.classList.add('active-size');
         talleSeleccionado = talle;
         stockSeleccionado = stock;
-        cantidad = 1;
-        document.getElementById('cantidad-display').innerText = "1";
         document.getElementById('stock-info').innerText = `${stock} disponibles`;
     }
 
-    function cambiarCantidad(delta) {
-        if (!talleSeleccionado) return alert("Seleccioná un talle primero.");
-        
-        let nueva = cantidad + delta;
-        
-        if (nueva < 1) return;
-        
-        if (nueva > stockSeleccionado) {
-            document.getElementById('stock-info').innerText = `⚠️ Solo hay ${stockSeleccionado} unidades disponibles para este talle.`;
-            document.getElementById('stock-info').style.color = '#ff4d4d';
-            return;
-        }
-        
-        cantidad = nueva;
-        document.getElementById('cantidad-display').innerText = cantidad;
-        document.getElementById('stock-info').innerText = `${stockSeleccionado} disponibles`;
-        document.getElementById('stock-info').style.color = '#888';
+    async function cargarRelacionados(tipoActual, idActual, categoriaId) {
+        try {
+            const ruta = tipoActual === 'ropa' ? '/api/ropa' : '/api/productos';
+            const res = await fetch(ruta);
+            const productos = await res.json();
+
+            const relacionados = productos
+                .filter(p => p.id !== parseInt(idActual))
+                .filter(p => tipoActual === 'ropa' ? true : p.category_id == categoriaId)
+                .slice(0, 4);
+
+            const contenedor = document.getElementById('contenedor-relacionados');
+            if (relacionados.length === 0) {
+                document.querySelector('.related-products').style.display = 'none';
+                return;
+            }
+
+            contenedor.innerHTML = relacionados.map(p => {
+                const img = p.image_url.split(',')[0];
+                return `
+                    <div class="card">
+                        <img src="${img}" alt="${p.name}">
+                        <h3>${p.name}</h3>
+                        <span class="precio">$${Number(p.price).toLocaleString('es-AR')}</span>
+                        <a href="/detalle?id=${p.id}&tipo=${tipoActual}" class="btn-comprar">Ver Detalle</a>
+                    </div>`;
+            }).join('');
+        } catch (e) { console.error("Error relacionados:", e); }
     }
 
     function agregarAlCarrito() {
         if (!localStorage.getItem('urban_token')) {
-            localStorage.setItem('redirect_after_login', window.location.href);
             alert("Iniciá sesión para comprar.");
             return window.location.href = '/login';
         }
         if (!talleSeleccionado) return alert("Seleccioná un talle.");
 
         let carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-        // Verificamos si ya existe el mismo id con mismo talle
-        const existente = carrito.find(i => i.id === productoActual.id && i.size === talleSeleccionado);
+        const existente = carrito.find(i => i.id === productoActual.id && i.size === talleSeleccionado && i.tipo === tipoProducto);
         
         if(existente) {
             existente.cantidad += cantidad;
         } else {
             carrito.push({ 
                 id: productoActual.id, 
+                tipo: tipoProducto,
                 name: productoActual.name, 
                 price: productoActual.price, 
                 image: productoActual.image_url.split(',')[0],
@@ -206,7 +185,6 @@
                 cantidad: cantidad 
             });
         }
-        
         localStorage.setItem('urban_cart', JSON.stringify(carrito));
         window.location.href = '/carrito';
     }
