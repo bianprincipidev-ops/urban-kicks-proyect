@@ -164,7 +164,7 @@
             </section> <section id="sec-ropa" class="admin-section" style="display:none;">
                 <div class="section-header">
                     <h3>Gestión de Ropa</h3>
-                    <button class="btn-nuevo" onclick="abrirModal('modalRopa')">+ Nueva Prenda</button>
+                    <button class="btn-nuevo" onclick="abrirModalRopa()">+ Nueva Prenda</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table class="admin-table">
@@ -181,28 +181,6 @@
                     </table>
                 </div>
             </section>
-
-                <section id="sec-ropa" class="admin-section" style="display:none;">
-                    <div class="section-header">
-                        <h3>Gestión de Ropa</h3>
-                        <button class="btn-nuevo" onclick="abrirModal('modalRopa')">+ Nueva Prenda</button>
-                    </div>
-                    <div style="overflow-x: auto;">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Imagen</th>
-                                    <th>Modelo</th>
-                                    <th>Precio</th>
-                                    <th>Stock (Talles)</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="lista-ropa-admin">
-                                </tbody>
-                        </table>
-                    </div>
-                </section>
         </main>
     </div>
 
@@ -282,7 +260,7 @@
         </div>
     </div>
 
-    <div id="modalRopa" class="modal">
+        <div id="modalRopa" class="modal">
         <div class="modal-content">
             <span class="close" onclick="cerrarModal('modalRopa')">&times;</span>
             <h3>Cargar Prenda de Ropa</h3>
@@ -292,11 +270,12 @@
                 <input type="number" id="ropa-price" placeholder="Precio ($)" required>
                 
                 <div style="margin-bottom: 10px;">
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Categoría de Ropa:</label>
+                    <div style="display: flex; gap: 10px;">
                         <select id="ropa-category" required style="flex: 1; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px;">
                             <option value="">Seleccionar Categoría...</option>
                         </select>
-                        <button type="button" onclick="abrirModal('modalCategoria')" style="background: #ff4d4d; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer;">+</button>
+                        <button type="button" onclick="abrirModal('modalCategoria')" style="background: #ff4d4d; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; font-weight: bold;" title="Nueva Categoría">+</button>
                     </div>
                 </div>
 
@@ -316,15 +295,26 @@
                 <button type="submit" class="btn-cargar">PUBLICAR PRENDA</button>
             </form>
         </div>
-    </div>
+        </div>
 
-    <div id="modalCategoria" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
+        <div id="modalCategoria" class="modal" style="z-index: 2000;"> <div class="modal-content" style="max-width: 400px; border: 1px solid #ff4d4d;">
             <span class="close" onclick="cerrarModal('modalCategoria')">&times;</span>
-            <h3>Nueva Categoría de Ropa</h3>
+            <h3>Crear Nueva Categoría</h3>
             <form id="formNuevaCategoria">
-                <input type="text" id="cat-nombre" placeholder="Ej: Camisetas de Fútbol" required>
-                <button type="submit" class="btn-cargar">CREAR CATEGORÍA</button>
+                <input type="text" id="cat-nombre" placeholder="Ej: Camisetas de Fútbol" required style="width: 100%; padding: 10px; margin-bottom: 15px; background: #222; color: white; border: 1px solid #444; border-radius: 5px;">
+                <button type="submit" class="btn-cargar" style="width: 100%;">GUARDAR CATEGORÍA</button>
+            </form>
+        </div>
+        </div>
+        
+    <div id="modalCategoria" class="modal">
+        <div class="modal-content" style="max-width: 400px; background: #1a1a1a; border: 1px solid #ff4d4d;">
+            <span class="close" onclick="cerrarModal('modalCategoria')">&times;</span>
+            <h3 style="color: white; margin-bottom: 20px;">Nueva Categoría de Ropa</h3>
+            <form id="formNuevaCategoria">
+                <input type="text" id="cat-nombre" placeholder="Ej: Camisetas de Fútbol" required 
+                    style="width: 100%; padding: 10px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #444; border-radius: 5px;">
+                <button type="submit" class="btn-cargar" style="width: 100%;">CREAR CATEGORÍA</button>
             </form>
         </div>
     </div>
@@ -433,26 +423,30 @@
                 const ropa = await resRopa.json();
                 const tbodyRopa = document.getElementById('lista-ropa-admin');
                 if(tbodyRopa) {
-                    tbodyRopa.innerHTML = ropa.map(r => {
-                        const talles = typeof r.sizes === 'string' ? JSON.parse(r.sizes) : r.sizes;
-                        return `
-                        <tr>
-                            <td><img src="${r.image_url}" width="50" style="border-radius:5px;"></td>
-                            <td><strong>${r.name}</strong><br><small style="color: #ff4d4d;">${r.category.toUpperCase()}</small></td>
-                            <td>$${r.price}</td>
-                            <td>
-                                <div class="admin-stock-controls">
-                                    ${talles && talles.length > 0 ? talles.map(s => `
-                                        <button class="btn-venta" onclick="confirmarVentaRopa(${r.id}, '${s.size}', ${s.stock})">
-                                            ${s.size} <span>(${s.stock})</span>
-                                        </button>`).join('') : '<span style="color: #666;">Sin stock</span>'}
-                                </div>
-                            </td>
-                            <td><button class="btn-del" onclick="eliminarItem('/api/ropa', ${r.id})"><i class="ri-delete-bin-line"></i></button></td>
-                        </tr>`;
-                    }).join('');
+                    tbodyRopa.innerHTML = ropa.length === 0 
+                        ? '<tr><td colspan="5" style="text-align:center; color:#666;">No hay prendas cargadas todavía</td></tr>'
+                        : ropa.map(r => {
+                            const imagenPrincipal = r.image_url ? r.image_url.split(',')[0] : '';
+                            return `
+                            <tr>
+                                <td><img src="${imagenPrincipal}" width="50" style="border-radius:5px;"></td>
+                                <td><strong>${r.name}</strong></td>
+                                <td>$${r.price}</td>
+                                <td>
+                                    <div class="admin-stock-controls">
+                                        ${r.sizes && r.sizes.length > 0 
+                                            ? r.sizes.map(s => `
+                                                <button class="btn-venta" onclick="confirmarVentaRopa(${r.id}, '${s.size}', ${s.stock})">
+                                                    ${s.size} <span>(${s.stock})</span>
+                                                </button>`).join('') 
+                                            : '<span style="color:#666;">Sin stock</span>'}
+                                    </div>
+                                </td>
+                                <td><button class="btn-del" onclick="eliminarItem('/api/ropa', ${r.id})"><i class="ri-delete-bin-line"></i></button></td>
+                            </tr>`;
+                        }).join('');
                 }
-            } catch (e) { console.log("Aún no hay ropa o error en API"); }
+            } catch (e) { console.error("Error ropa:", e); }
 
             // --- Promociones ---
             try {
