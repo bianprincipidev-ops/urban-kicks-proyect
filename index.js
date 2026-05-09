@@ -167,16 +167,16 @@ app.delete('/api/productos/:id', async (req, res) => {
 // --- EDITAR PRODUCTO (ZAPATILLAS) ---
 app.put('/api/productos/:id', async (req, res) => {
     const { id } = req.params;
-    const { name, description, price, category_id, sizes } = req.body;
+    const { name, description, price, category_id, sizes, colors } = req.body;
 
     try {
-        // 1. Actualizar datos básicos
+        // 1. Actualizar datos básicos en la tabla products
         await pool.query(
             "UPDATE products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?",
             [name, description, price, category_id, id]
         );
 
-        // 2. Actualizar stock (Borrar y volver a insertar)
+        // 2. Actualizar Talles (Borrar anteriores e insertar nuevos)
         if (sizes) {
             await pool.query("DELETE FROM product_sizes WHERE product_id = ?", [id]);
             const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
@@ -187,9 +187,22 @@ app.put('/api/productos/:id', async (req, res) => {
                 );
             }
         }
+
+        // 3. Actualizar Colores (Borrar anteriores e insertar nuevos)
+        if (colors) {
+            await pool.query("DELETE FROM product_colors WHERE product_id = ?", [id]);
+            const parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
+            for (let colorName of parsedColors) {
+                await pool.query(
+                    'INSERT INTO product_colors (product_id, color_name) VALUES (?, ?)',
+                    [id, colorName]
+                );
+            }
+        }
+
         res.json({ success: true, message: "Producto actualizado con éxito" });
     } catch (error) {
-        console.error(error);
+        console.error("Error en edición de zapas:", error);
         res.status(500).json({ error: "Error al actualizar producto" });
     }
 });
@@ -217,7 +230,7 @@ app.put('/api/ropa/:id', async (req, res) => {
         }
         res.json({ success: true, message: "Prenda actualizada" });
     } catch (error) {
-        console.error(error);
+        console.error("Error en edición de ropa:", error);
         res.status(500).json({ error: "Error al actualizar ropa" });
     }
 });
