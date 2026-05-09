@@ -320,6 +320,71 @@
     </div>
 
 <script>
+
+        let editandoId = null; // Guardará el ID del producto que estamos editando
+        let tipoEdicion = '';  // 'zapatillas' o 'ropa'
+
+        async function prepararEdicion(id, tipo) {
+            editandoId = id;
+            tipoEdicion = tipo;
+            const ruta = tipo === 'ropa' ? `/api/ropa/${id}` : `/api/productos/${id}`;
+            
+            try {
+                const res = await fetch(ruta);
+                const p = await res.json();
+
+                if (tipo === 'ropa') {
+                    document.getElementById('ropa-name').value = p.name;
+                    document.getElementById('ropa-description').value = p.description;
+                    document.getElementById('ropa-price').value = p.price;
+                    await actualizarSelectCategorias(); // Nos aseguramos que carguen
+                    document.getElementById('ropa-category').value = p.category_id;
+                    
+                    // Limpiar y cargar stocks de ropa
+                    document.querySelectorAll('.ropa-stock-input').forEach(input => {
+                        const stockData = p.sizes.find(s => s.size === input.dataset.size);
+                        input.value = stockData ? stockData.stock : 0;
+                    });
+                    
+                    document.querySelector('#ropaForm .btn-cargar').innerText = "ACTUALIZAR PRENDA";
+                    abrirModal('modalRopa');
+                } else {
+                    document.getElementById('name').value = p.name;
+                    document.getElementById('description').value = p.description;
+                    document.getElementById('price').value = p.price;
+                    document.getElementById('category_id').value = p.category_id;
+                    
+                    // Cargar Colores dinámicos
+                    const colorsWrapper = document.getElementById('colors-wrapper');
+                    colorsWrapper.innerHTML = '';
+                    const colores = p.color ? p.color.split(',') : [''];
+                    colores.forEach(c => {
+                        const div = document.createElement('div');
+                        div.className = 'color-row';
+                        div.style = "display: flex; gap: 10px; margin-bottom: 10px;";
+                        div.innerHTML = `<input type="text" class="color-input" value="${c.trim()}" required style="flex: 1; padding: 8px; background: #f4f4f4; border: 1px solid #444; color: #333 !important; border-radius: 4px;">
+                                        <button type="button" class="btn-size btn-remove" onclick="this.parentElement.remove()">-</button>`;
+                        colorsWrapper.appendChild(div);
+                    });
+
+                    // Cargar Talles dinámicos
+                    const sizesWrapper = document.getElementById('sizes-wrapper');
+                    sizesWrapper.innerHTML = '';
+                    p.sizes.forEach(s => {
+                        const div = document.createElement('div');
+                        div.className = 'size-row';
+                        div.innerHTML = `<input type="text" class="size-input" value="${s.size}" required>
+                                        <input type="number" class="stock-input" value="${s.stock}" required>
+                                        <button type="button" class="btn-size btn-remove" onclick="this.parentElement.remove()">-</button>`;
+                        sizesWrapper.appendChild(div);
+                    });
+
+                    document.querySelector('#productForm .btn-cargar').innerText = "ACTUALIZAR ZAPATILLA";
+                    abrirModal('modalProducto');
+                }
+            } catch (e) { alert("Error al obtener datos"); }
+        }
+
         // 1. SEGURIDAD
         (async function() {
             const token = localStorage.getItem('urban_token');
@@ -412,7 +477,10 @@
                                         </button>`).join('') : '<span style="color: #666;">Sin talles</span>'}
                                 </div>
                             </td>
-                            <td><button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
+                           <td>
+                                <button class="btn-edit" onclick="prepararEdicion(${p.id}, 'zapas')" style="background:#444; color:white; border:none; padding:5px 8px; border-radius:4px; margin-right:5px; cursor:pointer;"><i class="ri-pencil-line"></i></button>
+                                <button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})"><i class="ri-delete-bin-line"></i></button>
+                            </td>
                         </tr>`).join('');
                 }
             } catch (e) { console.error("Error productos:", e); }
@@ -442,7 +510,10 @@
                                             : '<span style="color:#666;">Sin stock</span>'}
                                     </div>
                                 </td>
-                                <td><button class="btn-del" onclick="eliminarItem('/api/ropa', ${r.id})"><i class="ri-delete-bin-line"></i></button></td>
+                                <td>
+                                    <button class="btn-edit" onclick="prepararEdicion(${r.id}, 'ropa')" style="background:#444; color:white; border:none; padding:5px 8px; border-radius:4px; margin-right:5px; cursor:pointer;"><i class="ri-pencil-line"></i></button>
+                                    <button class="btn-del" onclick="eliminarItem('/api/ropa', ${r.id})"><i class="ri-delete-bin-line"></i></button>
+                                </td>
                             </tr>`;
                         }).join('');
                 }
@@ -522,14 +593,18 @@
         document.getElementById('productForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData();
+            
             let sizesData = [];
-            document.querySelectorAll('.size-row').forEach(row => {
+            document.querySelectorAll('#sizes-wrapper .size-row').forEach(row => {
                 const s = row.querySelector('.size-input').value;
                 const q = row.querySelector('.stock-input').value;
                 if(s && q) sizesData.push({ size: s, stock: q });
             });
+
             let colorsData = [];
-            document.querySelectorAll('.color-input').forEach(input => { if(input.value) colorsData.push(input.value); });
+            document.querySelectorAll('.color-input').forEach(input => { 
+                if(input.value) colorsData.push(input.value); 
+            });
 
             formData.append('name', document.getElementById('name').value);
             formData.append('description', document.getElementById('description').value);
@@ -539,22 +614,34 @@
             formData.append('colors', JSON.stringify(colorsData));
 
             const inputImagenes = document.getElementById('imagen');
-            for (let i = 0; i < inputImagenes.files.length; i++) { formData.append('images', inputImagenes.files[i]); }
+            if (inputImagenes.files.length > 0) {
+                for (let i = 0; i < inputImagenes.files.length; i++) { 
+                    formData.append('images', inputImagenes.files[i]); 
+                }
+            }
+
+            // Lógica Híbrida: POST para nuevo, PUT para editar
+            const url = editandoId ? `/api/productos/${editandoId}` : '/api/productos';
+            const metodo = editandoId ? 'PUT' : 'POST';
 
             try {
-                const res = await fetch('/api/productos', {
-                    method: 'POST',
+                const res = await fetch(url, {
+                    method: metodo,
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                     body: formData
                 });
                 if(res.ok) { 
-                    alert("Producto publicado"); 
+                    alert(editandoId ? "Producto actualizado correctamente" : "Producto publicado con éxito"); 
                     cerrarModal('modalProducto'); 
                     e.target.reset();
+                    editandoId = null; // Reset del estado de edición
                     document.getElementById('preview-imagenes').innerHTML = '';
                     cargarTablas(); 
+                } else {
+                    const err = await res.json();
+                    alert("Error: " + err.error);
                 }
-            } catch (e) { alert("Error de conexión"); }
+            } catch (e) { alert("Error de conexión al servidor"); }
         };
 
         // --- Ropa ---
@@ -564,7 +651,7 @@
             
             let sizesData = [];
             document.querySelectorAll('.ropa-stock-input').forEach(input => {
-                if(input.value > 0) {
+                if(input.value !== "" && input.value >= 0) {
                     sizesData.push({ size: input.getAttribute('data-size'), stock: parseInt(input.value) });
                 }
             });
@@ -572,30 +659,36 @@
             formData.append('name', document.getElementById('ropa-name').value);
             formData.append('description', document.getElementById('ropa-description').value);
             formData.append('price', document.getElementById('ropa-price').value);
-            // Cambiamos 'category' por 'category_id' para tu API
             formData.append('category_id', document.getElementById('ropa-category').value);
             formData.append('sizes', JSON.stringify(sizesData));
-            formData.append('colors', JSON.stringify([])); // Tu API pide colors obligatoriamente
+            formData.append('colors', JSON.stringify([])); 
             
-            // Cambiamos 'image' por 'images' para que coincida con tu upload.array('images')
-            formData.append('images', document.getElementById('ropa-imagen').files[0]);
+            const inputRopaImg = document.getElementById('ropa-imagen');
+            if (inputRopaImg.files.length > 0) {
+                formData.append('images', inputRopaImg.files[0]);
+            }
+
+            // Lógica Híbrida: POST para nuevo, PUT para editar
+            const url = editandoId ? `/api/ropa/${editandoId}` : '/api/ropa';
+            const metodo = editandoId ? 'PUT' : 'POST';
 
             try {
-                const res = await fetch('/api/ropa', {
-                    method: 'POST',
+                const res = await fetch(url, {
+                    method: metodo,
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('urban_token')}` },
                     body: formData
                 });
                 if(res.ok) {
-                    alert("Ropa cargada con éxito!");
+                    alert(editandoId ? "Prenda actualizada con éxito" : "Ropa cargada correctamente");
                     cerrarModal('modalRopa');
                     e.target.reset();
+                    editandoId = null; // Reset del estado de edición
                     cargarTablas();
                 } else {
                     const err = await res.json();
-                    alert("Error: " + err.error);
+                    alert("Error: " + (err.error || "No se pudo guardar"));
                 }
-            } catch (e) { alert("Error al conectar"); }
+            } catch (e) { alert("Error de conexión al servidor"); }
         };
 
         // --- Promos ---
@@ -690,6 +783,21 @@
 
         // Llamá a esta función cuando abras el modal de ropa
         function abrirModalRopa() {
+            actualizarSelectCategorias();
+            abrirModal('modalRopa');
+        }
+
+        function abrirModalProductoNuevo() {
+            editandoId = null;
+            document.getElementById('productForm').reset();
+            document.querySelector('#productForm .btn-cargar').innerText = "PUBLICAR PRODUCTO";
+            abrirModal('modalProducto');
+        }
+
+        function abrirModalRopaNueva() {
+            editandoId = null;
+            document.getElementById('ropaForm').reset();
+            document.querySelector('#ropaForm .btn-cargar').innerText = "PUBLICAR PRENDA";
             actualizarSelectCategorias();
             abrirModal('modalRopa');
         }

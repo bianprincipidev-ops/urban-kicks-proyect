@@ -164,6 +164,47 @@ app.delete('/api/productos/:id', async (req, res) => {
     }
 });
 
+// --- EDITAR PRODUCTO (ZAPATILLAS) ---
+app.put('/api/productos/:id', authenticateToken, (req, res) => {
+    const { id } = req.params;
+    const { name, description, price, category_id, color, sizes } = req.body;
+
+    const sql = "UPDATE products SET name = ?, description = ?, price = ?, category_id = ?, color = ? WHERE id = ?";
+    db.query(sql, [name, description, price, category_id, color, id], (err) => {
+        if (err) return res.status(500).send(err);
+
+        // Actualizar stock (talles)
+        db.query("DELETE FROM product_sizes WHERE product_id = ?", [id], () => {
+            const sizeSql = "INSERT INTO product_sizes (product_id, size, stock) VALUES ?";
+            const sizeValues = sizes.map(s => [id, s.size, s.stock]);
+            db.query(sizeSql, [sizeValues], (err) => {
+                if (err) return res.status(500).send(err);
+                res.send({ message: "Producto actualizado con éxito" });
+            });
+        });
+    });
+});
+
+// --- EDITAR PRENDA (ROPA) ---
+app.put('/api/ropa/:id', authenticateToken, (req, res) => {
+    const { id } = req.params;
+    const { name, description, price, category_id, sizes } = req.body;
+
+    const sql = "UPDATE clothing_products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?";
+    db.query(sql, [name, description, price, category_id, id], (err) => {
+        if (err) return res.status(500).send(err);
+
+        db.query("DELETE FROM clothing_sizes WHERE product_id = ?", [id], () => {
+            const sizeSql = "INSERT INTO clothing_sizes (product_id, size, stock) VALUES ?";
+            const sizeValues = sizes.map(s => [id, s.size, s.stock]);
+            db.query(sizeSql, [sizeValues], (err) => {
+                if (err) return res.status(500).send(err);
+                res.send({ message: "Prenda actualizada" });
+            });
+        });
+    });
+});
+
 // Borrar Promociones 
 app.delete('/api/promociones/:id', async (req, res) => {
     const { id } = req.params;
