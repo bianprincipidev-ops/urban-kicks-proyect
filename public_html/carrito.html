@@ -52,22 +52,37 @@
         <div id="cart-items">
             </div>
 
-        <div class="cart-summary">
-            <div class="summary-details">
-                <p>Subtotal: <span id="cart-subtotal">$0</span></p>
-                <p>Envío: <span style="color: #25D366;">¡GRATIS! (Río Cuarto)</span></p>
-                <hr>
-                <h3>Total: <span id="cart-total">$0</span></h3>
+            <div class="cart-totals-container" style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 30px;">
+                
+                <div class="summary-line" style="display: flex; justify-content: space-between; margin-bottom: 12px; color: #666;">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal" style="font-weight: 600; color: #000;">$0.00</span>
+                </div>
+
+                <div class="summary-line shipping-notice" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid #f4f4f4; border-bottom: 1px solid #f4f4f4; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ri-truck-line" style="color: #000; font-size: 1.1rem;"></i>
+                        <span style="font-size: 0.9rem; color: #444;">Envío</span>
+                    </div>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: #000; background: #f0f0f0; padding: 4px 12px; border-radius: 20px;">
+                        A COORDINAR CON VENDEDOR
+                    </span>
+                </div>
+
+                <div class="summary-line total-line" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <span style="font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Total</span>
+                    <span id="cart-total" style="font-size: 1.5rem; font-weight: 900; color: #000;">$0.00</span>
+                </div>
+
+                <div class="cart-actions" style="display: flex; flex-direction: column; gap: 12px; margin-top: 25px;">
+                    <button onclick="finalizarPedido()" class="btn-whatsapp-final" style="background: #25D366; color: white; border: none; padding: 16px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s;">
+                        <i class="ri-whatsapp-line" style="font-size: 1.3rem;"></i> FINALIZAR POR WHATSAPP
+                    </button>
+                    <a href="/tienda" style="text-align: center; color: #888; text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 10px;">
+                        ← SEGUIR COMPRANDO
+                    </a>
+                </div>
             </div>
-            <div class="cart-buttons">
-                <button class="btn-checkout" onclick="finalizarCompra()">
-                    <i class="ri-whatsapp-line"></i> FINALIZAR POR WHATSAPP
-                </button>
-                <button class="btn-continue" onclick="window.location.href='/tienda'">
-                    <i class="ri-arrow-left-line"></i> SEGUIR COMPRANDO
-                </button>
-            </div>
-        </div>
     </main>
 
 <script>
@@ -168,6 +183,11 @@
 
         const url = `https://wa.me/5493585756996?text=${encodeURIComponent(mensaje)}`;
         window.open(url, '_blank');
+    }
+
+    function actualizarTotales(total) {
+        document.getElementById('cart-subtotal').innerText = `$${total.toLocaleString('es-AR')}`;
+        document.getElementById('cart-total').innerText = `$${total.toLocaleString('es-AR')}`;
     }
 </script>
 </body>
