@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <script src="main.js"></script>
+    <style>
+        /* Estilo para quitar las flechitas por defecto del input number */
+        #cantidad::-webkit-outer-spin-button,
+        #cantidad::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .quantity-controls button:hover { background: #f4f4f4 !important; }
+        .active-size { background: #000 !important; color: #fff !important; border-color: #000 !important; }
+    </style>
 </head>
 <body>
 
@@ -60,13 +67,13 @@
             </div>
 
             // Seleccionar cantidad (opcional, por defecto 1)
-            <div class="quantity-selector" style="margin-top: 15px;">
-                <span style="font-weight: bold; font-size: 0.9rem;">Cantidad:</span>
-                <div class="quantity-controls" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
-                    <button onclick="cambiarCantidad(-1)" style="padding: 5px 15px; cursor: pointer;">-</button>
-                    <input type="number" id="cantidad-input" value="1" min="1" readonly 
-                        style="width: 50px; text-align: center; border: 1px solid #ddd; padding: 5px; font-weight: bold;">
-                    <button onclick="cambiarCantidad(1)" style="padding: 5px 15px; cursor: pointer;">+</button>
+            <div class="quantity-selector" style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
+                <span style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #444;">Cantidad</span>
+                <div class="quantity-controls" style="margin-top: 12px; display: flex; align-items: center; border: 1px solid #000; width: fit-content; border-radius: 4px; overflow: hidden;">
+                    <button onclick="restarCantidad()" style="background: white; border: none; padding: 10px 15px; cursor: pointer; font-size: 1.2rem; transition: 0.3s; color: #000;">-</button>
+                    <input type="number" id="cantidad" value="1" min="1" readonly 
+                        style="width: 50px; text-align: center; border: none; border-left: 1px solid #eee; border-right: 1px solid #eee; font-weight: 700; font-family: inherit; font-size: 1rem; color: #000; -moz-appearance: textfield;">
+                    <button onclick="sumarCantidad()" style="background: white; border: none; padding: 10px 15px; cursor: pointer; font-size: 1.2rem; transition: 0.3s; color: #000;">+</button>
                 </div>
             </div>
 
@@ -90,7 +97,7 @@
     let productoActual = null;
     let talleSeleccionado = null;
     let stockSeleccionado = 0;
-    let cantidad = 1; // Esta es la variable que usa tu input
+    let cantidad = 1; 
     let tipoProducto = '';
     
     document.addEventListener('DOMContentLoaded', async () => {
@@ -114,7 +121,6 @@
                 const imagenes = productoActual.image_url.split(',');
                 document.getElementById('img-producto').src = imagenes[0];
 
-                // LLAMAMOS A LOS RELACIONADOS AQUÍ
                 cargarRelacionados(tipoProducto, id, productoActual.category_id);
 
                 if (imagenes.length > 1) {
@@ -141,12 +147,10 @@
         talleSeleccionado = talle;
         stockSeleccionado = stock;
         
-        // Resetear cantidad a 1 al cambiar de talle para evitar errores
         cantidad = 1;
         document.getElementById('cantidad').value = cantidad;
         
         document.getElementById('stock-info').innerText = `${stock} disponibles`;
-        // Cambio de color si hay poco stock (opcional)
         document.getElementById('stock-info').style.color = stock < 3 ? "#ff4d4d" : "#888";
     }
 
@@ -180,7 +184,7 @@
         } catch (e) { console.error("Error relacionados:", e); }
     }
 
-    // --- FUNCIONES DE CANTIDAD CON VALIDACIÓN ---
+    // --- FUNCIONES DE CANTIDAD CORREGIDAS ---
     function sumarCantidad() {
         if (!talleSeleccionado) {
             alert("Primero seleccioná un talle.");
@@ -190,7 +194,7 @@
             cantidad++;
             document.getElementById('cantidad').value = cantidad;
         } else {
-            alert(`Solo hay ${stockSeleccionado} unidades disponibles de este talle.`);
+            alert(`Solo hay ${stockSeleccionado} unidades disponibles.`);
         }
     }
 
@@ -208,7 +212,6 @@
         }
         if (!talleSeleccionado) return alert("Seleccioná un talle.");
 
-        // Validar cantidad final antes de guardar
         if (cantidad > stockSeleccionado) {
             alert("La cantidad seleccionada supera el stock disponible.");
             return;
@@ -218,9 +221,8 @@
         const existente = carrito.find(i => i.id === productoActual.id && i.size === talleSeleccionado && i.tipo === tipoProducto);
         
         if(existente) {
-            // Validar que la suma de lo que ya está en el carrito + lo nuevo no supere el stock
             if ((existente.cantidad + cantidad) > stockSeleccionado) {
-                alert(`Ya tenés este producto en el carrito. No podés agregar más porque superás el stock de ${stockSeleccionado} unidades.`);
+                alert(`Superás el stock de ${stockSeleccionado} unidades.`);
                 return;
             }
             existente.cantidad += cantidad;
