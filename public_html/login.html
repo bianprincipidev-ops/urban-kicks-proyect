@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preload" as="image" href="logo-urban.png" fetchpriority="high">
     <script src="main.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body class="auth-page">
 
@@ -35,7 +36,10 @@
                         </div>
                         <div class="input-group">
                             <label>CONTRASEÑA</label>
-                            <input type="password" id="password" placeholder="********" required>
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <input type="password" id="password" placeholder="********" required style="width: 100%; padding-right: 40px;">
+                                <i class="ri-eye-off-line" id="togglePassword" style="position: absolute; right: 10px; cursor: pointer; color: #999;"></i>    
+                            </div>
                         </div>
                         
                         <button type="submit" class="btn-entrar-split">ENTRAR</button>
@@ -75,6 +79,18 @@
     document.getElementById('login-form').onsubmit = ejecutarLogin;
     function enviarCodigo() { enviarCodigoRecuperacion(); }
     function cambiarPassword() { cambiarPasswordRecuperacion(); }
+
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') == 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // cambiamos el icono del ojito
+        this.classList.toggle('ri-eye-line');
+        this.classList.toggle('ri-eye-off-line');
+    });
 </script>
 </body>
 </html>
