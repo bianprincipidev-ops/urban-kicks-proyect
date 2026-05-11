@@ -161,12 +161,29 @@
         }
     }
 
-    function finalizarCompra() {
-        const carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
-        if (carrito.length === 0) return alert("El carrito está vacío");
+    function finalizarPedido() {
+            const carrito = JSON.parse(localStorage.getItem('urban_cart')) || [];
+            if (carrito.length === 0) return alert("El carrito está vacío");
 
-        let mensaje = "¡Hola Urban Kicks! 🔥 Quisiera realizar el siguiente pedido:\n\n";
-        let total = 0;
+            let mensaje = "¡Hola Urban Kicks! 👟 Quiero realizar un pedido:\n\n";
+            let total = 0;
+
+            carrito.forEach(item => {
+                mensaje += `- ${item.name} (Talle: ${item.size}) x${item.cantidad}\n`;
+                total += (item.price * item.cantidad);
+            });
+
+            mensaje += `\n*Total a pagar: $${total.toLocaleString('es-AR')}*`;
+            mensaje += `\n\n_Envío a coordinar con el vendedor._`;
+
+            const fone = "5493585756996"; // Tu número de WhatsApp
+            const url = `https://wa.me/${fone}?text=${encodeURIComponent(mensaje)}`;
+            
+            // Opcional: limpiar carrito al finalizar
+            // localStorage.removeItem('urban_cart');
+            
+            window.open(url, '_blank');
+        }
 
         carrito.forEach(i => {
             const cant = i.cantidad || 1;
