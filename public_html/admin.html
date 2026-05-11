@@ -68,6 +68,72 @@
         .btn-venta:hover span {
             color: white;
         }
+
+        /* Contenedor para permitir scroll lateral si es necesario */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 768px) {
+            /* Escondemos los encabezados de la tabla original */
+            table thead {
+                display: none;
+            }
+
+            /* Convertimos cada fila en una 'tarjeta' vertical */
+            table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                padding: 10px;
+                background: #fff;
+            }
+
+            table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: right;
+                padding: 8px 5px;
+                border-bottom: 1px solid #f9f9f9;
+            }
+
+            /* Agregamos una etiqueta antes de cada dato para saber qué es */
+            table td::before {
+                content: attr(data-label); /* Necesitás agregar el atributo data-label en el HTML */
+                font-weight: bold;
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                color: #888;
+                float: left;
+            }
+
+            table td:last-child {
+                border-bottom: 0;
+                justify-content: center; /* Centra los botones de editar/borrar */
+            }
+
+            /* Ajuste para las imágenes en el móvil */
+            table td img {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0; /* Si usabas margen para el sidebar, lo sacamos en celu */
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body class="admin-body">
@@ -454,7 +520,7 @@
             wrapper.appendChild(div);
         }
 
-        // 3. CARGAR TABLAS (PRODUCTOS, PROMOS Y ROPA)
+        // 3. CARGAR TABLAS (PRODUCTOS, PROMOS Y ROPA) - ACTUALIZADA PARA RESPONSIVE
         async function cargarTablas() {
             const token = localStorage.getItem('urban_token');
 
@@ -466,10 +532,10 @@
                 if(tbody) {
                     tbody.innerHTML = productos.map(p => `
                         <tr>
-                            <td><img src="${p.image_url}" width="50" style="border-radius:5px;"></td>
-                            <td><strong>${p.name}</strong><br><small style="color: #888;">${p.color || ''}</small></td>
-                            <td>$${p.price}</td>
-                            <td>
+                            <td data-label="Imagen"><img src="${p.image_url}" width="50" style="border-radius:5px;"></td>
+                            <td data-label="Modelo"><strong>${p.name}</strong><br><small style="color: #888;">${p.color || ''}</small></td>
+                            <td data-label="Precio">$${p.price}</td>
+                            <td data-label="Stock/Venta">
                                 <div class="admin-stock-controls">
                                     ${p.sizes && p.sizes.length > 0 ? p.sizes.map(s => `
                                         <button class="btn-venta" onclick="confirmarVenta(${p.id}, '${s.size}', ${s.stock})">
@@ -477,7 +543,7 @@
                                         </button>`).join('') : '<span style="color: #666;">Sin talles</span>'}
                                 </div>
                             </td>
-                           <td>
+                           <td data-label="Acciones">
                                 <button class="btn-edit" onclick="prepararEdicion(${p.id}, 'zapas')" style="background:#444; color:white; border:none; padding:5px 8px; border-radius:4px; margin-right:5px; cursor:pointer;"><i class="ri-pencil-line"></i></button>
                                 <button class="btn-del" onclick="eliminarItem('/api/productos', ${p.id})"><i class="ri-delete-bin-line"></i></button>
                             </td>
@@ -497,10 +563,10 @@
                             const imagenPrincipal = r.image_url ? r.image_url.split(',')[0] : '';
                             return `
                             <tr>
-                                <td><img src="${imagenPrincipal}" width="50" style="border-radius:5px;"></td>
-                                <td><strong>${r.name}</strong></td>
-                                <td>$${r.price}</td>
-                                <td>
+                                <td data-label="Imagen"><img src="${imagenPrincipal}" width="50" style="border-radius:5px;"></td>
+                                <td data-label="Prenda"><strong>${r.name}</strong></td>
+                                <td data-label="Precio">$${r.price}</td>
+                                <td data-label="Stock/Venta">
                                     <div class="admin-stock-controls">
                                         ${r.sizes && r.sizes.length > 0 
                                             ? r.sizes.map(s => `
@@ -510,7 +576,7 @@
                                             : '<span style="color:#666;">Sin stock</span>'}
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Acciones">
                                     <button class="btn-edit" onclick="prepararEdicion(${r.id}, 'ropa')" style="background:#444; color:white; border:none; padding:5px 8px; border-radius:4px; margin-right:5px; cursor:pointer;"><i class="ri-pencil-line"></i></button>
                                     <button class="btn-del" onclick="eliminarItem('/api/ropa', ${r.id})"><i class="ri-delete-bin-line"></i></button>
                                 </td>
@@ -527,9 +593,9 @@
                 if(tbodyPromo) {
                     tbodyPromo.innerHTML = promos.map(p => `
                         <tr>
-                            <td><strong>${p.title}</strong></td>
-                            <td>${p.subtitle}</td>
-                            <td><button class="btn-del" onclick="eliminarItem('/api/promociones', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
+                            <td data-label="Título"><strong>${p.title}</strong></td>
+                            <td data-label="Subtítulo">${p.subtitle}</td>
+                            <td data-label="Acción"><button class="btn-del" onclick="eliminarItem('/api/promociones', ${p.id})"><i class="ri-delete-bin-line"></i></button></td>
                         </tr>`).join('');
                 }
             } catch (e) { console.error("Error promos:", e); }
