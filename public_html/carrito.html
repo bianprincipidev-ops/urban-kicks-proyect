@@ -113,23 +113,26 @@
                 total += subtotalItem;
 
                 contenedor.innerHTML += `
-                    <div class="cart-item" style="display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid #eee;">
-                        <img src="${item.image}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px;">
-                        <div class="cart-item-info" style="flex: 1;">
-                            <h4 style="margin: 0; font-size: 0.95rem;">${item.name}</h4>
+                    <div class="cart-item" style="display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid #eee; width: 100%;">
+                        <img src="${item.image}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
+                        
+                        <div class="cart-item-info" style="flex: 1; min-width: 0;">
+                            <h4 style="margin: 0; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
                             <p style="margin: 4px 0; color: #888; font-size: 0.8rem;">Talle: <strong>${item.size}</strong></p>
                             
                             <div style="display: flex; align-items: center; gap: 10px; margin: 8px 0;">
-                                <button onclick="actualizarCantidad(${index}, -1)" class="qty-btn-small" style="cursor:pointer; width:25px; height:25px; border:1px solid #ddd; background:#fff; border-radius:4px;">−</button>
+                                <button onclick="actualizarCantidad(${index}, -1)" style="cursor:pointer; width:25px; height:25px; border:1px solid #ddd; background:#fff; border-radius:4px; display: flex; align-items: center; justify-content: center;">−</button>
                                 <span style="font-weight: bold;">${cantidad}</span>
-                                <button onclick="actualizarCantidad(${index}, 1)" class="qty-btn-small" style="cursor:pointer; width:25px; height:25px; border:1px solid #ddd; background:#fff; border-radius:4px;">+</button>
+                                <button onclick="actualizarCantidad(${index}, 1)" style="cursor:pointer; width:25px; height:25px; border:1px solid #ddd; background:#fff; border-radius:4px; display: flex; align-items: center; justify-content: center;">+</button>
                             </div>
 
-                            <span class="cart-item-price" style="font-weight: 700;">$${Number(item.price).toLocaleString('es-AR')}</span>
+                            <span style="font-weight: 700; display: block;">$${Number(item.price).toLocaleString('es-AR')}</span>
                         </div>
-                        
-                        <button class="btn-remove" onclick="eliminarDelCarrito(${index})" title="Eliminar" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size: 1.2rem; padding: 10px;">
-                            <i class="ri-delete-bin-line"></i>
+
+                        <button onclick="eliminarDelCarrito(${index})" 
+                                style="background: #ff4d4d; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; flex-shrink: 0; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; margin-left: 10px;" 
+                                title="Eliminar">
+                            <i class="ri-delete-bin-line" style="font-size: 1.2rem; color: white !important;"></i>
                         </button>
                     </div>`;
             });
