@@ -11,6 +11,7 @@ const app = express();
 
 // --- CONFIGURACIONES ---
 app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
 
 // ✅ CONFIGURACION PROFESIONAL (HOSTINGER)
 const transporter = nodemailer.createTransport({
@@ -164,19 +165,32 @@ app.delete('/api/productos/:id', async (req, res) => {
     }
 });
 
-// --- EDITAR PRODUCTO (ZAPATILLAS) ---
-app.put('/api/productos/:id', async (req, res) => {
+// Agregá 'upload.array('images')' (o como se llame tu config de multer)
+app.put('/api/productos/:id', upload.array('images'), async (req, res) => {
     const { id } = req.params;
+    
+    // Ahora req.body YA NO va a ser undefined porque Multer lo procesó
     const { name, description, price, category_id, sizes, colors } = req.body;
 
     try {
-        // 1. Actualizar datos básicos en la tabla products
+        // Validar que los datos llegaron
+        if (!name) {
+            return res.status(400).json({ error: "Faltan datos en el formulario (name)" });
+        }
+
+        // 1. Actualizar datos básicos
         await pool.query(
             "UPDATE products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?",
             [name, description, price, category_id, id]
         );
 
-        // 2. Actualizar Talles (Borrar anteriores e insertar nuevos)
+        // --- Lógica de imágenes (Opcional por si suben fotos nuevas al editar) ---
+        if (req.files && req.files.length > 0) {
+            const nuevasImagenes = req.files.map(f => `/uploads/${f.filename}`).join(',');
+            await pool.query("UPDATE products SET image_url = ? WHERE id = ?", [nuevasImagenes, id]);
+        }
+
+        // 2. Actualizar Talles
         if (sizes) {
             await pool.query("DELETE FROM product_sizes WHERE product_id = ?", [id]);
             const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
@@ -188,7 +202,7 @@ app.put('/api/productos/:id', async (req, res) => {
             }
         }
 
-        // 3. Actualizar Colores (Borrar anteriores e insertar nuevos)
+        // 3. Actualizar Colores
         if (colors) {
             await pool.query("DELETE FROM product_colors WHERE product_id = ?", [id]);
             const parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
@@ -202,25 +216,38 @@ app.put('/api/productos/:id', async (req, res) => {
 
         res.json({ success: true, message: "Producto actualizado con éxito" });
     } catch (error) {
-        console.error("Error en edición de zapas:", error);
-        res.status(500).json({ error: "Error al actualizar producto" });
+        console.error("Error detallado en edición:", error);
+        res.status(500).json({ error: "Error interno al actualizar" });
     }
 });
 
 // --- EDITAR PRENDA (ROPA) ---
-app.put('/api/ropa/:id', async (req, res) => {
+app.put('/api/ropa/:id', upload.array('images'), async (req, res) => {
     const { id } = req.params;
+    
+    // Ahora req.body SÍ tendrá los datos porque Multer los extrajo del FormData
     const { name, description, price, category_id, sizes } = req.body;
 
     try {
+        // 1. Actualizar datos básicos
         await pool.query(
             "UPDATE clothing_products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?",
             [name, description, price, category_id, id]
         );
 
+        // 2. Manejo de imagen (Opcional: por si subieron una foto nueva al editar)
+        if (req.files && req.files.length > 0) {
+            const nuevaImagen = `/uploads/${req.files[0].filename}`;
+            await pool.query("UPDATE clothing_products SET image_url = ? WHERE id = ?", [nuevaImagen, id]);
+        }
+
+        // 3. Actualizar Talles (Borrar e insertar nuevos)
         if (sizes) {
             await pool.query("DELETE FROM clothing_sizes WHERE product_id = ?", [id]);
+            
+            // Multer a veces manda el JSON como string, lo parseamos si es necesario
             const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
+            
             for (let item of parsedSizes) {
                 await pool.query(
                     'INSERT INTO clothing_sizes (product_id, size, stock) VALUES (?, ?, ?)',
@@ -228,10 +255,11 @@ app.put('/api/ropa/:id', async (req, res) => {
                 );
             }
         }
-        res.json({ success: true, message: "Prenda actualizada" });
+
+        res.json({ success: true, message: "Prenda actualizada con éxito" });
     } catch (error) {
         console.error("Error en edición de ropa:", error);
-        res.status(500).json({ error: "Error al actualizar ropa" });
+        res.status(500).json({ error: "Error interno al actualizar ropa" });
     }
 });
 
