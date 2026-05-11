@@ -47,20 +47,37 @@
                         </div>
 
                         <button type="submit" class="btn-entrar-split">CREAR CUENTA</button>
+
+                        <div style="margin-top: 15px;">
+                            <a href="/api/auth/google" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #444; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: 0.3s;">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18">
+                                Registrarse con Google
+                            </a>
+                        </div>
                         
                         <div class="auth-footer">
-                            <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="forgot-password">¿Olvidaste tu contraseña?</a>
                             <p>¿Ya tienes cuenta? <a href="/login">Iniciar sesión</a></p>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
 <script>
     window.onload = () => {
-        document.getElementById('registroForm').onsubmit = ejecutarRegistro;
+        // Asignamos el submit manual
+        const form = document.getElementById('registroForm');
+        if(form) form.onsubmit = ejecutarRegistro;
+
+        // Lógica para capturar el token de Google
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const error = urlParams.get('error');
+
+        if (token) {
+            localStorage.setItem('urban_token', token);
+            alert("¡Registro exitoso!");
+            window.location.href = 'index.html'; 
+        }
+        if (error) {
+            alert("Error al registrarse con Google.");
+        }
     };
 </script>
 </body>

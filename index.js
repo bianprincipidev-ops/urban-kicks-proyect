@@ -8,6 +8,10 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const nodemailer = require('nodemailer');
 const app = express();
+const axios = require('axios');
+
+const GOOGLE_CLIENT_ID = '288354511978-7fjfibs24ir2f5g37jc2hikmvqido93l.apps.googleusercontent.com';
+const GOOGLE_CLIENT_SECRET = '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';
 
 // --- CONFIGURACIONES ---
 app.use(express.json()); 
@@ -79,6 +83,73 @@ app.get('/ropa', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 
 app.get('/detalle-ropa', (req, res) => res.sendFile(path.join(__dirname, 'public_html', 'detalle-ropa.html')));
 
 // --- RUTAS DE API ---
+
+// 1. Ruta para iniciar el login
+app.get('/api/auth/google', (req, res) => {
+    const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+    const options = {
+        redirect_uri: 'https://urbankicks.com.ar/api/auth/google/callback',
+        client_id: GOOGLE_CLIENT_ID,
+        access_type: 'offline',
+        response_type: 'code',
+        prompt: 'consent',
+        scope: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email',
+        ].join(' '),
+    };
+    res.redirect(`${rootUrl}?${new URLSearchParams(options).toString()}`);
+});
+
+// 2. Callback: Google nos devuelve el código
+app.get('/api/auth/google/callback', async (req, res) => {
+    const { code } = req.query;
+
+    try {
+        // Intercambiar código por tokens
+        const { data } = await axios.post('https://oauth2.googleapis.com/token', {
+            code,
+            client_id: GOOGLE_CLIENT_ID,
+            client_secret: GOOGLE_CLIENT_SECRET,
+            redirect_uri: 'https://urbankicks.com.ar/api/auth/google/callback',
+            grant_type: 'authorization_code',
+        });
+
+        // Obtener info del usuario desde Google
+        const { data: profile } = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
+            headers: { Authorization: `Bearer ${data.access_token}` },
+        });
+
+        const email = profile.email;
+        const nombre = profile.name;
+
+        // BUSCAR O CREAR USUARIO EN TU DB
+        // Asumimos que tenés una tabla 'users'
+        const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
+        
+        let user;
+        if (rows.length === 0) {
+            // Si no existe, lo registramos (sin password, ya que es vía Google)
+            const [result] = await pool.query(
+                "INSERT INTO users (name, email, google_user) VALUES (?, ?, ?)",
+                [nombre, email, 1]
+            );
+            user = { id: result.insertId, email, name: nombre };
+        } else {
+            user = rows[0];
+        }
+
+        // Generar tu JWT (el que ya usas para el login normal)
+        const token = jwt.sign({ id: user.id, email: user.email }, 'TU_JWT_SECRET', { expiresIn: '24h' });
+
+        // Redirigir al frontend con el token
+        res.redirect(`https://urbankicks.com.ar/login.html?token=${token}`);
+
+    } catch (error) {
+        console.error("Error en Google Auth:", error);
+        res.redirect('/login.html?error=google_failed');
+    }
+});
 
 // Obtener producto por ID (Actualizado para incluir talles)
 app.get('/api/productos/:id', async (req, res) => {
