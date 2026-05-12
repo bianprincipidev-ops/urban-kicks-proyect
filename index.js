@@ -10,8 +10,8 @@ const nodemailer = require('nodemailer');
 const app = express();
 const axios = require('axios');
 
-const GOOGLE_CLIENT_ID = '288354511978-7fjfibs24ir2f5g37jc2hikmvqido93l.apps.googleusercontent.com';
-const GOOGLE_CLIENT_SECRET = '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';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 // --- CONFIGURACIONES ---
 app.use(express.json()); 
