@@ -30,32 +30,43 @@ function verificarSesion() {
     const userLink = document.getElementById('user-link');
     const btnLogout = document.getElementById('btn-logout');
     const headerIcons = document.querySelector('.header-icons');
+    
+    // Primero, buscamos si el botón de admin ya existe en el DOM
+    const adminBtnExistente = document.getElementById('admin-btn');
 
     if (token) {
+        // --- USUARIO LOGUEADO ---
         if(userLink) {
             userLink.href = '/perfil';
             userLink.title = 'Mi Perfil';
         }
         if(btnLogout) btnLogout.style.display = 'inline-block';
 
-        if (role === 'admin' && !document.getElementById('admin-btn')) {
-            const adminBtn = document.createElement('a');
-            adminBtn.id = 'admin-btn';
-            adminBtn.href = '/admin';
-            adminBtn.className = 'admin-badge-link';
-            adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
-            if(headerIcons && userLink) headerIcons.insertBefore(adminBtn, userLink);
+        // Lógica del botón Admin
+        if (role === 'admin') {
+            // Si es admin y el botón NO existe, lo creamos
+            if (!adminBtnExistente) {
+                const adminBtn = document.createElement('a');
+                adminBtn.id = 'admin-btn';
+                adminBtn.href = '/admin';
+                adminBtn.className = 'admin-badge-link';
+                adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
+                if(headerIcons && userLink) headerIcons.insertBefore(adminBtn, userLink);
+            }
+        } else {
+            // Si está logueado pero NO es admin (es user), borramos el botón si existía
+            if (adminBtnExistente) adminBtnExistente.remove();
         }
     } else {
-        if(userLink) userLink.href = '/login';
+        // --- USUARIO NO LOGUEADO (Invitado) ---
+        if(userLink) {
+            userLink.href = '/login';
+            userLink.title = 'Iniciar Sesión';
+        }
         if(btnLogout) btnLogout.style.display = 'none';
-    }
-}
-
-function logout() {
-    if(confirm("¿Estás seguro de que quieres cerrar sesión?")) {
-        localStorage.clear();
-        window.location.replace('/');
+        
+        // Si no hay token, el botón de admin DEBE desaparecer
+        if (adminBtnExistente) adminBtnExistente.remove();
     }
 }
 
