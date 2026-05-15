@@ -30,43 +30,50 @@ function verificarSesion() {
     const userLink = document.getElementById('user-link');
     const btnLogout = document.getElementById('btn-logout');
     const headerIcons = document.querySelector('.header-icons');
-    
-    // Primero, buscamos si el botón de admin ya existe en el DOM
+
+    // 1. Limpieza inicial: buscamos si ya existe el botón admin y lo sacamos para evitar duplicados
     const adminBtnExistente = document.getElementById('admin-btn');
+    if (adminBtnExistente) adminBtnExistente.remove();
 
     if (token) {
-        // --- USUARIO LOGUEADO ---
-        if(userLink) {
+        // === USUARIO LOGUEADO ===
+        if (userLink) {
             userLink.href = '/perfil';
             userLink.title = 'Mi Perfil';
         }
-        if(btnLogout) btnLogout.style.display = 'inline-block';
+        if (btnLogout) btnLogout.style.display = 'inline-block';
 
-        // Lógica del botón Admin
+        // Solo si es admin, creamos el botón
         if (role === 'admin') {
-            // Si es admin y el botón NO existe, lo creamos
-            if (!adminBtnExistente) {
-                const adminBtn = document.createElement('a');
-                adminBtn.id = 'admin-btn';
-                adminBtn.href = '/admin';
-                adminBtn.className = 'admin-badge-link';
-                adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
-                if(headerIcons && userLink) headerIcons.insertBefore(adminBtn, userLink);
+            const adminBtn = document.createElement('a');
+            adminBtn.id = 'admin-btn';
+            adminBtn.href = '/admin';
+            adminBtn.className = 'admin-badge-link';
+            // Le damos estilo directo por JS para asegurar que se vea bien
+            adminBtn.style.marginRight = '10px'; 
+            adminBtn.innerHTML = '<i class="ri-shield-user-fill"></i><span>Admin</span>';
+            
+            if (headerIcons && userLink) {
+                headerIcons.insertBefore(adminBtn, userLink);
             }
-        } else {
-            // Si está logueado pero NO es admin (es user), borramos el botón si existía
-            if (adminBtnExistente) adminBtnExistente.remove();
         }
     } else {
-        // --- USUARIO NO LOGUEADO (Invitado) ---
-        if(userLink) {
+        // === USUARIO NO LOGUEADO ===
+        if (userLink) {
             userLink.href = '/login';
             userLink.title = 'Iniciar Sesión';
         }
-        if(btnLogout) btnLogout.style.display = 'none';
-        
-        // Si no hay token, el botón de admin DEBE desaparecer
-        if (adminBtnExistente) adminBtnExistente.remove();
+        if (btnLogout) btnLogout.style.display = 'none';
+    }
+}
+
+// ESTA FUNCIÓN DEBE ESTAR FUERA DE TODO PARA QUE EL HTML LA VEA
+function logout() {
+    if (confirm("¿Estás seguro de que quieres cerrar sesión?")) {
+        localStorage.removeItem('urban_token');
+        localStorage.removeItem('urban_role');
+        // Usamos replace para que no pueda volver atrás con el botón del navegador
+        window.location.replace('/'); 
     }
 }
 
