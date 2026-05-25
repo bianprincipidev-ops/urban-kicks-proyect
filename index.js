@@ -451,48 +451,6 @@ app.post('/api/usuario/actualizar', async (req, res) => {
     }
 });
 
-// Ruta para descontar stock manualmente desde el Admin (Zapatillas - Edición Blindada)
-app.put('/api/productos/confirmar-venta', async (req, res) => {
-    let { product_id, size } = req.body;
-
-    if (!product_id || !size) {
-        return res.status(400).json({ error: "Faltan parámetros: product_id o size" });
-    }
-
-    const idProd = parseInt(product_id, 10);
-    const talleProd = size.toString().trim(); // Limpia espacios como "38 " o " 38"
-
-    try {
-        // Verificar si el talle y producto existen
-        const [rows] = await pool.query(
-            'SELECT stock FROM product_sizes WHERE product_id = ? AND size = ?',
-            [idProd, talleProd]
-        );
-
-        if (rows.length === 0) {
-            return res.status(400).json({ error: `No se encontró el talle '${talleProd}' para el producto ID ${idProd} en Zapatillas.` });
-        }
-
-        if (rows[0].stock <= 0) {
-            return res.status(400).json({ error: "No hay stock disponible para descontar en este talle." });
-        }
-
-        // Ejecutar la resta directa
-        const [result] = await pool.query(
-            'UPDATE product_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ? AND stock > 0',
-            [idProd, talleProd]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(400).json({ error: "No se pudo modificar el stock. Verifique los datos." });
-        }
-
-        res.json({ success: true, message: "Stock de zapatillas actualizado correctamente" });
-    } catch (err) {
-        console.error("Error crítico en zapatillas:", err);
-        res.status(500).json({ error: "Error interno del servidor", detalle: err.message });
-    }
-});
 // OBTENER TODAS LAS MARCAS (sin parámetro - va PRIMERO)
 app.get('/api/talles', async (req, res) => {
     try {
@@ -636,49 +594,69 @@ app.post('/api/ropa/categorias', async (req, res) => {
     }
 });
 
-// DESCONTAR STOCK DE ROPA
-app.put('/api/ropa/confirmar-venta', async (req, res) => {
-    let { product_id, size } = req.body;
+// RUTA UNIFICADA INTELIGENTE - CONFIGURADA PARA SOPORTAR LOS ERRORES DEL FRONTEND
+const manejarConfirmarVenta = async (req, res) => {
+    const { product_id, size } = req.body;
 
     if (!product_id || !size) {
-        return res.status(400).json({ error: "Faltan parámetros: product_id o size" });
+        return res.status(400).json({ error: "Faltan parámetros requeridos (product_id o size)." });
     }
 
-    const idRopa = parseInt(product_id, 10);
-    const talleRopa = size.toString().trim();
+    const idLimpio = parseInt(product_id, 10);
+    const talleLimpio = size.toString().trim();
+
+    // DETERMINAR SI ES ROPA O ZAPATILLA SEGÚN EL TALLE
+    // Si contiene letras (S, M, L, XL), asumimos que es ROPA. Si es número puro, ZAPATILLAS.
+    const esRopa = /[a-zA-Z]/.test(talleLimpio);
 
     try {
-        // Verificar si el talle y producto existen en ropa
-        const [rows] = await pool.query(
-            'SELECT stock FROM clothing_sizes WHERE product_id = ? AND size = ?',
-            [idRopa, talleRopa]
-        );
+        if (esRopa) {
+            // --- LÓGICA DE ROPA ---
+            const [rows] = await pool.query(
+                'SELECT stock FROM clothing_sizes WHERE product_id = ? AND size = ?',
+                [idLimpio, talleLimpio]
+            );
 
-        if (rows.length === 0) {
-            return res.status(400).json({ error: `No se encontró el talle '${talleRopa}' para la prenda ID ${idRopa} en Ropa.` });
+            if (rows.length === 0) {
+                return res.status(400).json({ error: `No se encontró talle Ropa '${talleLimpio}' para ID ${idLimpio}` });
+            }
+            if (rows[0].stock <= 0) return res.status(400).json({ error: "No hay stock en ropa." });
+
+            await pool.query(
+                'UPDATE clothing_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ?',
+                [idLimpio, talleLimpio]
+            );
+            return res.json({ success: true, message: "Stock de ROPA actualizado con éxito" });
+
+        } else {
+            // --- LÓGICA DE ZAPATILLAS ---
+            const [rows] = await pool.query(
+                'SELECT stock FROM product_sizes WHERE product_id = ? AND size = ?',
+                [idLimpio, talleLimpio]
+            );
+
+            if (rows.length === 0) {
+                return res.status(400).json({ error: `No se encontró talle Zapatilla '${talleLimpio}' para ID ${idLimpio}` });
+            }
+            if (rows[0].stock <= 0) return res.status(400).json({ error: "No hay stock en zapatillas." });
+
+            await pool.query(
+                'UPDATE product_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ?',
+                [idLimpio, talleLimpio]
+            );
+            return res.json({ success: true, message: "Stock de ZAPATILLAS actualizado con éxito" });
         }
-
-        if (rows[0].stock <= 0) {
-            return res.status(400).json({ error: "No hay stock disponible en esta prenda." });
-        }
-
-        // Ejecutar la resta directa
-        const [result] = await pool.query(
-            'UPDATE clothing_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ? AND stock > 0',
-            [idRopa, talleRopa]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(400).json({ error: "No se pudo actualizar el stock de ropa." });
-        }
-
-        res.json({ success: true, message: "Stock de ropa actualizado correctamente" });
     } catch (err) {
-        console.error("Error crítico en ropa:", err);
-        res.status(500).json({ error: "Error interno del servidor", detalle: err.message });
+        console.error("Error global en confirmación:", err);
+        return res.status(500).json({ error: "Error interno del servidor", detalle: err.message });
     }
-});
+};
 
+// Declaramos la ruta para AMBOS métodos y AMBAS urls por si el front se confunde
+app.post('/api/productos/confirmar-venta', manejarConfirmarVenta);
+app.put('/api/productos/confirmar-venta', manejarConfirmarVenta);
+app.post('/api/ropa/confirmar-venta', manejarConfirmarVenta);
+app.put('/api/ropa/confirmar-venta', manejarConfirmarVenta);
 app.use((req, res) => res.status(404).send("No encontrado"));
 
 const PORT = process.env.PORT || 3000;
