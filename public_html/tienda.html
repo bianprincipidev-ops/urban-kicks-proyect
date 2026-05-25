@@ -193,12 +193,12 @@
             contenedor.innerHTML = filtrados.length === 0 ? '<p style="color: #888; text-align: center; width: 100%;">No hay productos disponibles.</p>' : '';
             
             filtrados.forEach(prod => {
-                const imagen = prod.image_url.split(',')[0];
+                // Esto toma siempre la primera foto, sea zapatilla o ropa con múltiples imágenes
+                const imagen = prod.image_url.split(',')[0]; 
                 contenedor.innerHTML += `
                     <div class="card">
                         ${prod.tipo === 'ropa' ? '<span style="position:absolute; background:#ff4d4d; color:white; padding:2px 8px; font-size:10px; border-radius:3px; margin:10px; z-index:1;">ROPA</span>' : ''}
-                        <img src="${imagen}" alt="${prod.name}">
-                        <h3>${prod.name}</h3>
+                        <img src="${imagen}" alt="${prod.name}"> <h3>${prod.name}</h3>
                         <span class="precio">$${Number(prod.price).toLocaleString('es-AR')}</span>
                         <a href="/detalle?id=${prod.id}&tipo=${prod.tipo}" class="btn-comprar">Ver Detalle</a>
                     </div>`;

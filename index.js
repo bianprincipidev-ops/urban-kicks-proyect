@@ -276,32 +276,25 @@ app.put('/api/productos/:id', upload.array('images'), async (req, res) => {
 });
 
 // --- EDITAR PRENDA (ROPA) ---
-app.put('/api/ropa/:id', upload.array('images'), async (req, res) => {
+app.put('/api/ropa/:id', upload.array('images', 5), async (req, res) => {
     const { id } = req.params;
-    
-    // Ahora req.body SÍ tendrá los datos porque Multer los extrajo del FormData
     const { name, description, price, category_id, sizes } = req.body;
 
     try {
-        // 1. Actualizar datos básicos
         await pool.query(
             "UPDATE clothing_products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?",
             [name, description, price, category_id, id]
         );
 
-        // 2. Manejo de imagen (Opcional: por si subieron una foto nueva al editar)
+        // CORRECCIÓN: Si subieron fotos nuevas, guardamos todas las nuevas juntas
         if (req.files && req.files.length > 0) {
-            const nuevaImagen = `/uploads/${req.files[0].filename}`;
-            await pool.query("UPDATE clothing_products SET image_url = ? WHERE id = ?", [nuevaImagen, id]);
+            const nuevasImagenes = req.files.map(f => `/uploads/${f.filename}`).join(',');
+            await pool.query("UPDATE clothing_products SET image_url = ? WHERE id = ?", [nuevasImagenes, id]);
         }
 
-        // 3. Actualizar Talles (Borrar e insertar nuevos)
         if (sizes) {
             await pool.query("DELETE FROM clothing_sizes WHERE product_id = ?", [id]);
-            
-            // Multer a veces manda el JSON como string, lo parseamos si es necesario
             const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
-            
             for (let item of parsedSizes) {
                 await pool.query(
                     'INSERT INTO clothing_sizes (product_id, size, stock) VALUES (?, ?, ?)',
@@ -640,7 +633,10 @@ app.get('/api/ropa/:id', async (req, res) => {
 app.post('/api/ropa', upload.array('images', 5), async (req, res) => {
     const { name, description, price, category_id, sizes, colors } = req.body;
     if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'Subí al menos una imagen' });
+    
+    // CORRECCIÓN: Juntamos todas las fotos subidas separadas por coma
     const image_url = req.files.map(f => `/uploads/${f.filename}`).join(',');
+    
     try {
         const [result] = await pool.query(
             'INSERT INTO clothing_products (name, description, price, image_url, category_id) VALUES (?, ?, ?, ?, ?)',

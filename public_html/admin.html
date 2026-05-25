@@ -325,40 +325,43 @@
     </div>
 
         <div id="modalRopa" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="cerrarModal('modalRopa')">&times;</span>
-            <h3>Cargar Prenda de Ropa</h3>
-            <form id="ropaForm">
-                <input type="text" id="ropa-name" placeholder="Nombre (Ej: Remera Oversize)" required>
-                <textarea id="ropa-description" placeholder="Descripción" rows="2"></textarea>
-                <input type="number" id="ropa-price" placeholder="Precio ($)" required>
-                
-                <div style="margin-bottom: 10px;">
-                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Categoría de Ropa:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="ropa-category" required style="flex: 1; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px;">
-                            <option value="">Seleccionar Categoría...</option>
-                        </select>
-                        <button type="button" onclick="abrirModal('modalCategoria')" style="background: #ff4d4d; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; font-weight: bold;" title="Nueva Categoría">+</button>
+            <div class="modal-content">
+                <span class="close" onclick="cerrarModal('modalRopa')">&times;</span>
+                <h3>Cargar Prenda de Ropa</h3>
+                <form id="ropaForm">
+                    <input type="text" id="ropa-name" placeholder="Nombre (Ej: Remera Oversize)" required>
+                    <textarea id="ropa-description" placeholder="Descripción" rows="2"></textarea>
+                    <input type="number" id="ropa-price" placeholder="Precio ($)" required>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Categoría de Ropa:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="ropa-category" required style="flex: 1; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px;">
+                                <option value="">Seleccionar Categoría...</option>
+                            </select>
+                            <button type="button" onclick="abrirModal('modalCategoria')" style="background: #ff4d4d; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; font-weight: bold;" title="Nueva Categoría">+</button>
+                        </div>
                     </div>
-                </div>
 
-                <div class="stock-container">
-                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Stock por Talles (Letras):</label>
-                    <div id="ropa-sizes-wrapper" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                        <div><label>S</label><input type="number" class="ropa-stock-input" data-size="S" placeholder="0" style="width:100%;"></div>
-                        <div><label>M</label><input type="number" class="ropa-stock-input" data-size="M" placeholder="0" style="width:100%;"></div>
-                        <div><label>L</label><input type="number" class="ropa-stock-input" data-size="L" placeholder="0" style="width:100%;"></div>
-                        <div><label>XL</label><input type="number" class="ropa-stock-input" data-size="XL" placeholder="0" style="width:100%;"></div>
-                        <div><label>XXL</label><input type="number" class="ropa-stock-input" data-size="XXL" placeholder="0" style="width:100%;"></div>
-                        <div><label>U (Único)</label><input type="number" class="ropa-stock-input" data-size="U" placeholder="0" style="width:100%;"></div>
+                    <div class="stock-container">
+                        <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Stock por Talles (Letras):</label>
+                        <div id="ropa-sizes-wrapper" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            <div><label>S</label><input type="number" class="ropa-stock-input" data-size="S" placeholder="0" style="width:100%;"></div>
+                            <div><label>M</label><input type="number" class="ropa-stock-input" data-size="M" placeholder="0" style="width:100%;"></div>
+                            <div><label>L</label><input type="number" class="ropa-stock-input" data-size="L" placeholder="0" style="width:100%;"></div>
+                            <div><label>XL</label><input type="number" class="ropa-stock-input" data-size="XL" placeholder="0" style="width:100%;"></div>
+                            <div><label>XXL</label><input type="number" class="ropa-stock-input" data-size="XXL" placeholder="0" style="width:100%;"></div>
+                            <div><label>U (Único)</label><input type="number" class="ropa-stock-input" data-size="U" placeholder="0" style="width:100%;"></div>
+                        </div>
                     </div>
-                </div>
 
-                <input type="file" id="ropa-imagen" accept="image/*" required>
-                <button type="submit" class="btn-cargar">PUBLICAR PRENDA</button>
-            </form>
-        </div>
+                    <label style="color: #888; font-size: 0.8rem; display: block; margin-top: 15px;">Imágenes de la Prenda (Seleccioná hasta 5):</label>
+                    <input type="file" id="ropa-imagen" name="images" multiple accept="image/*">
+                    <div id="preview-ropa-imagenes" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; margin-bottom: 15px; min-height: 60px; border: 1px dashed #444; padding: 10px; border-radius: 8px;"></div>
+
+                    <button type="submit" class="btn-cargar">PUBLICAR PRENDA</button>
+                </form>
+            </div>
         </div>
 
         <div id="modalCategoria" class="modal" style="z-index: 2000;"> <div class="modal-content" style="max-width: 400px; border: 1px solid #ff4d4d;">
@@ -744,7 +747,9 @@
             
             const inputRopaImg = document.getElementById('ropa-imagen');
             if (inputRopaImg.files.length > 0) {
-                formData.append('images', inputRopaImg.files[0]);
+                for (let i = 0; i < inputRopaImg.files.length; i++) {
+                    formData.append('images', inputRopaImg.files[i]);
+                }
             }
 
             // Lógica Híbrida: POST para nuevo, PUT para editar
@@ -762,6 +767,7 @@
                     cerrarModal('modalRopa');
                     e.target.reset();
                     editandoId = null; // Reset del estado de edición
+                    document.getElementById('preview-ropa-imagenes').innerHTML = ''; // 🚀 AGREGADO: Limpia preview de ropa al guardar
                     cargarTablas();
                 } else {
                     const err = await res.json();
@@ -807,7 +813,25 @@
 
         // --- PREVIEW DE IMÁGENES ---
         document.getElementById('imagen').addEventListener('change', function() {
-            const preview = document.getElementById('preview-imagenes');
+                    const preview = document.getElementById('preview-imagenes');
+                    preview.innerHTML = '';
+                    Array.from(this.files).slice(0, 5).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            const imgContainer = document.createElement('div');
+                            imgContainer.style.position = 'relative';
+                            imgContainer.innerHTML = `
+                                <img src="${e.target.result}" style="width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid #ff4d4d;">
+                            `;
+                            preview.appendChild(imgContainer);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                });
+
+        // 🚀 AGREGADO: PREVIEW DE IMÁGENES PARA ROPA (HASTA 5 FOTOS)
+        document.getElementById('ropa-imagen').addEventListener('change', function() {
+            const preview = document.getElementById('preview-ropa-imagenes');
             preview.innerHTML = '';
             Array.from(this.files).slice(0, 5).forEach(file => {
                 const reader = new FileReader();
@@ -878,6 +902,7 @@
         function abrirModalRopaNueva() {
             editandoId = null;
             document.getElementById('ropaForm').reset();
+            document.getElementById('preview-ropa-imagenes').innerHTML = ''; // 🚀 AGREGADO: Limpiar preview al abrir modal vacío
             document.querySelector('#ropaForm .btn-cargar').innerText = "PUBLICAR PRENDA";
             actualizarSelectCategorias();
             abrirModal('modalRopa');
