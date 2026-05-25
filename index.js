@@ -453,44 +453,46 @@ app.post('/api/usuario/actualizar', async (req, res) => {
 
 // Ruta para descontar stock manualmente desde el Admin (Zapatillas - Edición Blindada)
 app.put('/api/productos/confirmar-venta', async (req, res) => {
-    const { product_id, size } = req.body;
+    let { product_id, size } = req.body;
 
-    // Forzamos conversión limpia a números enteros
+    if (!product_id || !size) {
+        return res.status(400).json({ error: "Faltan parámetros: product_id o size" });
+    }
+
     const idProd = parseInt(product_id, 10);
-    const talleProd = size.toString().trim(); // Lo dejamos como string limpio sin espacios
+    const talleProd = size.toString().trim(); // Limpia espacios como "38 " o " 38"
 
     try {
-        // Verificamos stock existente
+        // Verificar si el talle y producto existen
         const [rows] = await pool.query(
             'SELECT stock FROM product_sizes WHERE product_id = ? AND size = ?',
             [idProd, talleProd]
         );
 
         if (rows.length === 0) {
-            return res.status(400).json({ error: "No se encontró el talle para este producto en la BD." });
+            return res.status(400).json({ error: `No se encontró el talle '${talleProd}' para el producto ID ${idProd} en Zapatillas.` });
         }
 
-        const stockActual = rows[0].stock;
-        if (stockActual <= 0) {
-            return res.status(400).json({ error: "No hay stock disponible." });
+        if (rows[0].stock <= 0) {
+            return res.status(400).json({ error: "No hay stock disponible para descontar en este talle." });
         }
 
-        // Hacemos la resta explícita en JavaScript para asegurar que MySQL reciba el número exacto
-        const nuevoStock = stockActual - 1;
-
-        // Mandamos el valor matemático final calculado
-        await pool.query(
-            'UPDATE product_sizes SET stock = ? WHERE product_id = ? AND size = ?',
-            [nuevoStock, idProd, talleProd]
+        // Ejecutar la resta directa
+        const [result] = await pool.query(
+            'UPDATE product_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ? AND stock > 0',
+            [idProd, talleProd]
         );
 
-        res.json({ success: true, message: "Stock de zapatillas actualizado" });
+        if (result.affectedRows === 0) {
+            return res.status(400).json({ error: "No se pudo modificar el stock. Verifique los datos." });
+        }
+
+        res.json({ success: true, message: "Stock de zapatillas actualizado correctamente" });
     } catch (err) {
-        console.error("Error en venta de zapatillas:", err);
-        res.status(500).json({ error: "Error al actualizar stock de zapatillas" });
+        console.error("Error crítico en zapatillas:", err);
+        res.status(500).json({ error: "Error interno del servidor", detalle: err.message });
     }
 });
-
 // OBTENER TODAS LAS MARCAS (sin parámetro - va PRIMERO)
 app.get('/api/talles', async (req, res) => {
     try {
@@ -636,39 +638,44 @@ app.post('/api/ropa/categorias', async (req, res) => {
 
 // DESCONTAR STOCK DE ROPA
 app.put('/api/ropa/confirmar-venta', async (req, res) => {
-    const { product_id, size } = req.body;
+    let { product_id, size } = req.body;
+
+    if (!product_id || !size) {
+        return res.status(400).json({ error: "Faltan parámetros: product_id o size" });
+    }
 
     const idRopa = parseInt(product_id, 10);
     const talleRopa = size.toString().trim();
 
     try {
-        // Verificamos stock existente en ropa
+        // Verificar si el talle y producto existen en ropa
         const [rows] = await pool.query(
             'SELECT stock FROM clothing_sizes WHERE product_id = ? AND size = ?',
             [idRopa, talleRopa]
         );
 
         if (rows.length === 0) {
-            return res.status(400).json({ error: "No se encontró el talle para esta prenda." });
+            return res.status(400).json({ error: `No se encontró el talle '${talleRopa}' para la prenda ID ${idRopa} en Ropa.` });
         }
 
-        const stockActual = rows[0].stock;
-        if (stockActual <= 0) {
-            return res.status(400).json({ error: "Sin stock." });
+        if (rows[0].stock <= 0) {
+            return res.status(400).json({ error: "No hay stock disponible en esta prenda." });
         }
 
-        // Calculamos el nuevo stock exacto antes de insertarlo
-        const nuevoStock = stockActual - 1;
-
-        await pool.query(
-            'UPDATE clothing_sizes SET stock = ? WHERE product_id = ? AND size = ?',
-            [nuevoStock, idRopa, talleRopa]
+        // Ejecutar la resta directa
+        const [result] = await pool.query(
+            'UPDATE clothing_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ? AND stock > 0',
+            [idRopa, talleRopa]
         );
 
-        res.json({ success: true, message: "Stock de ropa actualizado" });
+        if (result.affectedRows === 0) {
+            return res.status(400).json({ error: "No se pudo actualizar el stock de ropa." });
+        }
+
+        res.json({ success: true, message: "Stock de ropa actualizado correctamente" });
     } catch (err) {
-        console.error("Error en venta de ropa:", err);
-        res.status(500).json({ error: "Error al actualizar stock de ropa" });
+        console.error("Error crítico en ropa:", err);
+        res.status(500).json({ error: "Error interno del servidor", detalle: err.message });
     }
 });
 
