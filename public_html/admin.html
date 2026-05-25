@@ -174,7 +174,7 @@
             <section id="sec-productos" class="admin-section">
                 <div class="section-header">
                     <h3>Gestión de Productos</h3>
-                    <button class="btn-nuevo" onclick="abrirModal('modalProducto')">+ Nuevo Producto</button>
+                    <button class="btn-nuevo" onclick="abrirModalProductoNuevo()">+ Nuevo Producto</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table class="admin-table">
@@ -280,12 +280,8 @@
                 <div class="stock-container">
                     <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Talles y Stock:</label>
                     <div id="sizes-wrapper">
-                        <div class="size-row">
-                            <input type="text" class="size-input" placeholder="Talle (Ej: 40)" required>
-                            <input type="number" class="stock-input" placeholder="Cant." required>
-                            <button type="button" class="btn-size btn-add" onclick="agregarFilaTalle()">+</button>
                         </div>
-                    </div>
+                    <button type="button" class="btn-size btn-add" onclick="agregarFilaTalle()">+ Agregar Línea de Talle</button>
                 </div>
 
                 <label style="color: #888; font-size: 0.8rem;">Imágenes del Producto (Seleccioná hasta 5):</label>
@@ -435,18 +431,18 @@
 
                     // Cargar Talles dinámicos
                     const sizesWrapper = document.getElementById('sizes-wrapper');
-                    sizesWrapper.innerHTML = '';
-                    p.sizes.forEach(s => {
-                        const div = document.createElement('div');
-                        div.className = 'size-row';
-                        div.innerHTML = `<input type="text" class="size-input" value="${s.size}" required>
-                                        <input type="number" class="stock-input" value="${s.stock}" required>
-                                        <button type="button" class="btn-size btn-remove" onclick="this.parentElement.remove()">-</button>`;
-                        sizesWrapper.appendChild(div);
-                    });
+                        sizesWrapper.innerHTML = ''; // Limpiamos lo que haya quedado antes
 
-                    document.querySelector('#productForm .btn-cargar').innerText = "ACTUALIZAR ZAPATILLA";
-                    abrirModal('modalProducto');
+                        if (p.sizes && p.sizes.length > 0) {
+                            p.sizes.forEach(s => {
+                                agregarFilaTalle(s.size, s.stock); // Reconstruye cada talle guardado con su botón "-"
+                            });
+                        } else {
+                            agregarFilaTalle('', ''); // Si no tiene talles, le deja una fila en blanco
+                        }
+
+                        document.querySelector('#productForm .btn-cargar').innerText = "ACTUALIZAR ZAPATILLA";
+                        abrirModal('modalProducto');
                 }
             } catch (e) { alert("Error al obtener datos"); }
         }
@@ -494,13 +490,13 @@
         function cerrarModal(id) { document.getElementById(id).style.display = "none"; }
 
         // --- FUNCIONES DINÁMICAS (TALLES Y COLORES) ---
-        function agregarFilaTalle() {
+        function agregarFilaTalle(size = '', stock = '') {
             const wrapper = document.getElementById('sizes-wrapper');
             const div = document.createElement('div');
             div.className = 'size-row';
             div.innerHTML = `
-                <input type="text" class="size-input" placeholder="Talle" required>
-                <input type="number" class="stock-input" placeholder="Cant." required>
+                <input type="text" class="size-input" placeholder="Talle (Ej: 40)" value="${size}" required>
+                <input type="number" class="stock-input" placeholder="Cant." value="${stock}" min="0" required>
                 <button type="button" class="btn-size btn-remove" onclick="this.parentElement.remove()">-</button>
             `;
             wrapper.appendChild(div);
@@ -856,6 +852,8 @@
         function abrirModalProductoNuevo() {
             editandoId = null;
             document.getElementById('productForm').reset();
+            document.getElementById('sizes-wrapper').innerHTML = ''; // Limpiar residuos anteriores
+            agregarFilaTalle('', ''); // Deja una fila vacía inicial lista para rellenar
             document.querySelector('#productForm .btn-cargar').innerText = "PUBLICAR PRODUCTO";
             abrirModal('modalProducto');
         }
