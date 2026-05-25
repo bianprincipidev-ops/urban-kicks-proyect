@@ -8,10 +8,6 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const app = express();
-const axios = require('axios');
-
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 // --- CONFIGURACIONES ---
 app.use(express.json()); 
@@ -572,8 +568,8 @@ app.get('/api/ropa/:id', async (req, res) => {
         producto.sizes = sizes;
         producto.colors = colors;
         res.json(producto);
-    } catch (err) {
-        res.status(500).json({ error: 'Error al obtener producto' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
