@@ -413,7 +413,7 @@ app.post('/api/login', async (req, res) => {
             // Creamos un token real firmado con tu clave para que el frontend no lo rechace
             const token = jwt.sign(
                 { id: 999, role: 'admin' }, 
-                process.env.JWT_SECRET || 'secret_key', 
+                process.env.JWT_SECRET, 
                 { expiresIn: '24h' }
             );
 
@@ -440,7 +440,7 @@ app.post('/api/login', async (req, res) => {
 
         const token = jwt.sign(
             { id: user.id, role: userRole }, 
-            process.env.JWT_SECRET || 'secret_key', 
+            process.env.JWT_SECRET, 
             { expiresIn: '24h' }
         );
 
@@ -476,15 +476,42 @@ app.post('/api/registro', async (req, res) => {
 app.get('/api/usuario/perfil', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ error: "No autorizado" });
+    
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // === 🚨 CONTROL DE EMERGENCIA PARA PERFIL DE ADMIN ===
+        if (decoded.id === 999 || decoded.role === 'admin') {
+            console.log("👤 Sirviendo perfil simulado para el Administrador Supremo.");
+            return res.json({ 
+                id: 999, 
+                username: 'AdminUrban', 
+                role: 'admin',
+                full_name: 'Administrador Urban Kicks',
+                dni: '00000000',
+                email: 'admin_urban@gmail.com',
+                phone: '1100000000',
+                address: 'Panel de Control',
+                postal_code: '1000',
+                city: 'CABA',
+                province: 'Buenos Aires',
+                avatar_url: ''
+            });
+        }
+        // ====================================================
+
+        // Flujo normal para el resto de los usuarios reales en la base de datos:
         const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Usuario no encontrado en la base de datos." });
+        }
+        
         const u = rows[0];
         res.json({ 
             id: u.id, 
-            username: u.username, 
+            username: u.username || 'Usuario', 
             role: u.role || (u.is_admin === 1 ? 'admin' : 'user'),
-            // Agregás todos los campos que usa el formulario
             full_name: u.full_name || '',
             dni: u.dni || '',
             email: u.email || '',
@@ -496,7 +523,8 @@ app.get('/api/usuario/perfil', async (req, res) => {
             avatar_url: u.avatar_url || ''
         });
     } catch (error) {
-        res.status(401).json({ error: "Sesión inválida" });
+        console.error("Error en la lectura del perfil:", error);
+        res.status(401).json({ error: "Sesión inválida o expirada." });
     }
 });
 
