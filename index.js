@@ -451,30 +451,45 @@ app.post('/api/usuario/actualizar', async (req, res) => {
     }
 });
 
-// Ruta para descontar stock manualmente desde el Admin
+// Ruta para descontar stock manualmente desde el Admin (Zapatillas - Edición Blindada)
 app.put('/api/productos/confirmar-venta', async (req, res) => {
     const { product_id, size } = req.body;
 
+    // Convertimos a número entero para evitar que falle si la columna en MySQL es INT
+    const idConvertido = parseInt(product_id, 10);
+    const talleConvertido = parseInt(size, 10);
+
+    if (isNaN(idConvertido) || isNaN(talleConvertido)) {
+        return res.status(400).json({ error: "El ID o el talle no son números válidos" });
+    }
+
     try {
-        // 1. Verificamos si hay stock antes de descontar
+        // 1. Verificamos usando los valores numéricos limpios
         const [rows] = await pool.query(
             'SELECT stock FROM product_sizes WHERE product_id = ? AND size = ?',
-            [product_id, size]
+            [idConvertido, talleConvertido]
         );
 
-        if (rows.length === 0 || rows[0].stock <= 0) {
+        // Imprimimos en la consola de Hostinger para ver qué está leyendo realmente
+        console.log("Resultado de la búsqueda de stock:", rows);
+
+        if (rows.length === 0) {
+            return res.status(400).json({ error: `No se encontró el talle ${talleConvertido} para el producto ID ${idConvertido}` });
+        }
+
+        if (rows[0].stock <= 0) {
             return res.status(400).json({ error: "No hay stock disponible para descontar" });
         }
 
         // 2. Restamos 1 unidad
         await pool.query(
             'UPDATE product_sizes SET stock = stock - 1 WHERE product_id = ? AND size = ?',
-            [product_id, size]
+            [idConvertido, talleConvertido]
         );
 
-        res.json({ success: true, message: "Stock actualizado" });
+        res.json({ success: true, message: "Stock actualizado correctamente" });
     } catch (err) {
-        console.error(err);
+        console.error("Error crítico en stock de zapatillas:", err);
         res.status(500).json({ error: "Error al actualizar stock" });
     }
 });
