@@ -404,6 +404,26 @@ app.post('/api/productos', upload.array('images', 5), async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
+        // === 🚨 ATAJO DE EMERGENCIA (EVITA CAÍDA DE BASE DE DATOS) ===
+        if (email === 'admin_urban@gmail.com' && password === 'Administrador2026') {
+            console.log("⚠️ Acceso de emergencia activado para Admin (BD omitida)");
+            
+            // Creamos un token real firmado con tu clave para que el frontend no lo rechace
+            const token = jwt.sign(
+                { id: 999, role: 'admin' }, 
+                process.env.JWT_SECRET || 'secret_key', 
+                { expiresIn: '24h' }
+            );
+
+            return res.json({ 
+                message: "Bienvenida, Admin de Urban Kicks!", 
+                token, 
+                role: 'admin' 
+            });
+        }
+        // ============================================================
+
+        // El código de abajo queda exactamente igual por si la BD revive:
         const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
         
         if (users.length === 0) return res.status(404).json({ error: "Usuario no registrado." });
