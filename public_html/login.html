@@ -76,11 +76,16 @@
     </div>
 
 <script>
-    document.getElementById('login-form').onsubmit = ejecutarLogin;
+    // Asignación del formulario
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.onsubmit = ejecutarLogin;
+    }
+
     function enviarCodigo() { enviarCodigoRecuperacion(); }
     function cambiarPassword() { cambiarPasswordRecuperacion(); }
 
-    // Lógica del ojito (Corregida)
+    // Lógica del ojito
     const togglePassword = document.querySelector('#togglePassword');
     const passwordField = document.querySelector('#password'); 
 
@@ -93,11 +98,11 @@
         });
     }
 
-    // === FUNCIÓN DE LOGIN CON REDIRECCIÓN DE ROL ===
+    // === FUNCIÓN DE LOGIN ===
     async function ejecutarLogin(e) {
-        e.preventDefault(); // Evitamos que la página se recargue sola
+        e.preventDefault(); 
 
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
 
         try {
@@ -110,20 +115,18 @@
             const data = await response.json();
 
             if (response.ok && data.token) {
-                // 1. Guardamos el token y el rol de manera limpia en el navegador
+                // Guardamos los datos de sesión de forma obligatoria
                 localStorage.setItem('urban_token', data.token);
-                localStorage.setItem('urban_role', data.role); // Guarda 'admin' o 'user'
+                localStorage.setItem('urban_role', data.role); 
 
-                // 2. Aplicamos tu regla estricta de redirección
+                // Redirección estricta verificando la respuesta del backend
                 if (data.role === 'admin') {
-                    // Si es Admin, entra de una al panel de control
-                    window.location.href = '/admin';
+                    // Usamos la ruta limpia completa para evitar el rebote del middleware
+                    window.location.href = 'https://urbankicks.com.ar/admin';
                 } else {
-                    // Si es usuario común, va a la tienda sin ver nada de administración
-                    window.location.href = '/index.html';
+                    window.location.href = 'https://urbankicks.com.ar/tienda';
                 }
             } else {
-                // Si el backend tiró error (usuario no registrado, etc)
                 alert(data.error || 'Error al iniciar sesión.');
             }
 
@@ -139,7 +142,8 @@
         
         if (token) {
             localStorage.setItem('urban_token', token);
-            window.location.href = '/index.html'; 
+            // Si entra por Google, asumimos usuario común y va a la tienda
+            window.location.href = 'https://urbankicks.com.ar/tienda'; 
         }
     };
 </script>
