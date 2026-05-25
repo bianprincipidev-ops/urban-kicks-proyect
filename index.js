@@ -5,7 +5,7 @@ const multer = require('multer');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 const app = express();
 const axios = require('axios');
@@ -190,7 +190,8 @@ app.get('/api/productos', async (req, res) => {
 
         res.json(productos);
     } catch (error) {
-        res.status(500).json({ error: 'Error interno.' });
+        console.error("❌ ERROR CRÍTICO EN PRODUCTOS:", error); // <-- ESTO ES LO QUE FALTA
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -216,7 +217,8 @@ app.get('/api/promociones', async (req, res) => {
         const [rows] = await pool.query('SELECT * FROM promotions ORDER BY id DESC');
         res.json(rows);
     } catch (error) {
-        res.status(500).json({ error: 'Error al cargar promociones' });
+        console.error("❌ ERROR CRÍTICO EN PRODUCTOS:", error); // <-- ESTO ES LO QUE FALTA
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -698,8 +700,9 @@ app.get('/api/ropa', async (req, res) => {
             p.colors = colors;
         }
         res.json(productos);
-    } catch (err) {
-        res.status(500).json({ error: 'Error al obtener productos de ropa' });
+    } catch (error) {
+        console.error("❌ ERROR CRÍTICO EN PRODUCTOS:", error); // <-- ESTO ES LO QUE FALTA
+        res.status(500).json({ error: error.message });
     }
 });
 
