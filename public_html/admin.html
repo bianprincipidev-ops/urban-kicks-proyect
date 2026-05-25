@@ -259,13 +259,14 @@
                 <textarea id="description" placeholder="Descripción" rows="2"></textarea>
                 <input type="number" id="price" placeholder="Precio ($)" required>
                 
-                <div style="margin-bottom: 10px;">
-                    <select id="category_id" required style="width: 100%; padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 5px;">
-                        <option value="1">Urbano</option>
-                        <option value="4">Hombre</option>      
-                        <option value="3">Mujer</option>       
-                        <option value="2">Deportivas</option>
-                    </select>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 8px;">Categorías aplicables:</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px; background: #222; padding: 10px; border: 1px solid #444; border-radius: 5px;">
+                        <label style="color: white; cursor: pointer;"><input type="checkbox" class="cat-checkbox" value="1"> Urbano</label>
+                        <label style="color: white; cursor: pointer;"><input type="checkbox" class="cat-checkbox" value="4"> Hombre</label>
+                        <label style="color: white; cursor: pointer;"><input type="checkbox" class="cat-checkbox" value="3"> Mujer</label>
+                        <label style="color: white; cursor: pointer;"><input type="checkbox" class="cat-checkbox" value="2"> Deportivas</label>
+                    </div>
                 </div>
 
                 <div class="stock-container">
@@ -415,7 +416,15 @@
                     document.getElementById('name').value = p.name;
                     document.getElementById('description').value = p.description;
                     document.getElementById('price').value = p.price;
-                    document.getElementById('category_id').value = p.category_id;
+                    
+                    // 🚀 REEMPLAZADO AQUÍ: Control de checkboxes para multicategoría
+                    document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = false);
+                    if (p.categories) {
+                        p.categories.forEach(catId => {
+                            const checkbox = document.querySelector(`.cat-checkbox[value="${catId}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
                     
                     // Cargar Colores dinámicos
                     const colorsWrapper = document.getElementById('colors-wrapper');
@@ -672,7 +681,14 @@
             formData.append('name', document.getElementById('name').value);
             formData.append('description', document.getElementById('description').value);
             formData.append('price', document.getElementById('price').value);
-            formData.append('category_id', document.getElementById('category_id').value);
+            
+            // Juntamos los checkboxes tildados en vez del select viejo
+            let selectedCategories = [];
+            document.querySelectorAll('.cat-checkbox:checked').forEach(cb => {
+                selectedCategories.push(parseInt(cb.value, 10));
+            });
+            formData.append('categories', JSON.stringify(selectedCategories));
+
             formData.append('sizes', JSON.stringify(sizesData));
             formData.append('colors', JSON.stringify(colorsData));
 
