@@ -84,74 +84,7 @@ app.get('/detalle-ropa', (req, res) => res.sendFile(path.join(__dirname, 'public
 
 // --- RUTAS DE API ---
 
-// 1. Ruta para iniciar el login
-app.get('/api/auth/google', (req, res) => {
-    const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
-    const options = {
-        redirect_uri: 'https://urbankicks.com.ar/api/auth/google/callback',
-        client_id: GOOGLE_CLIENT_ID,
-        access_type: 'offline',
-        response_type: 'code',
-        prompt: 'consent',
-        scope: [
-            'https://www.googleapis.com/auth/userinfo.profile',
-            'https://www.googleapis.com/auth/userinfo.email',
-        ].join(' '),
-    };
-    res.redirect(`${rootUrl}?${new URLSearchParams(options).toString()}`);
-});
-
-// 2. Callback: Google nos devuelve el código
-app.get('/api/auth/google/callback', async (req, res) => {
-    const { code } = req.query;
-
-    try {
-        // Intercambiar código por tokens
-        const { data } = await axios.post('https://oauth2.googleapis.com/token', {
-            code,
-            client_id: GOOGLE_CLIENT_ID,
-            client_secret: GOOGLE_CLIENT_SECRET,
-            redirect_uri: 'https://urbankicks.com.ar/api/auth/google/callback',
-            grant_type: 'authorization_code',
-        });
-
-        // Obtener info del usuario desde Google
-        const { data: profile } = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
-            headers: { Authorization: `Bearer ${data.access_token}` },
-        });
-
-        const email = profile.email;
-        const nombre = profile.name;
-
-        // BUSCAR O CREAR USUARIO EN TU DB
-        // Asumimos que tenés una tabla 'users'
-        const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
-        
-        let user;
-        if (rows.length === 0) {
-            // Si no existe, lo registramos (sin password, ya que es vía Google)
-            const [result] = await pool.query(
-                "INSERT INTO users (name, email, google_user) VALUES (?, ?, ?)",
-                [nombre, email, 1]
-            );
-            user = { id: result.insertId, email, name: nombre };
-        } else {
-            user = rows[0];
-        }
-
-        // Generar tu JWT (el que ya usas para el login normal)
-        const token = jwt.sign({ id: user.id, email: user.email }, 'TU_JWT_SECRET', { expiresIn: '24h' });
-
-        // Redirigir al frontend con el token
-        res.redirect(`https://urbankicks.com.ar/login.html?token=${token}`);
-
-    } catch (error) {
-        console.error("Error en Google Auth:", error);
-        res.redirect('/login.html?error=google_failed');
-    }
-});
-
-// Obtener producto por ID (Actualizado para incluir talles)
+// Obtener producto por ID
 app.get('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -159,38 +92,32 @@ app.get('/api/productos/:id', async (req, res) => {
         if (rows.length === 0) return res.status(404).json({ error: "No encontrado" });
 
         const producto = rows[0];
-
-        // Traer Talles
         const [talles] = await pool.query('SELECT size, stock FROM product_sizes WHERE product_id = ? AND stock > 0', [id]);
         producto.sizes = talles;
 
-        // NUEVO: Traer Colores de la tabla product_colors
         const [colores] = await pool.query('SELECT color_name FROM product_colors WHERE product_id = ?', [id]);
-        producto.colors = colores; // Ahora es una lista
+        producto.colors = colores;
 
         res.json(producto);
     } catch (error) {
-        res.status(500).json({ error: 'Error' });
+        res.status(500).json({ error: error.message });
     }
 });
 
+// OBTENER TODOS LOS PRODUCTOS
 app.get('/api/productos', async (req, res) => {
     try {
         const [productos] = await pool.query('SELECT * FROM products ORDER BY id DESC');
-
         for (let i = 0; i < productos.length; i++) {
-            // Vincular Talles
             const [talles] = await pool.query('SELECT size, stock FROM product_sizes WHERE product_id = ?', [productos[i].id]);
             productos[i].sizes = talles;
 
-            // NUEVO: Vincular Colores
             const [colores] = await pool.query('SELECT color_name FROM product_colors WHERE product_id = ?', [productos[i].id]);
             productos[i].colors = colores;
         }
-
         res.json(productos);
     } catch (error) {
-        console.error("❌ ERROR CRÍTICO EN PRODUCTOS:", error); // <-- ESTO ES LO QUE FALTA
+        console.error("❌ ERROR CRÍTICO EN GET PRODUCTOS:", error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -207,7 +134,7 @@ app.post('/api/promociones/nuevo', upload.single('imagen'), async (req, res) => 
         );
         res.json({ success: true, message: "Promoción guardada correctamente" });
     } catch (error) {
-        res.status(500).json({ error: "Error al guardar" });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -217,7 +144,7 @@ app.get('/api/promociones', async (req, res) => {
         const [rows] = await pool.query('SELECT * FROM promotions ORDER BY id DESC');
         res.json(rows);
     } catch (error) {
-        console.error("❌ ERROR CRÍTICO EN PRODUCTOS:", error); // <-- ESTO ES LO QUE FALTA
+        console.error("❌ ERROR CRÍTICO EN PROMOS:", error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -226,71 +153,46 @@ app.get('/api/promociones', async (req, res) => {
 app.delete('/api/productos/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        // Opcional: Borrar colores manualmente si no usaste CASCADE
         await pool.query('DELETE FROM product_colors WHERE product_id = ?', [id]);
-        
         await pool.query('DELETE FROM product_sizes WHERE product_id = ?', [id]);
-        const [result] = await pool.query('DELETE FROM products WHERE id = ?', [id]);
-        
+        await pool.query('DELETE FROM products WHERE id = ?', [id]);
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: "Error al eliminar" });
+        res.status(500).json({ error: error.message });
     }
 });
 
 // Agregá 'upload.array('images')' (o como se llame tu config de multer)
 app.put('/api/productos/:id', upload.array('images'), async (req, res) => {
     const { id } = req.params;
-    
-    // Ahora req.body YA NO va a ser undefined porque Multer lo procesó
     const { name, description, price, category_id, sizes, colors } = req.body;
-
     try {
-        // Validar que los datos llegaron
-        if (!name) {
-            return res.status(400).json({ error: "Faltan datos en el formulario (name)" });
-        }
+        if (!name) return res.status(400).json({ error: "Faltan datos (name)" });
+        await pool.query("UPDATE products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?", [name, description, price, category_id, id]);
 
-        // 1. Actualizar datos básicos
-        await pool.query(
-            "UPDATE products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?",
-            [name, description, price, category_id, id]
-        );
-
-        // --- Lógica de imágenes (Opcional por si suben fotos nuevas al editar) ---
         if (req.files && req.files.length > 0) {
             const nuevasImagenes = req.files.map(f => `/uploads/${f.filename}`).join(',');
             await pool.query("UPDATE products SET image_url = ? WHERE id = ?", [nuevasImagenes, id]);
         }
 
-        // 2. Actualizar Talles
         if (sizes) {
             await pool.query("DELETE FROM product_sizes WHERE product_id = ?", [id]);
             const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
             for (let item of parsedSizes) {
-                await pool.query(
-                    'INSERT INTO product_sizes (product_id, size, stock) VALUES (?, ?, ?)',
-                    [id, item.size, item.stock]
-                );
+                await pool.query('INSERT INTO product_sizes (product_id, size, stock) VALUES (?, ?, ?)', [id, item.size, item.stock]);
             }
         }
 
-        // 3. Actualizar Colores
         if (colors) {
             await pool.query("DELETE FROM product_colors WHERE product_id = ?", [id]);
             const parsedColors = typeof colors === 'string' ? JSON.parse(colors) : colors;
             for (let colorName of parsedColors) {
-                await pool.query(
-                    'INSERT INTO product_colors (product_id, color_name) VALUES (?, ?)',
-                    [id, colorName]
-                );
+                await pool.query('INSERT INTO product_colors (product_id, color_name) VALUES (?, ?)', [id, colorName]);
             }
         }
-
-        res.json({ success: true, message: "Producto actualizado con éxito" });
+        res.json({ success: true, message: "Producto actualizado" });
     } catch (error) {
-        console.error("Error detallado en edición:", error);
-        res.status(500).json({ error: "Error interno al actualizar" });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -353,52 +255,36 @@ app.delete('/api/promociones/:id', async (req, res) => {
     }
 });
 
-// RUTA ACTUALIZADA: SOPORTA MÚLTIPLES IMÁGENES Y NUEVAS CATEGORÍAS
+// Guardar nuevo producto
 app.post('/api/productos', upload.array('images', 5), async (req, res) => {
-    // Agregamos 'colors' a la desestructuración
     const { name, description, price, category_id, sizes, colors } = req.body;
-    
-    if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: "Debes subir al menos una imagen." });
-    }
-
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: "Debes subir al menos una imagen." });
     const image_url = req.files.map(f => `/uploads/${f.filename}`).join(',');
     
     try {
-        // 1. Insertamos el producto (eliminamos la columna 'color' fija si ya creaste la tabla nueva)
         const [result] = await pool.query(
             'INSERT INTO products (name, description, price, image_url, category_id) VALUES (?, ?, ?, ?, ?)',
             [name, description, price, image_url, category_id]
         );
-
         const newProductId = result.insertId;
 
-        // 2. Insertamos los talles (Tu lógica actual)
         if (sizes && sizes !== "[]") {
             const parsedSizes = JSON.parse(sizes); 
             for (let item of parsedSizes) {
-                await pool.query(
-                    'INSERT INTO product_sizes (product_id, size, stock) VALUES (?, ?, ?)',
-                    [newProductId, item.size, item.stock]
-                );
+                await pool.query('INSERT INTO product_sizes (product_id, size, stock) VALUES (?, ?, ?)', [newProductId, item.size, item.stock]);
             }
         }
 
-        // 3. NUEVO: Insertamos los colores en la tabla product_colors
         if (colors && colors !== "[]") {
             const parsedColors = JSON.parse(colors);
             for (let colorName of parsedColors) {
-                await pool.query(
-                    'INSERT INTO product_colors (product_id, color_name) VALUES (?, ?)',
-                    [newProductId, colorName]
-                );
+                await pool.query('INSERT INTO product_colors (product_id, color_name) VALUES (?, ?)', [newProductId, colorName]);
             }
         }
-
         res.json({ success: true, id: newProductId });
-    } catch (err) {
-        console.error("Error al cargar producto:", err);
-        res.status(500).json({ error: "Error al guardar el producto." });
+    } catch (error) {
+        console.error("❌ ERROR CRÍTICO EN POST PRODUCTOS:", error);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -406,54 +292,24 @@ app.post('/api/productos', upload.array('images', 5), async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        // === 🚨 ATAJO DE EMERGENCIA (EVITA CAÍDA DE BASE DE DATOS) ===
         if (email === 'admin_urban@gmail.com' && password === 'Administrador2026') {
-            console.log("⚠️ Acceso de emergencia activado para Admin (BD omitida)");
-            
-            // Creamos un token real firmado con tu clave para que el frontend no lo rechace
-            const token = jwt.sign(
-                { id: 999, role: 'admin' }, 
-                process.env.JWT_SECRET, 
-                { expiresIn: '24h' }
-            );
-
-            return res.json({ 
-                message: "Bienvenida, Admin de Urban Kicks!", 
-                token, 
-                role: 'admin' 
-            });
+            const token = jwt.sign({ id: 999, role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '24h' });
+            return res.json({ message: "Bienvenida, Admin!", token, role: 'admin' });
         }
-        // ============================================================
 
-        // El código de abajo queda exactamente igual por si la BD revive:
         const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-        
         if (users.length === 0) return res.status(404).json({ error: "Usuario no registrado." });
         
         const user = users[0];
         const validPassword = await bcrypt.compare(password, user.password);
-        
         if (!validPassword) return res.status(401).json({ error: "Credenciales inválidas." });
 
-        // rol DIRECTO de la base de datos
         const userRole = user.role || (user.is_admin === 1 ? 'admin' : 'user');
+        const token = jwt.sign({ id: user.id, role: userRole }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
-        const token = jwt.sign(
-            { id: user.id, role: userRole }, 
-            process.env.JWT_SECRET, 
-            { expiresIn: '24h' }
-        );
-
-        // Enviamos el token y el rol al frontend
-        res.json({ 
-            message: "Login exitoso", 
-            token, 
-            role: userRole 
-        });
-
+        res.json({ message: "Login exitoso", token, role: userRole });
     } catch (error) {
-        console.error("Error en Login:", error);
-        res.status(500).json({ error: "Error interno." });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -476,55 +332,26 @@ app.post('/api/registro', async (req, res) => {
 app.get('/api/usuario/perfil', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ error: "No autorizado" });
-    
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // === 🚨 CONTROL DE EMERGENCIA PARA PERFIL DE ADMIN ===
         if (decoded.id === 999 || decoded.role === 'admin') {
-            console.log("👤 Sirviendo perfil simulado para el Administrador Supremo.");
             return res.json({ 
-                id: 999, 
-                username: 'AdminUrban', 
-                role: 'admin',
-                full_name: 'Administrador Urban Kicks',
-                dni: '00000000',
-                email: 'admin_urban@gmail.com',
-                phone: '1100000000',
-                address: 'Panel de Control',
-                postal_code: '1000',
-                city: 'CABA',
-                province: 'Buenos Aires',
-                avatar_url: ''
+                id: 999, username: 'AdminUrban', role: 'admin', full_name: 'Administrador Urban Kicks',
+                dni: '00000000', email: 'admin_urban@gmail.com', phone: '1100000000', address: 'Panel',
+                postal_code: '1000', city: 'CABA', province: 'Buenos Aires', avatar_url: ''
             });
         }
-        // ====================================================
 
-        // Flujo normal para el resto de los usuarios reales en la base de datos:
         const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
-        
-        if (rows.length === 0) {
-            return res.status(404).json({ error: "Usuario no encontrado en la base de datos." });
-        }
-        
+        if (rows.length === 0) return res.status(404).json({ error: "No encontrado" });
         const u = rows[0];
         res.json({ 
-            id: u.id, 
-            username: u.username || 'Usuario', 
-            role: u.role || (u.is_admin === 1 ? 'admin' : 'user'),
-            full_name: u.full_name || '',
-            dni: u.dni || '',
-            email: u.email || '',
-            phone: u.phone || '',
-            address: u.address || '',
-            postal_code: u.postal_code || '',
-            city: u.city || '',
-            province: u.province || '',
-            avatar_url: u.avatar_url || ''
+            id: u.id, username: u.username || 'Usuario', role: u.role || (u.is_admin === 1 ? 'admin' : 'user'),
+            full_name: u.full_name || '', dni: u.dni || '', email: u.email || '', phone: u.phone || '',
+            address: u.address || '', postal_code: u.postal_code || '', city: u.city || '', province: u.province || '', avatar_url: u.avatar_url || ''
         });
     } catch (error) {
-        console.error("Error en la lectura del perfil:", error);
-        res.status(401).json({ error: "Sesión inválida o expirada." });
+        res.status(401).json({ error: "Sesión inválida" });
     }
 });
 
@@ -700,13 +527,13 @@ app.post('/api/admin/talles', upload.single('imagen_talle'), async (req, res) =>
 
 // --- API PARA ROPA ---
 
-// OBTENER CATEGORÍAS DE ROPA
+// --- API PARA ROPA ---
 app.get('/api/ropa/categorias', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM clothing_categories ORDER BY nombre ASC');
         res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: 'Error al obtener categorías' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -729,7 +556,7 @@ app.get('/api/ropa', async (req, res) => {
         }
         res.json(productos);
     } catch (error) {
-        console.error("❌ ERROR CRÍTICO EN PRODUCTOS:", error); // <-- ESTO ES LO QUE FALTA
+        console.error("❌ ERROR CRÍTICO EN ROPA:", error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -772,8 +599,8 @@ app.post('/api/ropa', upload.array('images', 5), async (req, res) => {
             }
         }
         res.json({ success: true, id: newId });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -782,8 +609,8 @@ app.delete('/api/ropa/:id', async (req, res) => {
     try {
         await pool.query('DELETE FROM clothing_products WHERE id = ?', [req.params.id]);
         res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: 'Error al eliminar' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
