@@ -141,7 +141,7 @@ app.put('/api/productos/confirmar-venta', manejarConfirmarVenta);
 app.post('/api/ropa/confirmar-venta', manejarConfirmarVenta);
 app.put('/api/ropa/confirmar-venta', manejarConfirmarVenta);
 
-// Obtener producto por ID
+// 1. OBTENER PRODUCTO POR ID (CON SOPORTE MULTICATEGORÍA)
 app.get('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -149,6 +149,11 @@ app.get('/api/productos/:id', async (req, res) => {
         if (rows.length === 0) return res.status(404).json({ error: "No encontrado" });
 
         const producto = rows[0];
+        
+        // CORRECCIÓN: Traer todas las categorías asociadas al producto desde la tabla intermedia
+        const [cats] = await pool.query('SELECT category_id FROM product_categories_map WHERE product_id = ?', [id]);
+        producto.categories = cats.map(c => c.category_id); // Devolvemos un array plano: [1, 3]
+
         const [talles] = await pool.query('SELECT size, stock FROM product_sizes WHERE product_id = ? AND stock > 0', [id]);
         producto.sizes = talles;
 
@@ -161,11 +166,15 @@ app.get('/api/productos/:id', async (req, res) => {
     }
 });
 
-// OBTENER TODOS LOS PRODUCTOS
+// 2. OBTENER TODOS LOS PRODUCTOS (CON SOPORTE MULTICATEGORÍA)
 app.get('/api/productos', async (req, res) => {
     try {
         const [productos] = await pool.query('SELECT * FROM products ORDER BY id DESC');
         for (let i = 0; i < productos.length; i++) {
+            // CORRECCIÓN: Adjuntar el array de categorías correspondientes a cada ítem
+            const [cats] = await pool.query('SELECT category_id FROM product_categories_map WHERE product_id = ?', [productos[i].id]);
+            productos[i].categories = cats.map(c => c.category_id);
+
             const [talles] = await pool.query('SELECT size, stock FROM product_sizes WHERE product_id = ?', [productos[i].id]);
             productos[i].sizes = talles;
 
@@ -219,17 +228,30 @@ app.delete('/api/productos/:id', async (req, res) => {
     }
 });
 
-// Agregá 'upload.array('images')' (o como se llame tu config de multer)
+// 3. EDITAR PRODUCTO (CON MULTICATEGORÍA)
 app.put('/api/productos/:id', upload.array('images'), async (req, res) => {
     const { id } = req.params;
-    const { name, description, price, category_id, sizes, colors } = req.body;
+    // Recibimos 'categories' que vendrá mapeado como un JSON stringificado
+    const { name, description, price, categories, sizes, colors } = req.body;
     try {
         if (!name) return res.status(400).json({ error: "Faltan datos (name)" });
-        await pool.query("UPDATE products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?", [name, description, price, category_id, id]);
+        
+        // Mantenemos la actualización base (seteamos un valor fallback en category_id por retrocompatibilidad)
+        const primerCat = categories ? (typeof categories === 'string' ? JSON.parse(categories)[0] : categories[0]) : null;
+        await pool.query("UPDATE products SET name = ?, description = ?, price = ?, category_id = ? WHERE id = ?", [name, description, price, primerCat, id]);
 
         if (req.files && req.files.length > 0) {
             const nuevasImagenes = req.files.map(f => `/uploads/${f.filename}`).join(',');
             await pool.query("UPDATE products SET image_url = ? WHERE id = ?", [nuevasImagenes, id]);
+        }
+
+        // CORRECCIÓN MULTICATEGORÍA: Borrar asociaciones viejas e insertar los nuevos mapeos
+        if (categories) {
+            await pool.query("DELETE FROM product_categories_map WHERE product_id = ?", [id]);
+            const parsedCategories = typeof categories === 'string' ? JSON.parse(categories) : categories;
+            for (let catId of parsedCategories) {
+                await pool.query('INSERT INTO product_categories_map (product_id, category_id) VALUES (?, ?)', [id, catId]);
+            }
         }
 
         if (sizes) {
@@ -312,18 +334,26 @@ app.delete('/api/promociones/:id', async (req, res) => {
     }
 });
 
-// Guardar nuevo producto
+// 4. CREAR NUEVO PRODUCTO (CON MULTICATEGORÍA)
 app.post('/api/productos', upload.array('images', 5), async (req, res) => {
-    const { name, description, price, category_id, sizes, colors } = req.body;
+    const { name, description, price, categories, sizes, colors } = req.body;
     if (!req.files || req.files.length === 0) return res.status(400).json({ error: "Debes subir al menos una imagen." });
     const image_url = req.files.map(f => `/uploads/${f.filename}`).join(',');
     
     try {
+        const parsedCategories = categories ? JSON.parse(categories) : [];
+        const primerCat = parsedCategories.length > 0 ? parsedCategories[0] : null;
+
         const [result] = await pool.query(
             'INSERT INTO products (name, description, price, image_url, category_id) VALUES (?, ?, ?, ?, ?)',
-            [name, description, price, image_url, category_id]
+            [name, description, price, image_url, primerCat]
         );
         const newProductId = result.insertId;
+
+        // CORRECCIÓN MULTICATEGORÍA: Insertar cada ID en la tabla intermedia
+        for (let catId of parsedCategories) {
+            await pool.query('INSERT INTO product_categories_map (product_id, category_id) VALUES (?, ?)', [newProductId, catId]);
+        }
 
         if (sizes && sizes !== "[]") {
             const parsedSizes = JSON.parse(sizes); 
