@@ -178,22 +178,28 @@
             // 3. Unimos todo
             let todos = [...zapasMapeadas, ...ropaMapeada];
 
-            // 4. Filtramos
-            // Si categoriaId es 'ropa', mostramos solo ropa. Si es un número, solo zapas de esa categoría.
+            // 4. Filtramos con soporte para Multicategoría
             let filtrados;
             if (categoriaId === 'todos') {
                 filtrados = todos;
             } else if (categoriaId === 'ropa') {
                 filtrados = ropaMapeada;
             } else {
-                filtrados = zapasMapeadas.filter(p => p.category_id == categoriaId);
+                // 🚀 CORRECCIÓN AQUÍ: Evaluamos si coincide con 'category_id' principal 
+                // O si el objeto p.categories (si lo manda tu backend como array) incluye el ID.
+                filtrados = zapasMapeadas.filter(p => {
+                    if (p.categories && Array.isArray(p.categories)) {
+                        return p.categories.map(Number).includes(Number(categoriaId));
+                    }
+                    // Si el backend no te manda el array mapeado todavía, usamos una lógica híbrida o comprobamos el mapeo:
+                    return p.category_id == categoriaId || (p.category_ids && p.category_ids.split(',').includes(categoriaId.toString()));
+                });
             }
 
             // 5. Renderizamos
             contenedor.innerHTML = filtrados.length === 0 ? '<p style="color: #888; text-align: center; width: 100%;">No hay productos disponibles.</p>' : '';
             
             filtrados.forEach(prod => {
-                // Esto toma siempre la primera foto, sea zapatilla o ropa con múltiples imágenes
                 const imagen = prod.image_url.split(',')[0]; 
                 contenedor.innerHTML += `
                     <div class="card">
